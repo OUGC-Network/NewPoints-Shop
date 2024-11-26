@@ -1,17 +1,17 @@
 <?php
+
 /***************************************************************************
  *
- *   NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/admin/newpoints_shop.php)
- *     Author: Diogo Parrinha
- *   Copyright: © 2009-2011 Diogo Parrinha
+ *    NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/admin/newpoints_shop.lang.php)
+ *    Author: Diogo Parrinha
+ *    Copyright: © 2009 Diogo Parrinha
  *
- *   Website: http://www.mybb-plugins.com
+ *    Website: https://ougc.network
  *
- *   Integrates a shop system with NewPoints.
+ *    Integrates a shop system with NewPoints.
  *
- ***************************************************************************/
-
-/****************************************************************************
+ ***************************************************************************
+ ****************************************************************************
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -29,6 +29,27 @@
 $l['newpoints_shop'] = 'Shop';
 $l['newpoints_shop_canmanage'] = 'Can manage Shop?';
 
+$l['setting_newpoints_shop_sendable'] = 'Send items';
+$l['setting_newpoints_shop_sendable_desc'] = 'Allow users to send items to other users.';
+$l['setting_newpoints_shop_sellable'] = 'Sell items';
+$l['setting_newpoints_shop_sellable_desc'] = 'Allow users to sell items.';
+$l['setting_newpoints_shop_lastpurchases'] = 'Last Purchases';
+$l['setting_newpoints_shop_lastpurchases_desc'] = 'Number of last purchases to show in statistics.';
+$l['setting_newpoints_shop_percent'] = 'Sell Percentage';
+$l['setting_newpoints_shop_percent_desc'] = 'The (discounted) rate at which items can be sold for.';
+$l['setting_newpoints_shop_viewothers'] = "Can View Others' inventories";
+$l['setting_newpoints_shop_viewothers_desc'] = "Allow users to view other users' inventories. Note, admins always are able to view other users' inventories.";
+$l['setting_newpoints_shop_itemsprofile'] = 'Items on profile';
+$l['setting_newpoints_shop_itemsprofile_desc'] = 'Number of items to show in profile page. Set to 0 to disable this feature.';
+$l['setting_newpoints_shop_itemspostbit'] = 'Items on postbit';
+$l['setting_newpoints_shop_itemspostbit_desc'] = 'Number of items to show in postbit. Set to 0 to disable this feature.';
+$l['setting_newpoints_shop_pmadmins'] = 'PM Admins';
+$l['setting_newpoints_shop_pmadmins_desc'] = 'Enter the user IDs of the users that get PMs whenever an item is bought (separated by a comma).';
+$l['setting_newpoints_shop_pm_default'] = 'Default PM';
+$l['setting_newpoints_shop_pm_default_desc'] = 'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
+$l['setting_newpoints_shop_pmadmin_default'] = 'Default Admin PM';
+$l['setting_newpoints_shop_pmadmin_default_desc'] = 'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
+
 // Tabs
 $l['newpoints_shop_categories'] = 'Categories';
 $l['newpoints_shop_categories_desc'] = 'Manage categories.';
@@ -39,13 +60,11 @@ $l['newpoints_shop_addcat'] = 'Add Category';
 $l['newpoints_shop_addcat_desc'] = 'Add a new category to the shop.';
 $l['newpoints_shop_editcat'] = 'Edit Category';
 $l['newpoints_shop_editcat_desc'] = 'Edit an existing category.';
-$l['newpoints_shop_deletecat'] = 'Delete Category';
 
 $l['newpoints_shop_additem'] = 'Add Item';
 $l['newpoints_shop_additem_desc'] = 'Add a new item to the shop.';
 $l['newpoints_shop_edititem'] = 'Edit Item';
 $l['newpoints_shop_edititem_desc'] = 'Edit an existing item.';
-$l['newpoints_shop_deleteitem'] = 'Delete Item';
 
 $l['newpoints_shop_inventory'] = 'Inventory';
 $l['newpoints_shop_inventory_desc'] = 'Browsing a user\'s inventory.';

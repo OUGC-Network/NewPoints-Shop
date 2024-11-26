@@ -1,0 +1,25 @@
+<head>
+    <title>{$lang->newpoints} - {$lang->newpoints_shop_action}</title>
+    {$headerinclude}
+</head>
+<body>
+{$header}
+<form action="newpoints.php?action=do_shop" method="POST">
+    <input type="hidden" name="postcode" value="{$mybb->post_code}">
+    <input type="hidden" name="shop_action" value="{$shop_action}">
+    {$fields}
+    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+        <tr>
+            <td class="thead" colspan="{$colspan}"><strong>{$lang->newpoints_shop_action}:</strong> {$item['name']}</td>
+        </tr>
+        <tr>
+            {$data}
+        </tr>
+        <tr>
+            <td class="tfoot" width="100%" align="center" colspan="{$colspan}"><input type="submit" name="submit" value="{$lang->newpoints_shop_confirm}"></td>
+        </tr>
+    </table>
+</form>
+{$footer}
+</body>
+</html>

@@ -1,17 +1,17 @@
 <?php
+
 /***************************************************************************
  *
- *   NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/newpoints_shop.php)
- *     Author: Diogo Parrinha
- *   Copyright: © 2009-2012 Diogo Parrinha
+ *    NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/newpoints_shop.lang.php)
+ *    Author: Diogo Parrinha
+ *    Copyright: © 2009 Diogo Parrinha
  *
- *   Website: http://www.mybb-plugins.com
+ *    Website: https://ougc.network
  *
- *   Integrates a shop system with NewPoints.
+ *    Integrates a shop system with NewPoints.
  *
- ***************************************************************************/
-
-/****************************************************************************
+ ***************************************************************************
+ ****************************************************************************
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or

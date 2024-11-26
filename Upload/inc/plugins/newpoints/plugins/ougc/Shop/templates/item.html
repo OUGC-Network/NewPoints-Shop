@@ -1,0 +1,17 @@
+<tr>
+    <td class="{$bgcolor}" width="1%" valign="middle" align="center">{$item['icon']}</td>
+    <td class="{$bgcolor}" valign="middle"><a
+            href="{$mybb->settings['bburl']}/newpoints.php?action=shop&amp;shop_action=view&amp;iid={$item['iid']}">{$item['name']}</a><br/><span
+            class="smalltext">{$item['description']}</span></td>
+    <td class="{$bgcolor}" width="20%" align="center" valign="middle">{$item['price']}</td>
+    <td class="{$bgcolor}" width="20%" align="center" valign="middle">{$item['stock']}</td>
+    <td class="{$bgcolor}" width="10%" align="center" valign="middle">
+        <form action="newpoints.php?action=do_shop&amp;shop_action=buy" method="POST"><input type="hidden"
+                                                                                             name="postcode"
+                                                                                             value="{$mybb->post_code}"><input
+                type="hidden" name="iid" value="{$item['iid']}"><input type="submit" name="buy"
+                                                                       value="{$lang->newpoints_shop_buy}"
+                                                                       onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');">
+        </form>
+    </td>
+</tr>

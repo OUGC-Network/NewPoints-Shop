@@ -1,0 +1,42 @@
+{
+  "sendable": {
+    "type": "yesno",
+    "value": 1
+  },
+  "sellable": {
+    "type": "yesno",
+    "value": 1
+  },
+  "lastpurchases": {
+    "type": "text",
+    "value": 10
+  },
+  "percent": {
+    "type": "text",
+    "value": "0.75"
+  },
+  "viewothers": {
+    "type": "yesno",
+    "value": 1
+  },
+  "itemsprofile": {
+    "type": "text",
+    "value": 5
+  },
+  "itemspostbit": {
+    "type": "text",
+    "value": 5
+  },
+  "pmadmins": {
+    "type": "text",
+    "value": 1
+  },
+  "pm_default": {
+    "type": "textarea",
+    "value": ""
+  },
+  "pmadmin_default": {
+    "type": "textarea",
+    "value": ""
+  }
+}

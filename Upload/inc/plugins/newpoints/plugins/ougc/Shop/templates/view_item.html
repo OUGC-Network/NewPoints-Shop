@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>{$lang->newpoints} - {$lang->newpoints_shop_view_item}</title>
+    {$headerinclude}
+</head>
+<body>
+{$header}
+<table width="100%" border="0" align="center">
+    <tr>
+        <td valign="top" width="180">
+            <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
+                   class="tborder">
+                <tr>
+                    <td class="thead"><strong>{$lang->newpoints_menu}</strong></td>
+                </tr>
+                {$options}
+            </table>
+        </td>
+        <td valign="top">
+            {$inline_errors}
+            <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
+                   class="tborder">
+                <tr>
+                    <td class="thead" width="100%"><strong>{$lang->newpoints_shop_view_item}:</strong> {$item['name']}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="trow1" width="100%">
+                        <div style="float: left; padding: 5px">{$item['icon']}</div>
+                        {$item['name']}<br/><span class="smalltext">{$item['description']}</span></td>
+                </tr>
+                <tr>
+                    <td class="trow2" width="100%"><strong>{$lang->newpoints_shop_price}:</strong> {$item['price']}</td>
+                </tr>
+                <tr>
+                    <td class="trow1" width="100%"><strong>{$lang->newpoints_shop_stock}:</strong> {$item['stock']}</td>
+                </tr>
+                <tr>
+                    <td class="trow2" width="100%"><strong>{$lang->newpoints_shop_sendable}:</strong>
+                        {$item['sendable']}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="trow1" width="100%"><strong>{$lang->newpoints_shop_sellable}:</strong>
+                        {$item['sellable']}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tfoot" width="100%" align="center" colspan="2">
+                        <form action="newpoints.php?action=do_shop&amp;shop_action=buy" method="POST"><input
+                                type="hidden" name="postcode" value="{$mybb->post_code}"><input type="hidden" name="iid"
+                                                                                                value="{$item['iid']}"><input
+                                type="submit" name="buy" value="{$lang->newpoints_shop_buy}"
+                                onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');"></form>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+{$footer}
+</body>
+</html>
