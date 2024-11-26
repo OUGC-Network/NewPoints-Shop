@@ -2,32 +2,32 @@
 /***************************************************************************
  *
  *   NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/admin/newpoints_shop.php)
- *	 Author: Diogo Parrinha
+ *     Author: Diogo Parrinha
  *   Copyright: © 2009-2011 Diogo Parrinha
- *   
+ *
  *   Website: http://www.mybb-plugins.com
  *
  *   Integrates a shop system with NewPoints.
  *
  ***************************************************************************/
- 
-/****************************************************************************
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
 
-$l['newpoints_shop'] = "Shop";
-$l['newpoints_shop_canmanage'] = "Can manage Shop?";
+/****************************************************************************
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+
+$l['newpoints_shop'] = 'Shop';
+$l['newpoints_shop_canmanage'] = 'Can manage Shop?';
 
 // Tabs
 $l['newpoints_shop_categories'] = 'Categories';
@@ -161,5 +161,3 @@ $l['newpoints_stats_lastpurchases'] = 'Last Purchases';
 // Rule
 $l['newpoints_shop_items_rate'] = 'Items Rate';
 $l['newpoints_shop_items_rate_desc'] = 'Items prices are multiplied by this number. Default is 1';
-
-?>

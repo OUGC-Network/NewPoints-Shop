@@ -2,31 +2,31 @@
 /***************************************************************************
  *
  *   NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/newpoints_shop.php)
- *	 Author: Diogo Parrinha
+ *     Author: Diogo Parrinha
  *   Copyright: © 2009-2012 Diogo Parrinha
- *   
+ *
  *   Website: http://www.mybb-plugins.com
  *
  *   Integrates a shop system with NewPoints.
  *
  ***************************************************************************/
- 
-/****************************************************************************
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
 
-$l['newpoints_shop'] = "Shop";
+/****************************************************************************
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
+
+$l['newpoints_shop'] = 'Shop';
 
 $l['newpoints_shop_icon'] = 'Icon';
 $l['newpoints_shop_categories'] = 'Categories';
@@ -110,5 +110,3 @@ $l['newpoints_shop_view_all_items'] = 'View All Items';
 $l['newpoints_shop_user_no_items'] = 'This user has no items.';
 
 $l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
-
-?>
