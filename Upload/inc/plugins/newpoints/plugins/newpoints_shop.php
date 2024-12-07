@@ -39,7 +39,7 @@ use const Newpoints\ROOT_PLUGINS;
 
 defined('IN_MYBB') || die('Direct initialization of this file is not allowed.');
 
-define('Newpoints\Shop\ROOT', ROOT_PLUGINS . '/ougc/Shop');
+define('Newpoints\Shop\ROOT', ROOT_PLUGINS . '/Shop');
 
 require_once ROOT . '/core.php';
 
