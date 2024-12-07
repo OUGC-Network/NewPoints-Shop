@@ -49,6 +49,18 @@ $l['setting_newpoints_shop_pm_default'] = 'Default PM';
 $l['setting_newpoints_shop_pm_default_desc'] = 'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
 $l['setting_newpoints_shop_pmadmin_default'] = 'Default Admin PM';
 $l['setting_newpoints_shop_pmadmin_default_desc'] = 'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
+$l['setting_newpoints_shop_quick_edit_stock_increase'] = 'Increase Item Stock';
+$l['setting_newpoints_shop_quick_edit_stock_increase_desc'] = 'Set to yes if you want items to be increased by 1 when removing users items.';
+$l['setting_newpoints_shop_moderator_groups'] = 'Moderator Groups';
+$l['setting_newpoints_shop_moderator_groups_desc'] = 'Select the groups that can manage the shop.';
+$l['setting_newpoints_shop_action_name'] = 'Action Name';
+$l['setting_newpoints_shop_action_name_desc'] = 'Allow users to sell their signature privilege in exchange for points.';
+$l['setting_newpoints_shop_per_page'] = 'Pagination Per Page Items';
+$l['setting_newpoints_shop_per_page_desc'] = 'Number of items to display per page in the signature market.';
+$l['setting_newpoints_shop_menu_order'] = 'Menu Order';
+$l['setting_newpoints_shop_menu_order_desc'] = 'Order in the Newpoints menu item';
+$l['setting_newpoints_shop_menu_order'] = 'Menu Order';
+$l['setting_newpoints_shop_menu_order_desc'] = 'Order in the Newpoints menu item';
 
 // Tabs
 $l['newpoints_shop_categories'] = 'Categories';

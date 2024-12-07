@@ -47,9 +47,10 @@
                 </tr>
                 <tr>
                     <td class="tfoot" width="100%" align="center" colspan="2">
-                        <form action="newpoints.php?action=do_shop&amp;shop_action=buy" method="POST"><input
-                                type="hidden" name="postcode" value="{$mybb->post_code}"><input type="hidden" name="iid"
-                                                                                                value="{$item['iid']}"><input
+                        <form action="{$mybb->settings['bburl']}/{$buy_item_url}" method="POST"><input
+                                type="hidden" name="my_post_key" value="{$mybb->post_code}"><input type="hidden"
+                                                                                                   name="iid"
+                                                                                                   value="{$item['iid']}"><input
                                 type="submit" name="buy" value="{$lang->newpoints_shop_buy}"
                                 onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');"></form>
                     </td>

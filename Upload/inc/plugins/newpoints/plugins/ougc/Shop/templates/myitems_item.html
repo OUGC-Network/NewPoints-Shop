@@ -1,20 +1,22 @@
-<td class="{$bgcolor}" width="50%" valign="middle" align="center">
-    <fieldset class="{$invert_bgcolor}" style="width: 80%;">
-        <legend>{$item['icon']} <strong><a
-                href="{$mybb->settings['bburl']}/newpoints.php?action=shop&amp;shop_action=view&amp;iid={$item['iid']}">{$item['name']}</a></strong>
-        </legend>
-        <div align="left"><span class="smalltext">{$item['description']}</span></div>
-        <div align="left">
-            {$lang->newpoints_shop_price}: {$item['price']}<br/>
-            {$lang->newpoints_shop_quantity}: {$item['quantity']}
-        </div>
-    </fieldset>
-    <fieldset class="{$invert_bgcolor}" style="width: 80%; margin-bottom: 5px;">
-        <legend>{$lang->newpoints_shop_options}</legend>
-        <table border="0">
-            <tr>
-                {$send}{$sell}
-            </tr>
-        </table>
-    </fieldset>
-</td>
+<tr>
+    <td class="{$alternative_background}" width="50%" valign="middle" align="center">
+        <fieldset class="{$invert_bgcolor}" style="width: 80%;">
+            <legend>{$item['icon']} <strong><a
+                    href="{$mybb->settings['bburl']}/{$view_item_url}">{$item['name']}</a></strong>
+            </legend>
+            <div align="left"><span class="smalltext">{$item['description']}</span></div>
+            <div align="left">
+                {$lang->newpoints_shop_price}: {$item['price']}<br/>
+                {$lang->newpoints_shop_quantity}: {$item['quantity']}
+            </div>
+        </fieldset>
+        <fieldset class="{$invert_bgcolor}" style="width: 80%; margin-bottom: 5px;">
+            <legend>{$lang->newpoints_shop_options}</legend>
+            <table border="0">
+                <tr>
+                    {$send}{$sell}
+                </tr>
+            </table>
+        </fieldset>
+    </td>
+</tr>

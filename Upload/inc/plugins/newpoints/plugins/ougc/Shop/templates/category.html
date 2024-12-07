@@ -1,13 +1,24 @@
-<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder" id="category_table_{$category_type}_{$category_id}">
+    <thead>
     <tr>
-        <td class="thead" colspan="5"><div class="expcolimage"><img src="{$theme['imgdir']}/{$expcolimage}" id="shopcat_{$category['cid']}_img" class="expander" alt="{$expaltext}" title="{$expaltext}" /></div>
-            {$category['icon']} <strong>{$category['name']}</strong> <span class="smalltext">{$category['description']}</span></td>
+        <td class="thead" colspan="5">
+            <div class="expcolimage">
+                <img src="{$theme['imgdir']}/{$expcolimage}" id="shopcat_{$category_id}_img" class="expander" alt="{$expaltext}" title="{$expaltext}" />
+            </div>
+            {$category_icon} <strong>{$category_name}</strong> <span class="smalltext">{$category_description}</span>
+        </td>
     </tr>
+    </thead>
+    <tbody id="shopcat_{$category_id}_e" style="{$expdisplay}">
+    <tr>
+        <td class="tcat" width="1%"><strong>{$lang->newpoints_shop_icon}</strong></td>
+        <td class="tcat"><strong>{$lang->newpoints_shop_name}</strong></td>
+        <td class="tcat" width="20%" align="center"><strong>{$lang->newpoints_shop_price}</strong></td>
+        <td class="tcat" width="20%" align="center"><strong>{$lang->newpoints_shop_stock}</strong></td>
+        <td class="tcat" width="10%" align="center"><strong>{$lang->newpoints_shop_buy}</strong></td>
+    </tr>
+    {$items_rows}
+    </tbody>
 </table>
-<div style="max-height: 200px; overflow: auto;">
-    <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
-        <tbody id="shopcat_{$category['cid']}_e" style="{$expdisplay}">
-        {$items}
-        </tbody>
-    </table>
-</div>
+<br />
+{$pagination}

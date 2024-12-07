@@ -31,9 +31,15 @@ declare(strict_types=1);
 namespace Newpoints\Shop\Admin;
 
 use function Newpoints\Admin\db_verify_columns;
+use function Newpoints\Admin\db_verify_columns_exists;
+use function Newpoints\Admin\db_verify_tables;
+use function Newpoints\Admin\db_verify_tables_exists;
 use function Newpoints\Admin\plugin_library_load;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_remove;
+use function Newpoints\Core\plugins_version_delete;
+use function Newpoints\Core\plugins_version_get;
+use function Newpoints\Core\plugins_version_update;
 use function Newpoints\Core\rules_rebuild_cache;
 use function Newpoints\Core\settings_rebuild;
 use function Newpoints\Core\settings_remove;
@@ -202,20 +208,11 @@ function plugin_activation(): bool
 
     language_load('shop');
 
-    $plugin_information = plugin_information();
+    $current_version = plugins_version_get('awards_market');
 
-    // Insert/update version into cache
-    $plugins_list = $cache->read('ougc_plugins');
+    $new_version = (int)plugin_information()['versioncode'];
 
-    if (!$plugins_list) {
-        $plugins_list = [];
-    }
-
-    if (!isset($plugins_list['newpoints_shop'])) {
-        $plugins_list['newpoints_shop'] = $plugin_information['versioncode'];
-    }
-
-    \Newpoints\Admin\db_verify_tables(TABLES_DATA);
+    db_verify_tables(TABLES_DATA);
 
     db_verify_columns(FIELDS_DATA);
 
@@ -225,16 +222,14 @@ function plugin_activation(): bool
 
     /*~*~* RUN UPDATES END *~*~*/
 
-    $plugins_list['newpoints_shop'] = $plugin_information['versioncode'];
-
-    $cache->update('ougc_plugins', $plugins_list);
+    plugins_version_update('newpoints_shop', $new_version);
 
     return true;
 }
 
 function plugin_installation(): bool
 {
-    \Newpoints\Admin\db_verify_tables(TABLES_DATA);
+    db_verify_tables(TABLES_DATA);
 
     db_verify_columns(FIELDS_DATA);
 
@@ -243,32 +238,14 @@ function plugin_installation(): bool
 
 function plugin_is_installed(): bool
 {
-    static $isInstalled = null;
-
-    if ($isInstalled === null) {
-        global $db;
-
-        $isInstalledEach = true;
-
-        foreach (FIELDS_DATA as $table_name => $table_columns) {
-            $isInstalledEach = $db->table_exists($table_name) && $isInstalledEach;
-
-            if ($isInstalledEach) {
-                foreach ($table_columns as $field_name => $field_data) {
-                    $isInstalledEach = $db->field_exists($field_name, $table_name) && $isInstalledEach;
-                }
-            }
-        }
-
-        $isInstalled = $isInstalledEach;
-    }
-
-    return $isInstalled;
+    return db_verify_tables_exists(TABLES_DATA) && db_verify_columns_exists(TABLES_DATA) && db_verify_columns_exists(
+            FIELDS_DATA
+        );
 }
 
 function plugin_uninstallation(): bool
 {
-    global $db, $cache;
+    global $db;
 
     log_remove(['shop_purchase', 'shop_send', 'shop_sell']);
 
@@ -318,18 +295,7 @@ function plugin_uninstallation(): bool
         'postbit',
     ], 'newpoints_shop_');
 
-    // Delete version from cache
-    $plugins_list = (array)$cache->read('ougc_plugins');
-
-    if (isset($plugins_list['newpoints_shop'])) {
-        unset($plugins_list['newpoints_shop']);
-    }
-
-    if (!empty($plugins_list)) {
-        $cache->update('ougc_plugins', $plugins_list);
-    } else {
-        $cache->delete('ougc_plugins');
-    }
+    plugins_version_delete('newpoints_shop');
 
     return true;
 }

@@ -38,5 +38,25 @@
   "pmadmin_default": {
     "type": "textarea",
     "value": ""
+  },
+  "quick_edit_stock_increase": {
+    "type": "yesno",
+    "value": 0
+  },
+  "moderator_groups": {
+    "type": "groupselect",
+    "value": 4
+  },
+  "action_name": {
+    "type": "text",
+    "value": "shop"
+  },
+  "per_page": {
+    "type": "numeric",
+    "value": 10
+  },
+  "menu_order": {
+    "type": "numeric",
+    "value": 140
   }
 }

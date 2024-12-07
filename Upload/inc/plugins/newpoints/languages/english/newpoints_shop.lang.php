@@ -110,3 +110,5 @@ $l['newpoints_shop_view_all_items'] = 'View All Items';
 $l['newpoints_shop_user_no_items'] = 'This user has no items.';
 
 $l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
+
+$l['newpoints_shop_quick_edit_description'] = 'Select the items you want to remove from this user.';
