@@ -991,11 +991,15 @@ function newpoints_terminate(): bool
                         $item_icon = eval(templates_get('item_icon'));
                     }
 
-                    $view_item_url = url_handler_build([
-                        'action' => $action_name,
-                        'shop_action' => 'view',
-                        'iid' => $item_id
-                    ]);
+                    if (isset($item_data['item_url'])) {
+                        $view_item_url = $item_data['item_url'];
+                    } else {
+                        $view_item_url = url_handler_build([
+                            'action' => $action_name,
+                            'shop_action' => 'view',
+                            'iid' => $item_id
+                        ]);
+                    }
 
                     $buy_item_url = url_handler_build([
                         'action' => $action_name,
