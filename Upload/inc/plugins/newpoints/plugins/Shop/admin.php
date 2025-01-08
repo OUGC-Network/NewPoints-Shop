@@ -30,21 +30,26 @@ declare(strict_types=1);
 
 namespace Newpoints\Shop\Admin;
 
+use MyBB;
+
 use function Newpoints\Admin\db_verify_columns;
 use function Newpoints\Admin\db_verify_columns_exists;
 use function Newpoints\Admin\db_verify_tables;
 use function Newpoints\Admin\db_verify_tables_exists;
-use function Newpoints\Admin\plugin_library_load;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_remove;
 use function Newpoints\Core\plugins_version_delete;
 use function Newpoints\Core\plugins_version_get;
 use function Newpoints\Core\plugins_version_update;
+use function Newpoints\Core\rules_get_all;
 use function Newpoints\Core\rules_rebuild_cache;
-use function Newpoints\Core\settings_rebuild;
 use function Newpoints\Core\settings_remove;
-use function Newpoints\Core\templates_rebuild;
 use function Newpoints\Core\templates_remove;
+
+use function Newpoints\Shop\Core\item_get;
+use function Newpoints\Shop\Core\user_item_insert;
+use function Newpoints\Shop\Core\user_items_get;
+use function Newpoints\Shop\Core\user_update;
 
 const TABLES_DATA = [
     'newpoints_shop_categories' => [
@@ -169,6 +174,39 @@ const TABLES_DATA = [
             'type' => 'TEXT',
             'null' => true
         ],
+    ],
+    'newpoints_shop_user_items' => [
+        'user_item_id' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'auto_increment' => true,
+            'primary_key' => true
+        ],
+        'user_id' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
+        ],
+        'item_id' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
+        ],
+        'is_visible' => [
+            'type' => 'SMALLINT',
+            'unsigned' => true,
+            'default' => 1
+        ],
+        'display_order' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
+        ],
+        'user_item_stamp' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
+        ],
     ]
 ];
 
@@ -177,6 +215,11 @@ const FIELDS_DATA = [
         'newpoints_items' => [
             'type' => 'TEXT',
             'null' => true
+        ],
+        'newpoints_shop_total_items' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
         ],
     ],
     'newpoints_grouprules' => [
@@ -208,7 +251,7 @@ function plugin_activation(): bool
 
     language_load('shop');
 
-    $current_version = plugins_version_get('awards_market');
+    $current_version = plugins_version_get('newpoints_shop');
 
     $new_version = (int)plugin_information()['versioncode'];
 
@@ -319,4 +362,68 @@ function redirect(string $message, bool $error = false, string $action = '')
     }
 
     admin_redirect('index.php?module=newpoints-shop' . $parameters);
+}
+
+function recount_rebuild_newpoints_recount()
+{
+    global $db, $mybb, $lang;
+
+    $query = $db->simple_select('users', 'COUNT(*) as total_users');
+
+    $total_users = $db->fetch_field($query, 'total_users');
+
+    $page = $mybb->get_input('page', MyBB::INPUT_INT);
+
+    $per_page = $mybb->get_input('newpoints_recount', MyBB::INPUT_INT);
+
+    $start = ($page - 1) * $per_page;
+
+    $end = $start + $per_page;
+
+    $forum_rules = rules_get_all('forum');
+
+    $query = $db->simple_select(
+        'users',
+        'uid,newpoints_items',
+        '',
+        ['order_by' => 'uid', 'order_dir' => 'asc', 'limit_start' => $start, 'limit' => $per_page]
+    );
+
+    while ($user_data = $db->fetch_array($query)) {
+        $user_id = (int)$user_data['uid'];
+
+        $user_items = unserialize($user_data['newpoints_items'] ?? '');
+
+        if (!empty($user_items) && is_array($user_items)) {
+            foreach ($user_items as $item_key => $item_id) {
+                $item_id = (int)$item_id;
+
+                $item_data = item_get(["iid='{$item_id}'"]);
+
+                if ($item_data) {
+                    user_item_insert(['user_id' => $user_id, 'item_id' => $item_id]);
+                } else {
+                    unset($user_items[$item_key]);
+
+                    user_update($user_id, ['newpoints_items' => my_serialize($user_items)]);
+                }
+            }
+        }
+
+        $user_shop_objects = user_items_get(["user_id='{$user_id}'"], ['COUNT(user_item_id) AS total_user_items']);
+
+        $total_user_items = (int)($user_shop_objects[0]['total_user_items'] ?? 0);
+
+        user_update($user_id, ['newpoints_shop_total_items' => $total_user_items]);
+    }
+
+    check_proceed(
+        $total_users,
+        $end,
+        ++$page,
+        $per_page,
+        'newpoints_recount',
+        'do_recount_newpoints',
+        $lang->newpoints_recount_success
+    );
 }

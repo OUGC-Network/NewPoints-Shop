@@ -37,19 +37,11 @@ function templates_get(string $template_name = '', bool $enable_html_comments = 
     return \Newpoints\Core\templates_get($template_name, $enable_html_comments, ROOT, 'shop_');
 }
 
-function item_get(int $iid = 0): array
+function item_get(array $where_clauses = []): array
 {
-    if (!$iid) {
-        return [];
-    }
-
     global $db;
 
-    $query = $db->simple_select('newpoints_shop_items', '*', "iid='{$iid}'");
-
-    if (!$db->num_rows($query)) {
-        return [];
-    }
+    $query = $db->simple_select('newpoints_shop_items', '*', implode(' AND ', $where_clauses));
 
     return (array)$db->fetch_array($query);
 }
@@ -69,4 +61,93 @@ function category_get(int $cid = 0): array
     }
 
     return (array)$db->fetch_array($query);
+}
+
+function items_get(
+    array $where_clauses = [],
+    array $query_fields = ['iid'],
+    array $query_options = []
+): array {
+    global $db;
+
+    $query = $db->simple_select(
+        'newpoints_shop_items',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses),
+        $query_options
+    );
+
+    $items_objects = [];
+
+    if ($db->num_rows($query)) {
+        while ($item_data = $db->fetch_array($query)) {
+            $items_objects[] = $item_data;
+        }
+    }
+
+    return $items_objects;
+}
+
+function user_update(int $user_id, array $update_data): int
+{
+    global $db;
+
+    return (int)$db->update_query(
+        'users',
+        $update_data,
+        "uid='{$user_id}'",
+        1
+    );
+}
+
+function user_item_insert(array $item_data = []): int
+{
+    global $db;
+
+    $insert_data = [];
+
+    if (isset($item_data['user_id'])) {
+        $insert_data['user_id'] = (int)$item_data['user_id'];
+    }
+
+    if (isset($item_data['item_id'])) {
+        $insert_data['item_id'] = (int)$item_data['item_id'];
+    }
+
+    if (isset($item_data['is_visible'])) {
+        $insert_data['is_visible'] = (int)$item_data['is_visible'];
+    }
+
+    if (isset($item_data['display_order'])) {
+        $insert_data['display_order'] = (int)$item_data['display_order'];
+    }
+
+    if (isset($item_data['user_item_stamp'])) {
+        $insert_data['user_item_stamp'] = (int)$item_data['user_item_stamp'];
+    } else {
+        $insert_data['user_item_stamp'] = TIME_NOW;
+    }
+
+    return (int)$db->insert_query('newpoints_shop_user_items', $insert_data);
+}
+
+function user_items_get(array $where_clauses = [], array $query_fields = ['user_item_id']): array
+{
+    global $db;
+
+    $query = $db->simple_select(
+        'newpoints_shop_user_items',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses)
+    );
+
+    $user_items_objects = [];
+
+    if ($db->num_rows($query)) {
+        while ($user_item_data = $db->fetch_array($query)) {
+            $user_items_objects[] = $user_item_data;
+        }
+    }
+
+    return $user_items_objects;
 }

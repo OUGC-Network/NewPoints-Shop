@@ -29,6 +29,9 @@
 $l['newpoints_shop'] = 'Shop';
 $l['newpoints_shop_canmanage'] = 'Can manage Shop?';
 
+$l['setting_group_newpoints_shop'] = 'Shop';
+$l['setting_group_newpoints_shop_desc'] = 'Integrates a shop system with NewPoints.';
+
 $l['setting_newpoints_shop_sendable'] = 'Send items';
 $l['setting_newpoints_shop_sendable_desc'] = 'Allow users to send items to other users.';
 $l['setting_newpoints_shop_sellable'] = 'Sell items';
@@ -54,7 +57,7 @@ $l['setting_newpoints_shop_quick_edit_stock_increase_desc'] = 'Set to yes if you
 $l['setting_newpoints_shop_moderator_groups'] = 'Moderator Groups';
 $l['setting_newpoints_shop_moderator_groups_desc'] = 'Select the groups that can manage the shop.';
 $l['setting_newpoints_shop_action_name'] = 'Action Name';
-$l['setting_newpoints_shop_action_name_desc'] = 'Allow users to sell their signature privilege in exchange for points.';
+$l['setting_newpoints_shop_action_name_desc'] = 'Select the action input name to use for this feature.';
 $l['setting_newpoints_shop_per_page'] = 'Pagination Per Page Items';
 $l['setting_newpoints_shop_per_page_desc'] = 'Number of items to display per page in the signature market.';
 $l['setting_newpoints_shop_menu_order'] = 'Menu Order';
@@ -192,3 +195,8 @@ $l['newpoints_stats_lastpurchases'] = 'Last Purchases';
 // Rule
 $l['newpoints_shop_items_rate'] = 'Items Rate';
 $l['newpoints_shop_items_rate_desc'] = 'Items prices are multiplied by this number. Default is 1';
+
+$l = array_merge($l, [
+    'newpoints_recount_shop_user_items' => 'Rebuild NewPoints Shop User Items',
+    'newpoints_recount_shop_user_items_desc' => 'When this is run, the NewPoints Shop users items legacy storage will be converted to the new database storage system.',
+]);

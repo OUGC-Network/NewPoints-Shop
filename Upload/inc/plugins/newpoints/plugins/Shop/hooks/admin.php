@@ -37,9 +37,10 @@ use Table;
 
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
-use function Newpoints\Core\points_add;
+use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\Core\run_hooks;
+use function Newpoints\Shop\Admin\recount_rebuild_newpoints_recount;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
 
@@ -47,6 +48,10 @@ use const Newpoints\Shop\ROOT;
 
 function newpoints_settings_rebuild_start(array $hook_arguments): array
 {
+    global $lang;
+
+    language_load('shop');
+
     $hook_arguments['settings_directories'][] = ROOT . '/settings';
 
     return $hook_arguments;
@@ -92,7 +97,7 @@ function newpoints_admin_stats_noaction_end(): bool
     while ($stats = $db->fetch_array($query)) {
         $data = explode('-', $stats['data']);
 
-        $item = item_get((int)$data[0]);
+        $item = item_get(["iid='{$data[0]}'"]);
 
         $table->construct_cell(htmlspecialchars_uni($item['name']));
 
@@ -106,7 +111,8 @@ function newpoints_admin_stats_noaction_end(): bool
             my_date($mybb->settings['dateformat'], (int)$stats['date'], '', false) . ', ' . my_date(
                 $mybb->settings['timeformat'],
                 (int)$stats['date']
-            ), ['class' => 'align_center']
+            ),
+            ['class' => 'align_center']
         );
 
         $table->construct_row();
@@ -375,7 +381,7 @@ function newpoints_admin_load()
                 break;
             case 'do_edititem':
                 $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
-                if ($iid <= 0 || (!($item = item_get((int)$iid)))) {
+                if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
                     \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items');
                 }
 
@@ -523,7 +529,7 @@ function newpoints_admin_load()
         }
 
         if ($mybb->request_method == 'post') {
-            if ($iid <= 0 || (!($item = item_get((int)$iid)))) {
+            if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items&amp;cid=' . $cid);
             }
 
@@ -564,7 +570,7 @@ function newpoints_admin_load()
         }
 
         if ($mybb->request_method == 'post') {
-            if ($iid <= 0 || (!($item = item_get((int)$iid)))) {
+            if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items&amp;cid=' . $cid);
             }
 
@@ -610,9 +616,9 @@ function newpoints_admin_load()
                 );
             }
 
-            points_add(
+            points_add_simple(
                 (int)$uid,
-                (float)$item['price'] * get_setting('shop_percent')
+                (float)($item['price'] * get_setting('shop_percent'))
             );
 
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_item_removed, false, 'inventory&amp;uid=' . $uid);
@@ -772,7 +778,8 @@ function newpoints_admin_load()
                     $cat['cid']
                 ) . "\">" . $lang->newpoints_shop_edit . "</a> - <a href=\"index.php?module=newpoints-shop&amp;action=do_deletecat&amp;cid=" . intval(
                     $cat['cid']
-                ) . "\">" . $lang->newpoints_shop_delete . '</a>', ['class' => 'align_center']
+                ) . "\">" . $lang->newpoints_shop_delete . '</a>',
+                ['class' => 'align_center']
             );
 
             $table->construct_row();
@@ -825,7 +832,8 @@ function newpoints_admin_load()
             $lang->newpoints_shop_addedit_cat_icon,
             $lang->newpoints_shop_addedit_cat_icon_desc,
             $form->generate_file_upload_box(
-                'icon', ['style' => 'width: 200px;']
+                'icon',
+                ['style' => 'width: 200px;']
             ),
             'icon'
         );
@@ -917,7 +925,8 @@ function newpoints_admin_load()
             $lang->newpoints_shop_addedit_cat_icon,
             $lang->newpoints_shop_addedit_cat_icon_desc,
             $form->generate_file_upload_box(
-                'icon', ['style' => 'width: 200px;']
+                'icon',
+                ['style' => 'width: 200px;']
             ),
             'icon'
         );
@@ -1035,7 +1044,8 @@ function newpoints_admin_load()
                     $item['iid']
                 ) . "\">" . $lang->newpoints_shop_edit . "</a> - <a href=\"index.php?module=newpoints-shop&amp;action=do_deleteitem&amp;iid=" . intval(
                     $item['iid']
-                ) . "\">" . $lang->newpoints_shop_delete . '</a>', ['class' => 'align_center']
+                ) . "\">" . $lang->newpoints_shop_delete . '</a>',
+                ['class' => 'align_center']
             );
 
             $table->construct_row();
@@ -1099,7 +1109,8 @@ function newpoints_admin_load()
             $lang->newpoints_shop_addedit_item_icon,
             $lang->newpoints_shop_addedit_item_icon_desc,
             $form->generate_file_upload_box(
-                'icon', ['style' => 'width: 200px;']
+                'icon',
+                ['style' => 'width: 200px;']
             ),
             'icon'
         );
@@ -1202,7 +1213,7 @@ function newpoints_admin_load()
 
         $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
 
-        if ($iid <= 0 || (!($item = item_get((int)$iid)))) {
+        if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items');
         }
 
@@ -1251,7 +1262,8 @@ function newpoints_admin_load()
             $lang->newpoints_shop_addedit_item_icon,
             $lang->newpoints_shop_addedit_item_icon_desc,
             $form->generate_file_upload_box(
-                'icon', ['style' => 'width: 200px;']
+                'icon',
+                ['style' => 'width: 200px;']
             ),
             'icon'
         );
@@ -1500,7 +1512,9 @@ function newpoints_admin_grouprules_add(FormContainer &$form_container): FormCon
             $lang->newpoints_shop_items_rate,
             $lang->newpoints_shop_items_rate_desc,
             $form->generate_text_box(
-                'items_rate', 1, ['id' => 'items_rate']
+                'items_rate',
+                1,
+                ['id' => 'items_rate']
             ),
             'items_rate'
         );
@@ -1509,7 +1523,9 @@ function newpoints_admin_grouprules_add(FormContainer &$form_container): FormCon
             $lang->newpoints_shop_items_rate,
             $lang->newpoints_shop_items_rate_desc,
             $form->generate_text_box(
-                'items_rate', $rule['items_rate'], ['id' => 'items_rate']
+                'items_rate',
+                $rule['items_rate'],
+                ['id' => 'items_rate']
             ),
             'items_rate'
         );
@@ -1535,4 +1551,44 @@ function newpoints_admin_grouprules_add_insert(array &$insert_data)
 function newpoints_admin_grouprules_edit_update(array &$insert_data): array
 {
     return newpoints_admin_grouprules_add_insert($insert_data);
+}
+
+function admin_tools_recount_rebuild_output_list(): bool
+{
+    global $lang;
+    global $form_container, $form;
+
+    $form_container->output_cell(
+        "<label>{$lang->newpoints_recount_shop_user_items}</label><div class=\"description\">{$lang->newpoints_recount_shop_user_items_desc}</div>"
+    );
+    $form_container->output_cell(
+        $form->generate_numeric_field('newpoints_recount_shop_user_items', 50, ['style' => 'width: 150px;', 'min' => 0])
+    );
+    $form_container->output_cell(
+        $form->generate_submit_button($lang->go, ['name' => 'do_rebuild_newpoints_shop_user_items'])
+    );
+    $form_container->construct_row();
+
+    return true;
+}
+
+function admin_tools_do_recount_rebuild(): bool
+{
+    global $mybb;
+
+    if (isset($mybb->input['do_rebuild_newpoints_shop_user_items'])) {
+        if ($mybb->input['page'] == 1) {
+            log_admin_action('recount');
+        }
+
+        $per_page = $mybb->get_input('newpoints_recount_shop_user_items', MyBB::INPUT_INT);
+
+        if (!$per_page || $per_page <= 0) {
+            $mybb->input['newpoints_recount_shop_user_items'] = 50;
+        }
+
+        recount_rebuild_newpoints_recount();
+    }
+
+    return true;
 }

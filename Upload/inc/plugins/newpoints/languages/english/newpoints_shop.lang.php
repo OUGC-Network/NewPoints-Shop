@@ -70,7 +70,7 @@ $l['newpoints_shop_out_of_stock'] = 'Item out of stock';
 $l['newpoints_shop_limit_reached'] = 'You cannot purchase anymore items of this type.';
 
 // Success messages
-$l['newpoints_shop_item_bought'] = 'You have successfully bought the selected item.';
+$l['newpoints_shop_item_bought'] = 'You have successfully bought the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_bought_title'] = 'Item bought';
 $l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.';
 $l['newpoints_shop_item_sent_title'] = 'Item sent';
@@ -112,3 +112,11 @@ $l['newpoints_shop_user_no_items'] = 'This user has no items.';
 $l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
 
 $l['newpoints_shop_quick_edit_description'] = 'Select the items you want to remove from this user.';
+
+$l = array_merge($l, [
+    'newpoints_buttons_my_items' => 'My Items',
+
+    'newpoints_shop_profile_items' => 'Items',
+    'newpoints_shop_profile_items_empty' => 'This user has no items.',
+    'newpoints_shop_profile_items_view_all' => 'View All Items',
+]);
