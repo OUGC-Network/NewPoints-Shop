@@ -1,15 +1,15 @@
 <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder" id="category_table_{$category_type}_{$category_id}">
     <thead>
     <tr>
-        <td class="thead" colspan="5">
+        <td class="thead thead{$collapsed_image}" colspan="5">
             <div class="expcolimage">
-                <img src="{$theme['imgdir']}/{$expcolimage}" id="shopcat_{$category_id}_img" class="expander" alt="{$expaltext}" title="{$expaltext}" />
+                <img src="{$theme['imgdir']}/collapse{$collapsed_image}.png" id="{$collapsed_name}_img" class="expander" alt="{$expanded_alternative_text}" title="{$expanded_alternative_text}" />
             </div>
             {$category_icon} <strong>{$category_name}</strong> <span class="smalltext">{$category_description}</span>
         </td>
     </tr>
     </thead>
-    <tbody id="shopcat_{$category_id}_e" style="{$expdisplay}">
+    <tbody style="{$expanded_display}" id="{$collapsed_name}_e">
     <tr>
         <td class="tcat" width="1%"><strong>{$lang->newpoints_shop_icon}</strong></td>
         <td class="tcat"><strong>{$lang->newpoints_shop_name}</strong></td>
@@ -18,7 +18,7 @@
         <td class="tcat" width="10%" align="center"><strong>{$lang->newpoints_shop_buy}</strong></td>
     </tr>
     {$items_rows}
+    {$pagination}
     </tbody>
 </table>
-{$pagination}
 <br />

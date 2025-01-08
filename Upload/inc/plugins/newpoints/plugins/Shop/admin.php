@@ -218,7 +218,7 @@ const TABLES_DATA = [
 
 const FIELDS_DATA = [
     'users' => [
-        'newpoints_items' => [
+        'newpoints_items' => [ // todo: drop this field
             'type' => 'TEXT',
             'null' => true
         ],

@@ -979,6 +979,8 @@ function newpoints_terminate(): bool
             }
         }
 
+        global $collapse, $collapsed, $collapsedimg;
+
         foreach ($categories_cache as $category_data) {
             $hook_arguments['category_data'] = &$category_data;
 
@@ -993,18 +995,22 @@ function newpoints_terminate(): bool
 
             $category_id = $category_data['category_id'];
 
-            $expdisplay = '';
+            $collapsed_name = "category_{$category_id}";
 
-            if (empty($category_data['is_expanded'])) {
-                $expcolimage = 'collapse_collapsed.png';
+            $collapsedimg[$collapsed_name] = $collapsedimg[$collapsed_name] ?? '';
 
-                $expdisplay = 'display: none;';
+            $collapsed_image = $collapsedimg[$collapsed_name];
 
-                $expaltext = '[+]';
-            } else {
-                $expcolimage = 'collapse.png';
+            $expanded_display = $collapsed["{$collapsed_name}_e"] = $collapsed["{$collapsed_name}_e"] ?? '';
 
-                $expaltext = '[-]';
+            $expanded_alternative_text = !empty($collapsed["{$collapsed_name}_e"]) ? $lang->expcol_expand : $lang->expcol_collapse;
+
+            if (false && empty(empty($category_data['is_expanded']))) { // this feature seems broken, too much trouble for now
+                $collapsedimg[$collapsed_name] = '_collapsed';
+
+                $expanded_display = $collapsed["{$collapsed_name}_e"] = 'display: none;';
+
+                $expanded_alternative_text = $lang->expcol_expand;
             }
 
             $category_description = htmlspecialchars_uni($category_data['description']);
@@ -1098,15 +1104,15 @@ function newpoints_terminate(): bool
             if ($category_data['total_items'] > $per_page) {
                 $pagination_input_array["page{$category_id}"] = '{page}';
 
-                $newpoints_pagination = multipage(
+                $pagination = multipage(
                     $category_data['total_items'],
                     $per_page,
                     $mybb->get_input("page{$category_id}", MyBB::INPUT_INT),
                     url_handler_build($pagination_input_array, false, false)
                 );
 
-                if ($newpoints_pagination) {
-                    $pagination = eval(\Newpoints\Core\templates_get('page_pagination'));
+                if ($pagination) {
+                    $pagination = eval(templates_get('category_pagination'));
                 }
 
                 $pagination_input_array["page{$category_id}"] = $mybb->get_input("page{$category_id}", MyBB::INPUT_INT);
