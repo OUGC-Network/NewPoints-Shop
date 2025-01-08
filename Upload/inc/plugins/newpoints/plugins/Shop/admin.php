@@ -46,10 +46,8 @@ use function Newpoints\Core\rules_rebuild_cache;
 use function Newpoints\Core\settings_remove;
 use function Newpoints\Core\templates_remove;
 
-use function Newpoints\Shop\Core\item_get;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_insert;
-use function Newpoints\Shop\Core\user_items_get;
 use function Newpoints\Shop\Core\user_update;
 
 const TABLES_DATA = [
@@ -419,15 +417,7 @@ function recount_rebuild_legacy_storage()
             }
         }
 
-        $user_shop_objects = user_items_get(
-            ["user_id='{$user_id}'"],
-            ['COUNT(user_item_id) AS total_user_items'],
-            ['order_by' => 'display_order', 'order_dir' => 'desc']
-        );
-
-        $total_user_items = (int)($user_shop_objects[0]['total_user_items'] ?? 0);
-
-        user_update($user_id, ['newpoints_shop_total_items' => $total_user_items]);
+        \Newpoints\Shop\Core\user_update_details($user_id);
     }
 
     check_proceed(

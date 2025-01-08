@@ -133,7 +133,7 @@ function item_get(array $where_clauses = [], array $query_fields = ['*'], array 
     return (array)$db->fetch_array($query);
 }
 
-function category_get(array $where_clauses, array $query_fields = ['*']): array
+function category_get(array $where_clauses, array $query_fields = ['*'], array $query_options = ['limit' => 1]): array
 {
     global $db;
 
@@ -143,11 +143,25 @@ function category_get(array $where_clauses, array $query_fields = ['*']): array
         implode(' AND ', $where_clauses)
     );
 
+    $category_objects = [];
+
     if (!$db->num_rows($query)) {
-        return [];
+        return $category_objects;
     }
 
-    return (array)$db->fetch_array($query);
+    if (!empty($query_options['limit']) && (int)$query_options['limit'] === 1) {
+        return (array)$db->fetch_array($query);
+    }
+
+    while ($category_data = $db->fetch_array($query)) {
+        if (isset($category_data['cid'])) {
+            $category_objects[(int)$category_data['cid']] = $category_data;
+        } else {
+            $category_objects[] = $category_data;
+        }
+    }
+
+    return $category_objects;
 }
 
 function items_get(
@@ -179,6 +193,21 @@ function items_get(
     return $items_objects;
 }
 
+function items_get_visible(): array
+{
+    $categories_data = category_get(["visible='1'"], ['cid'], []);
+
+    if (empty($categories_data)) {
+        return [];
+    }
+
+    $visible_category_ids = implode("','", array_map('intval', array_unique(array_column($categories_data, 'cid'))));
+
+    $active_items_ids = items_get(["visible='1'", "cid IN ('{$visible_category_ids}')"]);
+
+    return array_unique(array_column($active_items_ids, 'iid'));
+}
+
 function user_update(int $user_id, array $update_data): int
 {
     global $db;
@@ -189,6 +218,18 @@ function user_update(int $user_id, array $update_data): int
         "uid='{$user_id}'",
         1
     );
+}
+
+function user_update_details(int $user_id): int
+{
+    $user_shop_objects = user_items_get(
+        ["user_id='{$user_id}'", "is_visible='1'"],
+        ['COUNT(user_item_id) AS total_user_items']
+    );
+
+    $total_user_items = (int)($user_shop_objects[0]['total_user_items'] ?? 0);
+
+    return user_update($user_id, ['newpoints_shop_total_items' => $total_user_items]);
 }
 
 function user_item_insert(array $item_data = []): int

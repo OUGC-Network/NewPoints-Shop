@@ -1,0 +1,16 @@
+<tr>
+    <td class="{$alternative_background}" width="50%" valign="middle" align="center">
+        <fieldset class="{$inverted_background}" style="width: 80%;">
+            <legend>
+                {$item_icon}
+                <strong><a href="{$mybb->settings['bburl']}/{$view_item_url}">{$item_name}</a></strong>
+            </legend>
+            <div align="left"><span class="smalltext">{$item_description}</span></div>
+            <div align="left">
+                {$lang->newpoints_shop_price}: <span class="{$price_class}">{$item_price}</span><br/>
+                {$lang->newpoints_shop_quantity}: {$item_stock}
+            </div>
+        </fieldset>
+        {$option_buttons}
+    </td>
+</tr>

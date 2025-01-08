@@ -58,6 +58,16 @@ use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
 function newpoints_global_start(array &$hook_arguments): array
 {
+    $hook_arguments['newpoints.php'] = array_merge($hook_arguments['newpoints.php'], [
+        'newpoints_shop_my_items_content',
+        'newpoints_shop_my_items_empty',
+        'newpoints_shop_my_items_row',
+        'newpoints_shop_my_items_row_icon',
+        'newpoints_shop_my_items_row_options',
+        'newpoints_shop_my_items_row_options_sell',
+        'newpoints_shop_my_items_row_options_send',
+    ]);
+
     $hook_arguments['member.php'] = array_merge($hook_arguments['member.php'], [
         'newpoints_shop_profile_icon',
         'newpoints_shop_profile_view_all',
@@ -576,7 +586,7 @@ function newpoints_terminate(): bool
 
         $item_name = htmlspecialchars_uni($item_data['name']);
 
-        $item_description = htmlspecialchars_uni($item_data['description']);
+        $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
         // check group rules - primary group check
         $rule_group = rules_group_get((int)$mybb->user['usergroup']);
@@ -594,6 +604,12 @@ function newpoints_terminate(): bool
 
         if ($rule_group['items_rate']) {
             $item_price = $item_price * $rule_group['items_rate'];
+        }
+
+        if ($item_price > $mybb->user['newpoints']) {
+            $price_class = 'insufficient_funds';
+        } else {
+            $price_class = 'sufficient_funds';
         }
 
         $item_price = points_format($item_price);
@@ -639,175 +655,183 @@ function newpoints_terminate(): bool
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } elseif ($mybb->get_input('view') == 'my_items') {
-        $uid = $mybb->get_input('uid', MyBB::INPUT_INT);
-        $uidpart = '';
-        if ($uid > 0) {
-            $user = get_user($uid);
-            // we're viewing someone else's inventory
-            if (!empty($user)) {
-                // we can't view others inventories if we don't have enough previleges
-                if (!get_setting(
-                        'shop_viewothers'
-                    ) && $mybb->usergroup['cancp'] != 1 && $mybb->user['uid'] != $uid) {
-                    error_no_permission();
-                }
+        $user_id = $mybb->get_input('uid', MyBB::INPUT_INT);
 
-                $myitems = my_unserialize($user['newpoints_items']);
-                $lang->newpoints_shop_myitems = $lang->sprintf(
-                    $lang->newpoints_shop_items_username,
-                    htmlspecialchars_uni($user['username'])
-                );
-                $uidpart = '&amp;uid=' . $uid; // we need this for pagination
-            } else {
-                $myitems = my_unserialize($mybb->user['newpoints_items']);
-            }
-        } else {
-            $myitems = my_unserialize($mybb->user['newpoints_items']);
-        }
-        $items = '';
-        $newrow = true;
-        $invert_bgcolor = alt_trow();
+        $current_user_id = (int)$mybb->user['uid'];
 
-        if (!get_setting('shop_sendable')) {
-            $sendable = false;
-        } else {
-            $sendable = true;
+        if (empty($user_id)) {
+            $user_id = $current_user_id;
         }
 
-        if (!get_setting('shop_sellable')) {
-            $sellable = false;
-        } else {
-            $sellable = true;
+        $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
+
+        $user_data = get_user($user_id);
+
+        if (!$user_data || $user_id !== $current_user_id && !get_setting('shop_viewothers')) {
+            error_no_permission();
         }
 
-        $multipage = '';
+        $lang->newpoints_shop_myitems = $lang->sprintf(
+            $lang->newpoints_shop_items_username,
+            htmlspecialchars_uni($user_data['username'])
+        );
 
-        if (!empty($myitems)) {
-            if ($mybb->get_input('page', MyBB::INPUT_INT) > 1) {
-                $start = ($mybb->get_input('page', MyBB::INPUT_INT) * $per_page) - $per_page;
-            } else {
-                $mybb->input['page'] = 1;
-                $start = 0;
-            }
+        $visible_items_ids = \Newpoints\Shop\Core\items_get_visible();
 
-            // total items
-            $total_rows = $db->fetch_field(
-                $db->simple_select(
-                    'newpoints_shop_items',
-                    'COUNT(iid) as items',
-                    'visible=1 AND iid IN (' . implode(',', array_unique($myitems)) . ')'
-                ),
-                'items'
-            );
+        $visible_items_ids = implode("','", $visible_items_ids);
 
-            if ($total_rows > $per_page) {
-                if ($uidpart) {
-                    $my_items_url = url_handler_build([
-                        'action' => $action_name,
-                        'view' => 'my_items',
-                        'uid' => $uid
-                    ]);
-                } else {
-                    $my_items_url = url_handler_build([
-                        'action' => $action_name,
-                        'view' => 'my_items'
-                    ]);
-                }
+        $where_clauses = ["user_id='{$user_id}'", "is_visible='1'", "item_id IN ('{$visible_items_ids}')"];
 
-                $multipage = (string)multipage(
-                    $total_rows,
-                    $per_page,
-                    $mybb->get_input('page', MyBB::INPUT_INT),
-                    $mybb->settings['bburl'] . '/' . $my_items_url
-                );
-            }
+        $total_user_items = count(
+            user_items_get(
+                $where_clauses,
+                ['item_id', 'COUNT(DISTINCT user_item_id) AS total_user_items'],
+                ['group_by' => 'item_id']
+            )
+        );
 
-            $query = $db->simple_select(
-                'newpoints_shop_items',
-                '*',
-                'visible=1 AND iid IN (' . implode(',', array_unique($myitems)) . ')',
-                ['limit' => "{$start}, {$per_page}"]
-            );
-            while ($item = $db->fetch_array($query)) {
-                if ($sellable === true && $item['sellable']) {
-                    if ($sendable === true && $item['sendable']) {
-                        $tdstart = '<td width="50%">';
-                    } else {
-                        $tdstart = '<td width="100%">';
-                    }
+        if ($mybb->get_input('page', MyBB::INPUT_INT) > 1) {
+            $start = ($mybb->get_input('page', MyBB::INPUT_INT) * $per_page) - $per_page;
+        } else {
+            $mybb->input['page'] = 1;
 
-                    $sell = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="sell"><input type="hidden" name="item_id" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_sell . '"></form></td>';
-                } else {
-                    $sell = '';
-                }
+            $start = 0;
+        }
 
-                if ($sendable === true && $item['sendable']) {
-                    if ($sell == '') {
-                        $tdstart = '<td width="100%">';
-                    } else {
-                        $tdstart = '<td width="50%">';
-                    }
-
-                    $send = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="send"><input type="hidden" name="item_id" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_send . '"></form></td>';
-                } else {
-                    $send = '';
-                }
-
-                if (!$send && !$sell) {
-                    $send = $lang->newpoints_shop_no_options;
-                }
-
-                $item['description'] = post_parser_parse_message($item['description'], ['allow_imgcode' => false]);
-
-                // check group rules - primary group check
-                $rule_group = rules_group_get((int)$mybb->user['usergroup']);
-                if (!$rule_group) {
-                    $rule_group['items_rate'] = 1.0;
-                } // no rule set so default income rate is 1
-
-                // if the group items rate is 0, the price of the item is 0
-                if (!(float)$rule_group['items_rate']) {
-                    $item['price'] = 0;
-                } else {
-                    $item['price'] = $item['price'] * (float)$rule_group['items_rate'];
-                }
-
-                $item['price'] = points_format((float)$item['price']);
-                $item['quantity'] = count(array_keys($myitems, $item['iid']));
-
-                // build icon
-                if ($item['icon'] != '') {
-                    $item['icon'] = htmlspecialchars_uni($item['icon']);
-                    $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/' . $item['icon'] . '" style=" max-width: 24px; max-height: 24px">';
-                } else {
-                    $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">';
-                }
-
-                $alternative_background = alt_trow();
-                $invert_bgcolor = alt_trow();
-                $item = run_hooks('shop_myitems_item', $item);
-
-                $view_item_url = url_handler_build([
+        if ($total_user_items > $per_page) {
+            if ($user_id !== $current_user_id) {
+                $my_items_url = url_handler_build([
                     'action' => $action_name,
-                    'view' => 'item',
-                    'item_id' => $item['iid']
+                    'view' => 'my_items',
+                    'uid' => $user_id
                 ]);
-
-                $items .= eval(templates_get('myitems_item'));
-            }
-
-            if (!$items) {
-                $items = eval(templates_get('myitems_no_items'));
             } else {
-                $items .= eval(templates_get('myitems_item_empty'));
+                $my_items_url = url_handler_build([
+                    'action' => $action_name,
+                    'view' => 'my_items'
+                ]);
             }
-        } else {
-            $items = eval(templates_get('myitems_no_items'));
+
+            $newpoints_pagination = (string)multipage(
+                $total_user_items,
+                $per_page,
+                $mybb->get_input('page', MyBB::INPUT_INT),
+                $mybb->settings['bburl'] . '/' . $my_items_url
+            );
         }
 
-        $shop_url = url_handler_build(['action' => $action_name]);
+        $user_items_objects = user_items_get(
+            $where_clauses,
+            ['user_item_id', 'item_id'],
+            ['order_by' => 'user_item_stamp', 'order_dir' => 'desc', 'limit' => $per_page, 'limit_start' => $start]
+        );
 
-        $newpoints_content = eval(templates_get('page_my_items_content'));
+        $user_items_objects = user_items_get(
+            $where_clauses,
+            ['item_id', 'COUNT(DISTINCT user_item_id) AS total_user_items'],
+            [
+                'group_by' => ' item_id',
+                'order_by' => 'item_id',
+                'order_dir' => 'desc',
+                'limit' => $per_page,
+                'limit_start' => $start
+            ]
+        );
+
+        $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
+
+        $post_items_cache = items_get(
+            ["iid IN ('{$items_ids}')", "visible='1'"],
+            ['iid', 'name', 'description', 'price', 'icon', 'sendable', 'sellable']
+        );
+
+        $shop_items = '';
+
+        $alternative_background = alt_trow(true);
+
+        $inverted_background = alt_trow();
+
+        foreach ($user_items_objects as $user_item_data) {
+            $item_id = $url_params['item_id'] = (int)$user_item_data['item_id'];
+
+            if (empty($post_items_cache[$item_id])) {
+                continue;
+            }
+
+            $item_data = $post_items_cache[$item_id];
+
+            $option_buttons = $button_sell = $button_send = '';
+
+            if (get_setting('shop_sellable') && !empty($item_data['sellable'])) {
+                $button_sell = eval(templates_get('my_items_row_options_sell'));
+            }
+
+            if (get_setting('shop_sendable') && !empty($item_data['sendable'])) {
+                $button_send = eval(templates_get('my_items_row_options_send'));
+            }
+
+            if ($button_send && $button_sell) {
+                $option_buttons = eval(templates_get('my_items_row_options'));
+            }
+
+            $item_name = htmlspecialchars_uni($item_data['name']);
+
+            $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
+
+            $item_icon = htmlspecialchars_uni(
+                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+            );
+
+            $view_item_url = url_handler_build($url_params);
+
+            $item_icon = eval(templates_get('my_items_row_icon'));
+
+            $rule_group = rules_group_get((int)$mybb->user['usergroup']);
+
+            if (!$rule_group) {
+                $rule_group['items_rate'] = 1.0;
+            }
+
+            if (!(float)$rule_group['items_rate']) {
+                $item_data['price'] = 0;
+            } else {
+                $item_data['price'] = $item_data['price'] * (float)$rule_group['items_rate'];
+            }
+
+            $item_price = (float)$item_data['price'];
+
+            if ($item_price > $mybb->user['newpoints']) {
+                $price_class = 'insufficient_funds';
+            } else {
+                $price_class = 'sufficient_funds';
+            }
+
+            $item_price = points_format($item_price);
+
+            $item_stock = my_number_format($user_item_data['total_user_items']);
+
+            $item_data = run_hooks('shop_myitems_item', $item_data);
+
+            $view_item_url = url_handler_build([
+                'action' => $action_name,
+                'view' => 'item',
+                'item_id' => $item_id
+            ]);
+
+            $shop_items .= eval(templates_get('my_items_row'));
+
+            $alternative_background = alt_trow();
+
+            $inverted_background = alt_trow();
+        }
+
+        unset($url_params['item_id']);
+
+        if (!$shop_items) {
+            $shop_items = eval(templates_get('my_items_empty'));
+        }
+
+        $newpoints_content = eval(templates_get('my_items_content'));
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } else {
@@ -1008,7 +1032,10 @@ function newpoints_terminate(): bool
 
                     $item_name = htmlspecialchars_uni($item_data['name']);
 
-                    $item_description = htmlspecialchars_uni($item_data['description']);
+                    $item_description = post_parser_parse_message(
+                        $item_data['description'],
+                        ['allow_imgcode' => false]
+                    );
 
                     $item_price = (float)$item_data['price'] * $items_rate;
 
@@ -1110,8 +1137,8 @@ function newpoints_stats_start()
     foreach (
         user_items_get(
             ["is_visible='1'"],
-            ['user_item_id, user_id, item_id, user_item_stamp'],
-            ['order_by' => 'display_order', 'order_dir' => 'desc']
+            ['user_item_id', 'user_id, item_id', 'user_item_stamp'],
+            ['order_by' => 'user_item_stamp', 'order_dir' => 'desc']
         ) as $user_item_id => $user_item_data
     ) {
         $item_id = (int)$user_item_data['item_id'];
@@ -1178,8 +1205,8 @@ function member_profile_end(): bool
 
         $user_items_objects = user_items_get(
             ["user_id='{$user_id}'", "is_visible='1'"],
-            ['user_item_id, item_id'],
-            ['order_by' => 'display_order', 'order_dir' => 'desc']
+            ['user_item_id', 'item_id'],
+            ['order_by' => 'user_item_stamp', 'order_dir' => 'desc']
         );
 
         $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
@@ -1287,8 +1314,8 @@ function postbit(array $post): array
 
         $user_items_objects = user_items_get(
             $where_clauses,
-            ['user_item_id, user_id, item_id'],
-            ['order_by' => 'display_order', 'order_dir' => 'desc']
+            ['user_item_id', 'user_id', 'item_id'],
+            ['order_by' => 'user_item_stamp', 'order_dir' => 'desc']
         );
 
         foreach ($user_items_objects as $user_item) {
@@ -1463,8 +1490,8 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
     $user_items_objects = user_items_get(
         ["user_id='{$user_id}'"],
-        ['user_item_id, item_id'],
-        ['order_by' => 'display_order', 'order_dir' => 'desc']
+        ['user_item_id', 'item_id'],
+        ['order_by' => 'user_item_stamp', 'order_dir' => 'desc']
     );
 
     $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));

@@ -12,7 +12,9 @@
         </td>
     </tr>
     <tr>
-        <td class="trow2"><strong>{$lang->newpoints_shop_price}:</strong> {$item_price}</td>
+        <td class="trow2">
+            <strong>{$lang->newpoints_shop_price}:</strong> <span class="{$price_class}">{$item_price}</span>
+        </td>
     </tr>
     <tr>
         <td class="trow1"><strong>{$lang->newpoints_shop_stock}:</strong> {$item_stock}</td>
@@ -32,7 +34,7 @@
             <form action="{$mybb->settings['bburl']}/{$buy_item_url}" method="POST">
                 <input type="hidden" name="my_post_key" value="{$mybb->post_code}">
                 <input type="hidden" name="item_id" value="{$item_id}">
-                <input type="submit" name="buy" value="{$lang->newpoints_shop_buy}"
+                <input type="submit" name="buy" class="button" value="{$lang->newpoints_shop_buy}"
                        onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');">
             </form>
         </td>
