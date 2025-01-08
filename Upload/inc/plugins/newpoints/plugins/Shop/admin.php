@@ -49,6 +49,7 @@ use function Newpoints\Core\templates_remove;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_update;
+use function Newpoints\Shop\Core\user_update_details;
 
 const TABLES_DATA = [
     'newpoints_shop_categories' => [
@@ -417,7 +418,7 @@ function recount_rebuild_legacy_storage()
             }
         }
 
-        \Newpoints\Shop\Core\user_update_details($user_id);
+        user_update_details($user_id);
     }
 
     check_proceed(

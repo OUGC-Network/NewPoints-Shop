@@ -35,7 +35,6 @@ use MyBB;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
-use function Newpoints\Core\main_file_name;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\Core\points_subtract;
@@ -49,11 +48,16 @@ use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
 use function Newpoints\Shop\Core\item_update;
+use function Newpoints\Shop\Core\items_get_visible;
 use function Newpoints\Shop\Core\templates_get;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_delete;
+use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_items_get;
 
+use function Newpoints\Shop\Core\user_update_details;
+
+use const Newpoints\Core\LOGGING_TYPE_CHARGE;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
 function newpoints_global_start(array &$hook_arguments): array
@@ -116,146 +120,153 @@ function newpoints_terminate(): bool
 
     language_load('shop');
 
+    $current_user_id = (int)$mybb->user['uid'];
+
     if ($mybb->request_method === 'post') {
+        verify_post_check($mybb->get_input('my_post_key'));
+
         add_breadcrumb($lang->newpoints_shop, url_handler_build(['action' => 'shop']));
 
-        verify_post_check($mybb->get_input('my_post_key'));
+        $errors = [];
 
         run_hooks('do_shop_start');
 
         switch ($mybb->get_input('view')) {
             case 'buy':
-
                 $hook_arguments = run_hooks('shop_buy_start', $hook_arguments);
 
-                // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
+                $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+
+                $item_data = item_get(
+                    ["iid='{$item_id}'", "visible='1'"],
+                    [
+                        'iid',
+                        'cid',
+                        'name',
+                        'description',
+                        'price',
+                        'icon',
+                        'infinite',
+                        'stock',
+                    ]
+                );
+
+                if (!$item_data) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
-                // check if the item is assigned to category
-                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
+                $category_data = category_get(["cid='{$item_data['cid']}'", "visible='1'"], ['usergroups']);
+
+                if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
-                // check if we have permissions to view the parent category
-                if (!is_member($cat['usergroups'])) {
+                if (!is_member($category_data['usergroups'])) {
                     error_no_permission();
                 }
 
-                if ($item['visible'] == 0 || $cat['visible'] == 0) {
-                    error_no_permission();
-                }
+                $item_name = htmlspecialchars_uni($item_data['name']);
 
-                // check group rules - primary group check
                 $rule_group = rules_group_get((int)$mybb->user['usergroup']);
+
                 if (!$rule_group) {
                     $rule_group['items_rate'] = 1.0;
-                } // no rule set so default income rate is 1
-
-                // if the group items rate is 0, the price of the item is 0
-                if (!(float)$rule_group['items_rate']) {
-                    $item['price'] = 0;
-                } else {
-                    $item['price'] = $item['price'] * (float)$rule_group['items_rate'];
                 }
 
-                if ((float)$item['price'] > (float)$mybb->user['newpoints']) {
+                $item_price = (float)$item_data['price'];
+
+                if ($rule_group['items_rate']) {
+                    $item_price = $item_price * (float)$rule_group['items_rate'];
+                }
+
+                if ($item_price > $mybb->user['newpoints']) {
                     $errors[] = $lang->newpoints_shop_not_enough;
                 }
 
-                if ($item['infinite'] != 1 && $item['stock'] <= 0) {
+                if (empty($item_data['infinite']) && $item_data['stock'] < 1) {
                     $errors[] = $lang->newpoints_shop_out_of_stock;
                 }
 
-                if ($item['limit'] != 0) {
-                    // Get how many items of this type we have in our inventory
-                    $myitems = my_unserialize($mybb->user['newpoints_items']);
-                    if (!$myitems) {
-                        $myitems = [];
-                    }
+                if (!empty($item_data['limit'])) {
+                    $total_user_items = user_items_get(
+                        ["item_id='{$item_id}'"],
+                        ['COUNT(user_item_id) AS total_user_items']
+                    );
 
-                    // If more than or equal to $item['limit'] -> FAILED
-                    if (count(array_keys($myitems, $item['iid'])) >= $item['limit']) {
+                    $total_user_items = (int)($total_user_items[0]['total_user_items'] ?? 0);
+
+                    if ($total_user_items >= $item_data['limit']) {
                         $errors[] = $lang->newpoints_shop_limit_reached;
                     }
                 }
 
-                if (!empty($errors)) {
-                    $newpoints_errors = inline_error($errors, $lang->newpoints_shop_inline_errors);
-                    $mybb->input = [];
-                    $mybb->input['action'] = 'shop';
-                } else {
-                    $myitems = my_unserialize($mybb->user['newpoints_items']);
-                    if (!$myitems) {
-                        $myitems = [];
+                if (empty($errors)) {
+                    $insert_data = [
+                        'user_id' => $current_user_id,
+                        'item_id' => $item_id,
+                        'item_price' => $item_price
+                    ];
+
+
+                    $user_item_id = user_item_insert($insert_data);
+
+                    if (empty($item_data['infinite'])) {
+                        item_update(['stock' => $item_data['stock'] - 1], $item_id);
                     }
-                    $myitems[] = $item['iid'];
-                    $db->update_query(
-                        'users',
-                        ['newpoints_items' => my_serialize($myitems)],
-                        'uid=\'' . $mybb->user['uid'] . '\''
+
+                    points_subtract($current_user_id, $item_price);
+
+                    log_add(
+                        'shop_purchase',
+                        '',
+                        $mybb->user['username'] ?? '',
+                        $current_user_id,
+                        $item_price,
+                        $user_item_id,
+                        $item_id,
+                        0,
+                        LOGGING_TYPE_CHARGE
                     );
 
-                    // update stock
-                    if ($item['infinite'] != 1) {
-                        $db->update_query(
-                            'newpoints_shop_items',
-                            ['stock' => $item['stock'] - 1],
-                            'iid=\'' . $item['iid'] . '\''
+                    if (!empty($item_data['pm']) || get_setting('shop_pm_default')) {
+                        $item_data['pm'] = str_replace(
+                            ['{itemname}', '{itemid}', '{item_name}', '{item_id}'],
+                            [$item_name, $item_id, $item_name, $item_id],
+                            $item_data['pm'] ?? get_setting('shop_pm_default')
                         );
-                    }
-
-                    // get money from user
-                    points_subtract((int)$mybb->user['uid'], -(float)$item['price']);
-
-                    if (!empty($item['pm']) || get_setting('shop_pm_default')) {
-                        // send PM if item has private message
-                        if ($item['pm'] == '' && get_setting('shop_pm_default')) {
-                            $item['pm'] = str_replace(
-                                ['{itemname}', '{itemid}'],
-                                [$item['name'], $item['iid']],
-                                get_setting('shop_pm_default')
-                            );
-                        }
 
                         private_message_send(
                             [
                                 'subject' => $lang->newpoints_shop_bought_item_pm_subject,
-                                'message' => $item['pm'],
-                                'touid' => $mybb->user['uid'],
+                                'message' => $item_data['pm'],
+                                'touid' => $current_user_id,
                                 'receivepms' => 1
                             ],
                             -1
                         );
                     }
 
-                    if (!empty($item['pmadmin']) || get_setting('shop_pmadmins')) {
-                        // send PM if item has private message
-                        if ($item['pmadmin'] == '' && get_setting('shop_pm_default')) {
-                            $item['pmadmin'] = str_replace(['{itemname}', '{itemid}'],
-                                [$item['name'], $item['iid']],
-                                get_setting('shop_pmadmin_default'));
-                        }
+                    if (!empty($item_data['pmadmin']) || get_setting('shop_pmadmins')) {
+                        $item_data['pmadmin'] = str_replace(
+                            ['{itemname}', '{itemid}', '{item_name}', '{item_id}'],
+                            [$item_data['name'], $item_data['iid'], $item_data['name'], $item_data['iid']],
+                            $item_data['pmadmin'] ?? get_setting('shop_pmadmin_default')
+                        );
 
                         private_message_send(
                             [
                                 'subject' => $lang->newpoints_shop_bought_item_pmadmin_subject,
-                                'message' => $item['pmadmin'],
+                                'message' => $item_data['pmadmin'],
                                 'touid' => [explode(',', get_setting('shop_pmadmins'))],
                                 'receivepms' => 1
                             ],
-                            (int)$mybb->user['uid']
+                            $current_user_id
                         );
                     }
 
-                    $item = run_hooks('shop_buy_end', $item);
+                    $item_data = run_hooks('shop_buy_end', $item_data);
 
-                    // log purchase
-                    log_add(
-                        'shop_purchase',
-                        $lang->sprintf($lang->newpoints_shop_purchased_log, $item['iid'], $item['price'])
-                    );
+                    user_update_details($current_user_id);
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $formUrl,
@@ -349,7 +360,7 @@ function newpoints_terminate(): bool
                 if (!($user = newpoints_getuser_byname($username))) {
                     error($lang->newpoints_shop_invalid_user);
                 } else {
-                    if ($user['uid'] == $mybb->user['uid']) {
+                    if ($user['uid'] == $current_user_id) {
                         error($lang->newpoints_shop_cant_send_item_self);
                     }
 
@@ -371,7 +382,7 @@ function newpoints_terminate(): bool
                     $db->update_query(
                         'users',
                         ['newpoints_items' => my_serialize($myitems)],
-                        'uid=\'' . $mybb->user['uid'] . '\''
+                        'uid=\'' . $current_user_id . '\''
                     );
 
                     run_hooks('shop_do_send_end');
@@ -507,7 +518,7 @@ function newpoints_terminate(): bool
                 $db->update_query(
                     'users',
                     ['newpoints_items' => my_serialize($myitems)],
-                    'uid=\'' . $mybb->user['uid'] . '\''
+                    'uid=\'' . $current_user_id . '\''
                 );
 
                 // update stock
@@ -520,7 +531,7 @@ function newpoints_terminate(): bool
                 }
 
                 points_add_simple(
-                    (int)$mybb->user['uid'],
+                    $current_user_id,
                     (float)($item['price'] * get_setting('shop_percent'))
                 );
 
@@ -547,8 +558,10 @@ function newpoints_terminate(): bool
                     $lang->newpoints_shop_item_sell_title
                 );
                 break;
-            default:
-                error_no_permission();
+        }
+
+        if (!empty($errors)) {
+            $newpoints_errors = inline_error($errors);
         }
 
         run_hooks('do_shop_end');
@@ -657,8 +670,6 @@ function newpoints_terminate(): bool
     } elseif ($mybb->get_input('view') == 'my_items') {
         $user_id = $mybb->get_input('uid', MyBB::INPUT_INT);
 
-        $current_user_id = (int)$mybb->user['uid'];
-
         if (empty($user_id)) {
             $user_id = $current_user_id;
         }
@@ -676,7 +687,7 @@ function newpoints_terminate(): bool
             htmlspecialchars_uni($user_data['username'])
         );
 
-        $visible_items_ids = \Newpoints\Shop\Core\items_get_visible();
+        $visible_items_ids = items_get_visible();
 
         $visible_items_ids = implode("','", $visible_items_ids);
 
@@ -1433,6 +1444,8 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
 
     $item_stock_increase = get_setting('quick_edit_shop_delete_stock_increase');
 
+    $current_user_id = (int)$mybb->user['uid'];
+
     foreach ($selected_user_items_ids as $user_item_id) {
         $user_item_id = (int)$user_item_id;
 
@@ -1464,7 +1477,7 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
                 $user_id,
                 $item_price,
                 $item_id,
-                (int)$mybb->user['uid'],
+                $current_user_id,
                 $user_item_id,
                 $log_type
             );

@@ -61,7 +61,7 @@ function upgrade_shop17_run()
         'newpoints_shop_pm_default',
         'newpoints_shop',
         'Default PM',
-        'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.',
+        'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.',
         'textarea',
         '',
         9
@@ -70,7 +70,7 @@ function upgrade_shop17_run()
         'newpoints_shop_pmadmin_default',
         'newpoints_shop',
         'Default Admin PM',
-        'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.',
+        'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.',
         'textarea',
         '',
         10
