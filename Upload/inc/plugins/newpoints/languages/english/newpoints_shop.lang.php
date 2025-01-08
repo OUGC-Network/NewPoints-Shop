@@ -74,7 +74,7 @@ $l['newpoints_shop_item_bought'] = 'You have successfully bought the selected it
 $l['newpoints_shop_item_bought_title'] = 'Item bought';
 $l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_sent_title'] = 'Item sent';
-$l['newpoints_shop_item_sell'] = 'You have successfully sold the selected item.';
+$l['newpoints_shop_item_sell'] = 'You have successfully sold the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_sell_title'] = 'Item sold';
 
 // Other messages
@@ -128,6 +128,10 @@ $l = array_merge($l, [
     'newpoints_shop_stats_empty' => 'No purchases were found.',
 
     'newpoints_shop_confirm_send_title' => 'Send Item',
-    'newpoints_shop_confirm_send_title_description' => ' Are you sure you want to send the selected item? ',
-    'newpoints_shop_confirm_send_title_button' => 'Send Item',
+    'newpoints_shop_confirm_send_description' => ' Are you sure you want to send the selected item? ',
+    'newpoints_shop_confirm_send_button' => 'Send Item',
+
+    'newpoints_shop_confirm_sell_title' => 'Sell Item',
+    'newpoints_shop_confirm_sell_description' => ' Are you sure you want to sell the selected item? ',
+    'newpoints_shop_confirm_sell_button' => 'Sell Item',
 ]);
