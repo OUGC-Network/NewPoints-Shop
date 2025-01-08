@@ -232,39 +232,50 @@ function user_update_details(int $user_id): int
     return user_update($user_id, ['newpoints_shop_total_items' => $total_user_items]);
 }
 
-function user_item_insert(array $item_data = []): int
+function user_item_insert(array $user_item_data = [], bool $is_update = false, int $user_item_id = 0): int
 {
     global $db;
 
     $insert_data = [];
 
-    if (isset($item_data['user_id'])) {
-        $insert_data['user_id'] = (int)$item_data['user_id'];
+    if (isset($user_item_data['user_id'])) {
+        $insert_data['user_id'] = (int)$user_item_data['user_id'];
     }
 
-    if (isset($item_data['item_id'])) {
-        $insert_data['item_id'] = (int)$item_data['item_id'];
+    if (isset($user_item_data['item_id'])) {
+        $insert_data['item_id'] = (int)$user_item_data['item_id'];
     }
 
-    if (isset($item_data['item_price'])) {
-        $insert_data['item_price'] = (float)$item_data['item_price'];
+    if (isset($user_item_data['item_price'])) {
+        $insert_data['item_price'] = (float)$user_item_data['item_price'];
     }
 
-    if (isset($item_data['is_visible'])) {
-        $insert_data['is_visible'] = (int)$item_data['is_visible'];
+    if (isset($user_item_data['is_visible'])) {
+        $insert_data['is_visible'] = (int)$user_item_data['is_visible'];
     }
 
-    if (isset($item_data['display_order'])) {
-        $insert_data['display_order'] = (int)$item_data['display_order'];
+    if (isset($user_item_data['display_order'])) {
+        $insert_data['display_order'] = (int)$user_item_data['display_order'];
     }
 
-    if (isset($item_data['user_item_stamp'])) {
-        $insert_data['user_item_stamp'] = (int)$item_data['user_item_stamp'];
+    if (isset($user_item_data['user_item_stamp'])) {
+        $insert_data['user_item_stamp'] = (int)$user_item_data['user_item_stamp'];
     } else {
         $insert_data['user_item_stamp'] = TIME_NOW;
     }
 
-    return (int)$db->insert_query('newpoints_shop_user_items', $insert_data);
+    if ($is_update) {
+        $db->update_query('newpoints_shop_user_items', $insert_data, "user_item_id='{$user_item_id}'", 1);
+    } else {
+        $user_item_id = (int)$db->insert_query('newpoints_shop_user_items', $insert_data);
+    }
+
+    return $user_item_id;
+}
+
+function user_item_update(array $user_item_data = [], int $user_item_id = 0): int
+{
+    return user_item_insert($user_item_data, true, $user_item_id);
 }
 
 function user_items_get(

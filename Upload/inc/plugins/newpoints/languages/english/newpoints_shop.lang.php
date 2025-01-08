@@ -72,7 +72,7 @@ $l['newpoints_shop_limit_reached'] = 'You cannot purchase anymore items of this 
 // Success messages
 $l['newpoints_shop_item_bought'] = 'You have successfully bought the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_bought_title'] = 'Item bought';
-$l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.';
+$l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_sent_title'] = 'Item sent';
 $l['newpoints_shop_item_sell'] = 'You have successfully sold the selected item.';
 $l['newpoints_shop_item_sell_title'] = 'Item sold';
@@ -126,4 +126,8 @@ $l = array_merge($l, [
     'newpoints_shop_quick_edit_description' => 'Select the items you want to remove from this user.',
 
     'newpoints_shop_stats_empty' => 'No purchases were found.',
+
+    'newpoints_shop_confirm_send_title' => 'Send Item',
+    'newpoints_shop_confirm_send_title_description' => ' Are you sure you want to send the selected item? ',
+    'newpoints_shop_confirm_send_title_button' => 'Send Item',
 ]);

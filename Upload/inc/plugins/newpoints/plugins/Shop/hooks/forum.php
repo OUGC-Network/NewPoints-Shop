@@ -35,6 +35,7 @@ use MyBB;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
+use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\Core\points_subtract;
@@ -44,6 +45,7 @@ use function Newpoints\Core\rules_get_group_rate;
 use function Newpoints\Core\rules_group_get;
 use function Newpoints\Core\run_hooks;
 use function Newpoints\Core\url_handler_build;
+use function Newpoints\Core\users_get_by_username;
 use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
@@ -53,6 +55,7 @@ use function Newpoints\Shop\Core\templates_get;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_delete;
 use function Newpoints\Shop\Core\user_item_insert;
+use function Newpoints\Shop\Core\user_item_update;
 use function Newpoints\Shop\Core\user_items_get;
 
 use function Newpoints\Shop\Core\user_update_details;
@@ -91,11 +94,13 @@ function newpoints_terminate(): bool
 {
     global $mybb;
 
-    $action_name = get_setting('shop_action_name');
-
-    if ($mybb->get_input('action') !== $action_name) {
+    if ($mybb->get_input('action') !== get_setting('shop_action_name')) {
         return false;
     }
+
+    global $action_name;
+
+    $action_name = get_setting('shop_action_name');
 
     $mybb->input['iid'] = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
@@ -276,152 +281,160 @@ function newpoints_terminate(): bool
                 }
                 break;
             case 'send':
+                $user_item_id = $mybb->get_input('user_item_id', MyBB::INPUT_INT);
+
+                if (!empty($user_item_id)) {
+                    $user_items_objects = user_items_get(
+                        ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"], ['item_id']
+                    );
+
+                    $item_id = (int)($user_items_objects[0]['item_id'] ?? 0);
+                } else {
+                    $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+                }
+
+                $item_data = item_get(
+                    ["iid='{$item_id}'", "visible='1'"],
+                    [
+                        'iid',
+                        'cid',
+                        'name',
+                        'description',
+                        'price',
+                        'icon',
+                        'infinite',
+                        'stock',
+                    ]
+                );
+
                 run_hooks('shop_send_start');
 
-                // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
+                if (empty($item_data)) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
-                // check if the item is assigned to category
-                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
+                $category_data = category_get(["cid='{$item_data['cid']}'", "visible='1'"], ['usergroups']);
+
+                if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
-                // check if we have permissions to view the parent category
-                if (!is_member($cat['usergroups'])) {
+                if (!is_member($category_data['usergroups'])) {
                     error_no_permission();
                 }
 
-                if ($item['visible'] == 0 || $cat['visible'] == 0) {
-                    error_no_permission();
+                $item_name = htmlspecialchars_uni($item_data['name']);
+
+                if (empty($user_item_id)) {
+                    $user_items_objects = user_items_get(["user_id='{$current_user_id}'", "item_id='{$item_id}'"]);
+
+                    $user_item_id = (int)(array_column($user_items_objects, 'user_item_id')[0] ?? 0);
                 }
 
-                $myitems = my_unserialize($mybb->user['newpoints_items']);
-                if (!$myitems) {
-                    error($lang->newpoints_shop_inventory_empty);
-                }
-
-                // make sure we own the item
-                $key = array_search($item['iid'], $myitems);
-                if ($key === false) {
+                if (empty($user_item_id)) {
                     error($lang->newpoints_shop_selected_item_not_owned);
                 }
 
-                $lang->newpoints_shop_action = $lang->newpoints_shop_send_item;
-                $item['name'] = htmlspecialchars_uni($item['name']);
+                $lang->newpoints_page_confirm_table_purchase_title = $lang->newpoints_shop_confirm_send_title;
 
-                global $shop_action, $data, $colspan;
-                $colspan = 2;
-                $shop_action = 'do_send';
-                $fields = '<input type="hidden" name="item_id" value="' . $item['iid'] . '">';
-                $data = "<td class=\"trow1\" width=\"50%\"><strong>" . $lang->newpoints_shop_send_item_username . ':</strong><br /><small>' . $lang->newpoints_shop_send_item_message . "</small></td><td class=\"trow1\" width=\"50%\"><input type=\"text\" class=\"textbox\" name=\"username\" value=\"\"></td>";
+                $lang->newpoints_page_confirm_table_purchase_button = $lang->newpoints_shop_confirm_send_title_button;
+
+                $user_name = '';
+
+                $user_name = $mybb->get_input('username');
+
+                run_hooks('shop_send_intermediate');
+
+                if (isset($mybb->input['confirm'])) {
+                    $user_data = users_get_by_username($user_name);
+
+                    if (empty($user_data)) {
+                        $errors[] = $lang->newpoints_shop_invalid_user;
+                    }
+                    if ((int)$user_data['uid'] === $current_user_id) {
+                        $errors[] = $lang->newpoints_shop_cant_send_item_self;
+                    }
+
+                    if (empty($errors)) {
+                        $user_id = (int)$user_data['uid'];
+
+                        run_hooks('shop_do_send_start');
+
+                        user_item_update(
+                            ['user_id' => $user_id],
+                            $user_item_id
+                        );
+
+                        log_add(
+                            'shop_send',
+                            '',
+                            $mybb->user['username'] ?? '',
+                            $current_user_id,
+                            0,
+                            $user_item_id,
+                            $item_id,
+                            $user_id
+                        );
+
+                        log_add(
+                            'shop_item_received',
+                            '',
+                            $user_data['username'] ?? '',
+                            $user_id,
+                            0,
+                            $user_item_id,
+                            $item_id,
+                            $current_user_id
+                        );
+
+                        user_update_details($current_user_id);
+
+                        user_update_details($user_id);
+
+                        private_message_send(
+                            [
+                                'subject' => $lang->newpoints_shop_item_received_title,
+                                'message' => $lang->sprintf(
+                                    $lang->newpoints_shop_item_received,
+                                    htmlspecialchars_uni($mybb->user['username']),
+                                    $item_name
+                                ),
+                                'touid' => $user_data['uid'],
+                                'receivepms' => 1
+                            ],
+                            -1
+                        );
+
+                        $my_items_url = url_handler_build([
+                            'action' => $action_name,
+                            'view' => 'my_items'
+                        ]);
+
+                        run_hooks('shop_do_send_end');
+
+                        redirect(
+                            $mybb->settings['bburl'] . '/' . $my_items_url,
+                            $lang->newpoints_shop_item_sent,
+                            $lang->newpoints_shop_item_sent_title
+                        );
+                    } else {
+                        $newpoints_errors = inline_error($errors);
+
+                        unset($mybb->input['confirm']);
+                    }
+
+                    $user_name = htmlspecialchars_uni($user_name);
+                }
 
                 run_hooks('shop_send_end');
 
-                $page = eval(templates_get('do_action'));
-
-                output_page($page);
-                break;
-            case 'do_send':
-                run_hooks('shop_do_send_start');
-
-                // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
-                    error($lang->newpoints_shop_invalid_item);
-                }
-
-                // check if the item is assigned to category
-                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
-                    error($lang->newpoints_shop_invalid_cat);
-                }
-
-                // check if we have permissions to view the parent category
-                if (!is_member($cat['usergroups'])) {
-                    error_no_permission();
-                }
-
-                if ($item['visible'] == 0 || $cat['visible'] == 0) {
-                    error_no_permission();
-                }
-
-                $myitems = my_unserialize($mybb->user['newpoints_items']);
-                if (!$myitems) {
-                    error($lang->newpoints_shop_inventory_empty);
-                }
-
-                // make sure we own the item
-                $key = array_search($item['iid'], $myitems);
-                if ($key === false) {
-                    error($lang->newpoints_shop_selected_item_not_owned);
-                }
-
-                $username = trim($mybb->get_input('username'));
-                if (!($user = newpoints_getuser_byname($username))) {
-                    error($lang->newpoints_shop_invalid_user);
-                } else {
-                    if ($user['uid'] == $current_user_id) {
-                        error($lang->newpoints_shop_cant_send_item_self);
-                    }
-
-                    // send item to the selected user
-                    $useritems = my_unserialize($user['newpoints_items']);
-                    if (!$useritems) {
-                        $useritems = [];
-                    }
-                    $useritems[] = $item['iid'];
-                    $db->update_query(
-                        'users',
-                        ['newpoints_items' => my_serialize($useritems)],
-                        'uid=\'' . $user['uid'] . '\''
-                    );
-
-                    // remove item from our inventory
-                    unset($myitems[$key]);
-                    sort($myitems);
-                    $db->update_query(
-                        'users',
-                        ['newpoints_items' => my_serialize($myitems)],
-                        'uid=\'' . $current_user_id . '\''
-                    );
-
-                    run_hooks('shop_do_send_end');
-
-                    // send pm to user
-                    private_message_send(
-                        [
-                            'subject' => $lang->newpoints_shop_item_received_title,
-                            'message' => $lang->sprintf(
-                                $lang->newpoints_shop_item_received,
-                                htmlspecialchars_uni($mybb->user['username']),
-                                htmlspecialchars_uni($item['name'])
-                            ),
-                            'touid' => $user['uid'],
-                            'receivepms' => 1
-                        ],
-                        -1
-                    );
-
-                    // log
-                    log_add(
-                        'shop_send',
-                        $lang->sprintf(
-                            $lang->newpoints_shop_sent_log,
-                            $item['iid'],
-                            $user['uid'],
-                            $user['username']
-                        )
-                    );
-
-                    $my_items_url = url_handler_build([
-                        'action' => $action_name,
-                        'view' => 'my_items'
-                    ]);
-
-                    redirect(
-                        $mybb->settings['bburl'] . '/' . $my_items_url,
-                        $lang->newpoints_shop_item_sent,
-                        $lang->newpoints_shop_item_sent_title
+                if (!isset($mybb->input['confirm'])) {
+                    page_build_purchase_confirmation(
+                        $lang->newpoints_shop_confirm_send_title_description,
+                        'user_item_id',
+                        $user_item_id,
+                        'send',
+                        eval(templates_get('confirm_send'))
                     );
                 }
                 break;
@@ -1211,7 +1224,7 @@ function member_profile_end(): bool
 
     $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
 
-    if (!empty($memprofile['newpoints_items'])) {
+    if (!empty($memprofile['newpoints_shop_total_items'])) {
         $user_id = (int)$memprofile['uid'];
 
         $user_items_objects = user_items_get(
