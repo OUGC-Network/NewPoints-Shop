@@ -39,10 +39,6 @@
     "type": "textarea",
     "value": ""
   },
-  "quick_edit_stock_increase": {
-    "type": "yesno",
-    "value": 0
-  },
   "moderator_groups": {
     "type": "groupselect",
     "value": 4

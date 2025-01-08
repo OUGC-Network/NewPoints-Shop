@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace Newpoints\Shop\Core;
 
+use function Newpoints\Core\get_setting;
+
 use const Newpoints\Shop\ROOT;
 
 function templates_get(string $template_name = '', bool $enable_html_comments = true): string
@@ -37,11 +39,96 @@ function templates_get(string $template_name = '', bool $enable_html_comments = 
     return \Newpoints\Core\templates_get($template_name, $enable_html_comments, ROOT, 'shop_');
 }
 
-function item_get(array $where_clauses = []): array
+function item_insert(array $item_data, bool $is_update = false, int $item_id = 0): int
 {
     global $db;
 
-    $query = $db->simple_select('newpoints_shop_items', '*', implode(' AND ', $where_clauses));
+    $insert_data = [];
+
+    if (isset($item_data['iid'])) {
+        $insert_data['iid'] = (int)$item_data['iid'];
+    }
+
+    if (isset($item_data['cid'])) {
+        $insert_data['cid'] = (int)$item_data['cid'];
+    }
+
+    if (isset($item_data['name'])) {
+        $insert_data['name'] = $db->escape_string($item_data['name']);
+    }
+
+    if (isset($item_data['description'])) {
+        $insert_data['description'] = $db->escape_string($item_data['description']);
+    }
+
+    if (isset($item_data['price'])) {
+        $insert_data['price'] = (float)$item_data['price'];
+    }
+
+    if (isset($item_data['icon'])) {
+        $insert_data['icon'] = $db->escape_string($item_data['icon']);
+    }
+
+    if (isset($item_data['visible'])) {
+        $insert_data['visible'] = (int)$item_data['visible'];
+    }
+
+    if (isset($item_data['disporder'])) {
+        $insert_data['disporder'] = (int)$item_data['disporder'];
+    }
+
+    if (isset($item_data['infinite'])) {
+        $insert_data['infinite'] = (int)$item_data['infinite'];
+    }
+
+    if (isset($item_data['limit'])) {
+        $insert_data['limit'] = (int)$item_data['limit'];
+    }
+
+    if (isset($item_data['stock'])) {
+        $insert_data['stock'] = (int)$item_data['stock'];
+    }
+
+    if (isset($item_data['sendable'])) {
+        $insert_data['sendable'] = (int)$item_data['sendable'];
+    }
+
+    if (isset($item_data['sellable'])) {
+        $insert_data['sellable'] = (int)$item_data['sellable'];
+    }
+
+    if (isset($item_data['pm'])) {
+        $insert_data['pm'] = $db->escape_string($item_data['pm']);
+    }
+
+    if (isset($item_data['pmadmin'])) {
+        $insert_data['pmadmin'] = $db->escape_string($item_data['pmadmin']);
+    }
+
+    if ($is_update) {
+        $db->update_query('newpoints_shop_items', $insert_data, "iid='{$item_id}'", 1);
+    } else {
+        $item_id = (int)$db->insert_query('newpoints_shop_items', $insert_data);
+    }
+
+    return $item_id;
+}
+
+function item_update(array $item_data, int $item_id): int
+{
+    return item_insert($item_data, true, $item_id);
+}
+
+function item_get(array $where_clauses = [], array $query_fields = ['*'], array $query_options = []): array
+{
+    global $db;
+
+    $query = $db->simple_select(
+        'newpoints_shop_items',
+        implode(' AND ', $query_fields),
+        implode(' AND ', $where_clauses),
+        $query_options
+    );
 
     return (array)$db->fetch_array($query);
 }
@@ -118,6 +205,10 @@ function user_item_insert(array $item_data = []): int
         $insert_data['item_id'] = (int)$item_data['item_id'];
     }
 
+    if (isset($item_data['item_price'])) {
+        $insert_data['item_price'] = (float)$item_data['item_price'];
+    }
+
     if (isset($item_data['is_visible'])) {
         $insert_data['is_visible'] = (int)$item_data['is_visible'];
     }
@@ -162,4 +253,16 @@ function user_items_get(
     }
 
     return $user_items_objects;
+}
+
+function user_item_delete(int $user_item_id): int
+{
+    global $db;
+
+    return (int)$db->delete_query('newpoints_shop_user_items', "user_item_id='{$user_item_id}'", 1);
+}
+
+function can_manage_quick_edit(): bool
+{
+    return (bool)is_member(get_setting('quick_edit_manage_groups'));
 }

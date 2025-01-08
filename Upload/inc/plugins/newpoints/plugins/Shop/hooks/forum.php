@@ -45,11 +45,16 @@ use function Newpoints\Core\rules_get_group_rate;
 use function Newpoints\Core\rules_group_get;
 use function Newpoints\Core\run_hooks;
 use function Newpoints\Core\url_handler_build;
+use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
+use function Newpoints\Shop\Core\item_update;
 use function Newpoints\Shop\Core\templates_get;
 use function Newpoints\Shop\Core\items_get;
+use function Newpoints\Shop\Core\user_item_delete;
 use function Newpoints\Shop\Core\user_items_get;
+
+use const Newpoints\Core\LOGGING_TYPE_INCOME;
 
 function newpoints_global_start(array &$hook_arguments): array
 {
@@ -77,6 +82,8 @@ function newpoints_terminate(): bool
     if ($mybb->get_input('action') !== $action_name) {
         return false;
     }
+
+    $mybb->input['iid'] = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
     $per_page = get_setting('shop_per_page');
 
@@ -1132,9 +1139,13 @@ function member_profile_end(): bool
     if (!empty($memprofile['newpoints_items'])) {
         $user_id = (int)$memprofile['uid'];
 
-        $user_shop_objects = user_items_get(["user_id='{$user_id}'", "is_visible='1'"], ['user_item_id, item_id']);
+        $user_items_objects = user_items_get(
+            ["user_id='{$user_id}'", "is_visible='1'"],
+            ['user_item_id, item_id'],
+            ['order_by' => 'display_order', 'order_dir' => 'desc']
+        );
 
-        $items_ids = implode("','", array_map('intval', array_unique(array_column($user_shop_objects, 'item_id'))));
+        $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
 
         $user_limit = $display_limit;
 
@@ -1149,7 +1160,7 @@ function member_profile_end(): bool
 
             $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
 
-            $icon_name = htmlspecialchars_uni($item_data['name']);
+            $item_name = htmlspecialchars_uni($item_data['name']);
 
             $shop_items .= eval(templates_get('profile_icon'));
 
@@ -1246,7 +1257,7 @@ function postbit(array $post): array
         $user_items_objects = user_items_get(
             $where_clauses,
             ['user_item_id, user_id, item_id'],
-            ['order_by' => 'display_order', 'order_dir' => 'desc',]
+            ['order_by' => 'display_order', 'order_dir' => 'desc']
         );
 
         foreach ($user_items_objects as $user_item) {
@@ -1268,7 +1279,7 @@ function postbit(array $post): array
 
     language_load('shop');
 
-    $user_items = array_unique($post_user_items_cache[$post_user_id]);
+    $user_items_objects = array_unique($post_user_items_cache[$post_user_id]);
 
     $user_limit = $display_limit;
 
@@ -1276,7 +1287,7 @@ function postbit(array $post): array
 
     $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
 
-    foreach ($user_items as $user_item_id => $item_id) {
+    foreach ($user_items_objects as $user_item_id => $item_id) {
         if ($user_limit < 1 || empty($post_items_cache[$item_id])) {
             break;
         }
@@ -1289,7 +1300,7 @@ function postbit(array $post): array
 
         $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
 
-        $icon_name = htmlspecialchars_uni($item_data['name']);
+        $item_name = htmlspecialchars_uni($item_data['name']);
 
         $shop_items .= eval(templates_get('post_icon'));
 
@@ -1333,122 +1344,138 @@ function newpoints_default_menu(array &$menu): array
 
 function newpoints_quick_edit_start(array &$hook_arguments): array
 {
-    $hook_arguments['db_fields'][] = 'newpoints_items';
+    if (can_manage_quick_edit()) {
+        $hook_arguments['db_fields'][] = 'newpoints_shop_total_items';
+    }
 
     return $hook_arguments;
 }
 
 function newpoints_quick_edit_post_start(array &$hook_arguments): array
 {
+    if (!can_manage_quick_edit()) {
+        return $hook_arguments;
+    }
+
     global $mybb, $lang, $db;
 
-    $items_input = $mybb->get_input('items', MyBB::INPUT_ARRAY);
+    $selected_user_items_ids = $mybb->get_input('shop_items', MyBB::INPUT_ARRAY);
 
-    if (empty($hook_arguments['user_data']['newpoints_items']) || !$items_input) {
+    if (empty($hook_arguments['user_data']['newpoints_shop_total_items']) || !$selected_user_items_ids) {
         return $hook_arguments;
     }
 
     language_load('shop');
 
-    $user_items = my_unserialize($hook_arguments['user_data']['newpoints_items']);
+    $user_id = (int)$hook_arguments['user_data']['uid'];
 
-    $removed_items_ids = [];
+    $user_points_refund = get_setting('quick_edit_shop_delete_refund');
 
-    foreach ($items_input as $item_id) {
-        $item_id = (int)$item_id;
+    $item_stock_increase = get_setting('quick_edit_shop_delete_stock_increase');
 
-        if (!($check_item = item_get(["iid='{$item_id}'"]))) {
-            error($lang->newpoints_shop_invalid_item);
-        } elseif (!item_get(["iid='{$item_id}'"])) {
-            error($lang->newpoints_shop_invalid_cat);
-        } elseif (!empty($user_items)) {
-            $item_id = (int)$check_item['iid'];
+    foreach ($selected_user_items_ids as $user_item_id) {
+        $user_item_id = (int)$user_item_id;
 
-            $key = array_search($item_id, $user_items);
+        foreach (
+            user_items_get(
+                ["user_id='{$user_id}'", "user_item_id='{$user_item_id}'"],
+                ['user_item_id', 'item_id', 'item_price'],
+                ['limit' => 1]
+            ) as $user_item_data
+        ) {
+            $item_id = (int)$user_item_data['item_id'];
 
-            if ($key === false) {
-                error($lang->newpoints_shop_invalid_item);
-            } else {
-                unset($user_items[$key]);
+            $item_price = $log_type = 0;
 
-                $removed_items_ids[] = $item_id;
+            $item_price = (float)$user_item_data['item_price'];
+
+            user_item_delete($user_item_id);
+
+            if ($user_points_refund && !empty($item_price)) {
+                $log_type = LOGGING_TYPE_INCOME;
+
+                points_add_simple($user_id, $item_price);
+            }
+
+            log_add(
+                'shop_quick_item_delete',
+                '',
+                $hook_arguments['user_data']['username'] ?? '',
+                $user_id,
+                $item_price,
+                $item_id,
+                (int)$mybb->user['uid'],
+                $user_item_id,
+                $log_type
+            );
+
+            $item_data = item_get(["iid='{$item_id}'"], ['stock']);
+
+            if ($item_stock_increase && !empty($item_data)) {
+                item_update(['stock' => $item_data['stock'] + 1], $item_id);
             }
         }
     }
-
-    sort($user_items);
-
-    $user_id = (int)$hook_arguments['user_data']['uid'];
-
-    $db->update_query('users', ['newpoints_items' => my_serialize($user_items)], "uid='{$user_id}'");
-
-    if (get_setting('shop_quick_edit_stock_increase')) {
-        foreach ($removed_items_ids as $item_id) {
-            $check_item = item_get(["iid='{$item_id}'"]);
-
-            $db->update_query(
-                'newpoints_shop_items',
-                ['stock' => $check_item['stock'] + 1],
-                "iid='{$item_id}'"
-            );
-        }
-    }
-
-    $removed_items_ids = implode(',', $removed_items_ids);
-
-    log_add(
-        'quickedit',
-        "uid:{$user_id};items_ids:{$removed_items_ids}",
-        $mybb->user['username'] ?? '',
-        (int)$mybb->user['uid']
-    );
 
     return $hook_arguments;
 }
 
 function newpoints_quick_edit_end(array &$hook_arguments): array
 {
-    if (empty($hook_arguments['user_data']['newpoints_items'])) {
+    if (!can_manage_quick_edit() || empty($hook_arguments['user_data']['newpoints_shop_total_items'])) {
         return $hook_arguments;
     }
 
-    $user_items = my_unserialize($hook_arguments['user_data']['newpoints_items']);
+    $user_id = $hook_arguments['user_data']['uid'];
 
-    $shop_items = '';
+    $user_items_objects = user_items_get(
+        ["user_id='{$user_id}'"],
+        ['user_item_id, item_id'],
+        ['order_by' => 'display_order', 'order_dir' => 'desc']
+    );
 
-    if (!empty($user_items)) {
+    $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
+
+    $post_items_cache = items_get(["iid IN ('{$items_ids}')", "visible='1'"], ['iid', 'name', 'icon']);
+
+    if (!empty($user_items_objects)) {
         global $mybb, $db, $lang;
 
         language_load('shop');
 
-        $query = $db->simple_select(
-            'newpoints_shop_items',
-            'iid, name, icon',
-            'visible=1 AND iid IN (' . implode(',', array_unique($user_items)) . ')',
-            ['order_by' => 'disporder']
-        );
+        $alternative_background = &$hook_arguments['alternative_background'];
 
-        $newpointsFile = main_file_name();
+        $shop_items = '';
 
-        while ($item_data = $db->fetch_array($query)) {
-            $item_id = (int)$item_data['iid'];
+        $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
+
+        $tab_index = 20;
+
+        foreach ($user_items_objects as $user_item_id => $user_item_data) {
+            $url_params['item_id'] = $item_id = (int)$user_item_data['item_id'];
+
+            if (empty($post_items_cache[$item_id])) {
+                break;
+            }
+
+            $item_data = $post_items_cache[$item_id];
+
+            $view_item_url = url_handler_build($url_params);
+
+            $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
 
             $item_name = htmlspecialchars_uni($item_data['name']);
 
-            $item_icon = htmlspecialchars_uni($item_data['icon']);
-
-            $item_data['icon'] = htmlspecialchars_uni(
-                (!empty($item_data['icon']) ? $item_data['icon'] : 'images/newpoints/default.png')
-            );
-
-            $tabindex = $item_id + 10;
+            $item_icon = eval(templates_get('quick_edit_row_item_icon'));
 
             $shop_items .= eval(templates_get('quick_edit_row_item'));
+
+            ++$tab_index;
         }
 
-        $hook_arguments['additional_rows'] .= eval(templates_get('quick_edit_row'));
+        $hook_arguments['additional_rows'][] = eval(templates_get('quick_edit_row'));
 
-        $hook_arguments['alternative_background'] = alt_trow();
+        $alternative_background = alt_trow();
     }
 
     return $hook_arguments;

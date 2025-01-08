@@ -111,8 +111,6 @@ $l['newpoints_shop_user_no_items'] = 'This user has no items.';
 
 $l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
 
-$l['newpoints_shop_quick_edit_description'] = 'Select the items you want to remove from this user.';
-
 $l = array_merge($l, [
     'newpoints_buttons_my_items' => 'My Items',
 
@@ -123,4 +121,7 @@ $l = array_merge($l, [
     'newpoints_shop_post_items' => 'Items',
     'newpoints_shop_post_items_empty' => 'This user has no items.',
     'newpoints_shop_post_items_view_all' => 'View All Items',
+
+    'newpoints_shop_quick_edit' => 'Shop Items',
+    'newpoints_shop_quick_edit_description' => 'Select the items you want to remove from this user.',
 ]);

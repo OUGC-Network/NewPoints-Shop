@@ -40,16 +40,14 @@ use function Newpoints\Core\language_load;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\Core\run_hooks;
-use function Newpoints\Shop\Admin\recount_rebuild_newpoints_recount;
+use function Newpoints\Shop\Admin\recount_rebuild_legacy_storage;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
 
 use const Newpoints\Shop\ROOT;
 
-function newpoints_settings_rebuild_start(array $hook_arguments): array
+function newpoints_settings_rebuild_start(array &$hook_arguments): array
 {
-    global $lang;
-
     language_load('shop');
 
     $hook_arguments['settings_directories'][] = ROOT . '/settings';
@@ -57,7 +55,7 @@ function newpoints_settings_rebuild_start(array $hook_arguments): array
     return $hook_arguments;
 }
 
-function newpoints_templates_rebuild_start(array $hook_arguments): array
+function newpoints_templates_rebuild_start(array &$hook_arguments): array
 {
     $hook_arguments['templates_directories']['shop'] = ROOT . '/templates';
 
@@ -1587,7 +1585,7 @@ function admin_tools_do_recount_rebuild(): bool
             $mybb->input['newpoints_recount_shop_user_items'] = 50;
         }
 
-        recount_rebuild_newpoints_recount();
+        recount_rebuild_legacy_storage();
     }
 
     return true;

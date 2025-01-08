@@ -1,0 +1,10 @@
+{
+  "shop_delete_refund": {
+    "type": "yesno",
+    "value": 1
+  },
+  "shop_delete_stock_increase": {
+    "type": "yesno",
+    "value": 1
+  }
+}

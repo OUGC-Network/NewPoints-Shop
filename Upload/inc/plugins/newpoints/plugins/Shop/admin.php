@@ -47,6 +47,7 @@ use function Newpoints\Core\settings_remove;
 use function Newpoints\Core\templates_remove;
 
 use function Newpoints\Shop\Core\item_get;
+use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_items_get;
 use function Newpoints\Shop\Core\user_update;
@@ -189,6 +190,12 @@ const TABLES_DATA = [
         ],
         'item_id' => [
             'type' => 'INT',
+            'unsigned' => true,
+            'default' => 0
+        ],
+        'item_price' => [
+            'type' => 'DECIMAL',
+            'size' => '16,2',
             'unsigned' => true,
             'default' => 0
         ],
@@ -364,7 +371,7 @@ function redirect(string $message, bool $error = false, string $action = '')
     admin_redirect('index.php?module=newpoints-shop' . $parameters);
 }
 
-function recount_rebuild_newpoints_recount()
+function recount_rebuild_legacy_storage()
 {
     global $db, $mybb, $lang;
 
@@ -398,19 +405,25 @@ function recount_rebuild_newpoints_recount()
             foreach ($user_items as $item_key => $item_id) {
                 $item_id = (int)$item_id;
 
-                $item_data = item_get(["iid='{$item_id}'"]);
+                $item_data = items_get(["iid='{$item_id}'"], ['iid', 'price'], ['limit' => 1]);
 
-                if ($item_data) {
-                    user_item_insert(['user_id' => $user_id, 'item_id' => $item_id]);
-                } else {
-                    unset($user_items[$item_key]);
+                if (!empty($item_data[$item_id])) {
+                    $item_price = (float)$item_data[$item_id]['price'];
 
-                    user_update($user_id, ['newpoints_items' => my_serialize($user_items)]);
+                    user_item_insert(['user_id' => $user_id, 'item_id' => $item_id, 'item_price' => $item_price]);
                 }
+
+                unset($user_items[$item_key]);
+
+                user_update($user_id, ['newpoints_items' => my_serialize($user_items)]);
             }
         }
 
-        $user_shop_objects = user_items_get(["user_id='{$user_id}'"], ['COUNT(user_item_id) AS total_user_items']);
+        $user_shop_objects = user_items_get(
+            ["user_id='{$user_id}'"],
+            ['COUNT(user_item_id) AS total_user_items'],
+            ['order_by' => 'display_order', 'order_dir' => 'desc']
+        );
 
         $total_user_items = (int)($user_shop_objects[0]['total_user_items'] ?? 0);
 

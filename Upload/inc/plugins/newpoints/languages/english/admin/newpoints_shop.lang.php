@@ -52,8 +52,6 @@ $l['setting_newpoints_shop_pm_default'] = 'Default PM';
 $l['setting_newpoints_shop_pm_default_desc'] = 'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
 $l['setting_newpoints_shop_pmadmin_default'] = 'Default Admin PM';
 $l['setting_newpoints_shop_pmadmin_default_desc'] = 'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {itemname} and {itemid}.';
-$l['setting_newpoints_shop_quick_edit_stock_increase'] = 'Increase Item Stock';
-$l['setting_newpoints_shop_quick_edit_stock_increase_desc'] = 'Set to yes if you want items to be increased by 1 when removing users items.';
 $l['setting_newpoints_shop_moderator_groups'] = 'Moderator Groups';
 $l['setting_newpoints_shop_moderator_groups_desc'] = 'Select the groups that can manage the shop.';
 $l['setting_newpoints_shop_action_name'] = 'Action Name';
@@ -199,4 +197,9 @@ $l['newpoints_shop_items_rate_desc'] = 'Items prices are multiplied by this numb
 $l = array_merge($l, [
     'newpoints_recount_shop_user_items' => 'Rebuild NewPoints Shop User Items',
     'newpoints_recount_shop_user_items_desc' => 'When this is run, the NewPoints Shop users items legacy storage will be converted to the new database storage system.',
+
+    'setting_newpoints_quick_edit_shop_delete_refund' => 'Shop Item Delete Refund',
+    'setting_newpoints_quick_edit_shop_delete_refund_desc' => 'When a shop item is deleted, the user will be refunded the price of the item.',
+    'setting_newpoints_quick_edit_shop_delete_stock_increase' => 'Shop Item Delete Stock Increase',
+    'setting_newpoints_quick_edit_shop_delete_stock_increase_desc' => 'Set to yes if you want items to be increased by 1 when removing users items.',
 ]);
