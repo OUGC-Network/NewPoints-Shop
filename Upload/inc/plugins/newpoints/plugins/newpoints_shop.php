@@ -83,3 +83,11 @@ function newpoints_shop_activate(): bool
 {
     return plugin_activation();
 }
+
+(function () {
+    global $groupzerolesser, $grouppermbyswitch;
+
+    $groupzerolesser[] = 'newpoints_rate_shop_sell';
+
+    $grouppermbyswitch['newpoints_rate_shop_sell'] = 'newpoints_shop_can_sell';
+})();

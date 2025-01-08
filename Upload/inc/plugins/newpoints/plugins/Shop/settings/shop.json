@@ -1,23 +1,7 @@
 {
-  "sendable": {
-    "type": "yesno",
-    "value": 1
-  },
-  "sellable": {
-    "type": "yesno",
-    "value": 1
-  },
   "lastpurchases": {
     "type": "text",
     "value": 10
-  },
-  "percent": {
-    "type": "text",
-    "value": "0.75"
-  },
-  "viewothers": {
-    "type": "yesno",
-    "value": 1
   },
   "itemsprofile": {
     "type": "text",
@@ -39,7 +23,7 @@
     "type": "textarea",
     "value": ""
   },
-  "moderator_groups": {
+  "manage_groups": {
     "type": "groupselect",
     "value": 4
   },

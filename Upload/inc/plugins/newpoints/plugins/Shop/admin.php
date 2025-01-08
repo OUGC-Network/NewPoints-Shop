@@ -229,11 +229,55 @@ const FIELDS_DATA = [
         ],
     ],
     'newpoints_grouprules' => [
-        'items_rate' => [
+        'items_rate' => [ // todo: drop this field
             'type' => 'FLOAT',
             'unsigned' => true,
             'default' => 1
         ]
+    ],
+    'usergroups' => [
+        'newpoints_shop_can_view' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'checkBox'
+        ],
+        'newpoints_shop_can_view_inventories' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'checkBox'
+        ],
+        'newpoints_shop_can_send' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'checkBox'
+        ],
+        'newpoints_shop_can_sell' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'checkBox'
+        ],
+        'newpoints_rate_shop_buy' => [
+            'type' => 'FLOAT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'numericField',
+            'formOptions' => [
+                'step' => 0.01
+            ]
+        ],
+        'newpoints_rate_shop_sell' => [
+            'type' => 'INT',
+            'unsigned' => true,
+            'default' => 90,
+            'formType' => 'numericField',
+            'formOptions' => [
+                //'max' => 100
+            ]
+        ],
     ]
 ];
 

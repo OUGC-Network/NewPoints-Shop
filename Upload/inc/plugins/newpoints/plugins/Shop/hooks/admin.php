@@ -40,10 +40,12 @@ use function Newpoints\Core\language_load;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
 use function Newpoints\Core\run_hooks;
+use function Newpoints\Core\users_get_group_permissions;
 use function Newpoints\Shop\Admin\recount_rebuild_legacy_storage;
 use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
 
+use const Newpoints\Shop\Admin\FIELDS_DATA;
 use const Newpoints\Shop\ROOT;
 
 function newpoints_settings_rebuild_start(array &$hook_arguments): array
@@ -60,6 +62,23 @@ function newpoints_templates_rebuild_start(array &$hook_arguments): array
     $hook_arguments['templates_directories']['shop'] = ROOT . '/templates';
 
     return $hook_arguments;
+}
+
+function newpoints_admin_user_groups_edit_graph_start(array &$hook_arguments): array
+{
+    language_load('shop');
+
+    $hook_arguments['data_fields'] = array_merge(
+        $hook_arguments['data_fields'],
+        FIELDS_DATA['usergroups']
+    );
+
+    return $hook_arguments;
+}
+
+function newpoints_admin_user_groups_edit_commit_start(array &$hook_arguments): array
+{
+    return newpoints_admin_user_groups_edit_graph_start($hook_arguments);
 }
 
 function newpoints_admin_stats_noaction_end(): bool
@@ -580,6 +599,8 @@ function newpoints_admin_load()
 
             $user = get_user($uid);
 
+            $user_group_permissions = users_get_group_permissions($uid);
+
             // we're viewing someone else's inventory
             if (empty($user)) {
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_user, true);
@@ -614,9 +635,15 @@ function newpoints_admin_load()
                 );
             }
 
+            $item_price = (float)$item['price'];
+
+            if (!empty($user_group_permissions['newpoints_rate_shop_sell'])) {
+                $item_price = $item_price * ($user_group_permissions['newpoints_rate_shop_sell'] / 100);
+            }
+
             points_add_simple(
-                (int)$uid,
-                (float)($item['price'] * get_setting('shop_percent'))
+                $uid,
+                $item_price
             );
 
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_item_removed, false, 'inventory&amp;uid=' . $uid);
@@ -1499,56 +1526,6 @@ function newpoints_admin_newpoints_permissions(array &$admin_permissions): array
     $admin_permissions['shop'] = $lang->newpoints_shop_canmanage;
 
     return $admin_permissions;
-}
-
-function newpoints_admin_grouprules_add(FormContainer &$form_container): FormContainer
-{
-    global $mybb, $lang, $form, $rule;
-
-    if ($mybb->get_input('action') === 'add') {
-        $form_container->output_row(
-            $lang->newpoints_shop_items_rate,
-            $lang->newpoints_shop_items_rate_desc,
-            $form->generate_text_box(
-                'items_rate',
-                1,
-                ['id' => 'items_rate']
-            ),
-            'items_rate'
-        );
-    } elseif ($mybb->get_input('action') === 'edit') {
-        $form_container->output_row(
-            $lang->newpoints_shop_items_rate,
-            $lang->newpoints_shop_items_rate_desc,
-            $form->generate_text_box(
-                'items_rate',
-                $rule['items_rate'],
-                ['id' => 'items_rate']
-            ),
-            'items_rate'
-        );
-    }
-
-    return $form_container;
-}
-
-function newpoints_admin_grouprules_edit(FormContainer &$form_container): FormContainer
-{
-    return newpoints_admin_grouprules_add($form_container);
-}
-
-function newpoints_admin_grouprules_add_insert(array &$insert_data)
-{
-    global $mybb;
-
-    $insert_data['items_rate'] = $mybb->get_input('items_rate', MyBB::INPUT_FLOAT);
-
-    return $insert_data;
-}
-
-function newpoints_admin_grouprules_edit_update(array &$insert_data): array
-{
-    return newpoints_admin_grouprules_add_insert($insert_data);
 }
 
 function admin_tools_recount_rebuild_output_list(): bool

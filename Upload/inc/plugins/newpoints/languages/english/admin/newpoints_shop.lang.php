@@ -32,16 +32,8 @@ $l['newpoints_shop_canmanage'] = 'Can manage Shop?';
 $l['setting_group_newpoints_shop'] = 'Shop';
 $l['setting_group_newpoints_shop_desc'] = 'Integrates a shop system with NewPoints.';
 
-$l['setting_newpoints_shop_sendable'] = 'Send items';
-$l['setting_newpoints_shop_sendable_desc'] = 'Allow users to send items to other users.';
-$l['setting_newpoints_shop_sellable'] = 'Sell items';
-$l['setting_newpoints_shop_sellable_desc'] = 'Allow users to sell items.';
 $l['setting_newpoints_shop_lastpurchases'] = 'Last Purchases';
 $l['setting_newpoints_shop_lastpurchases_desc'] = 'Number of last purchases to show in statistics.';
-$l['setting_newpoints_shop_percent'] = 'Sell Percentage';
-$l['setting_newpoints_shop_percent_desc'] = 'The (discounted) rate at which items can be sold for.';
-$l['setting_newpoints_shop_viewothers'] = "Can View Others' inventories";
-$l['setting_newpoints_shop_viewothers_desc'] = "Allow users to view other users' inventories. Note, admins always are able to view other users' inventories.";
 $l['setting_newpoints_shop_itemsprofile'] = 'Items on profile';
 $l['setting_newpoints_shop_itemsprofile_desc'] = 'Number of items to show in profile page. Set to 0 to disable this feature.';
 $l['setting_newpoints_shop_itemspostbit'] = 'Items on postbit';
@@ -190,10 +182,6 @@ $l['newpoints_shop_price'] = 'Price';
 $l['newpoints_shop_date'] = 'Date';
 $l['newpoints_stats_lastpurchases'] = 'Last Purchases';
 
-// Rule
-$l['newpoints_shop_items_rate'] = 'Items Rate';
-$l['newpoints_shop_items_rate_desc'] = 'Items prices are multiplied by this number. Default is 1';
-
 $l = array_merge($l, [
     'newpoints_recount_shop_user_items' => 'Rebuild NewPoints Shop User Items',
     'newpoints_recount_shop_user_items_desc' => 'When this is run, the NewPoints Shop users items legacy storage will be converted to the new database storage system.',
@@ -202,4 +190,11 @@ $l = array_merge($l, [
     'setting_newpoints_quick_edit_shop_delete_refund_desc' => 'When a shop item is deleted, the user will be refunded the price of the item.',
     'setting_newpoints_quick_edit_shop_delete_stock_increase' => 'Shop Item Delete Stock Increase',
     'setting_newpoints_quick_edit_shop_delete_stock_increase_desc' => 'Set to yes if you want items to be increased by 1 when removing users items.',
+
+    'newpoints_user_groups_shop_can_view' => 'Can view Shop?',
+    'newpoints_user_groups_shop_can_view_inventories' => 'Can view inventories?',
+    'newpoints_user_groups_shop_can_send' => 'Can send items?',
+    'newpoints_user_groups_shop_can_sell' => 'Can sell items?',
+    'newpoints_user_groups_rate_shop_buy' => 'Items Purchase Rate <br /><small class="input">The items rate for this group, used when subtracting points from users when purchasing items. Default is <code>1</code>.</small><br />',
+    'newpoints_user_groups_rate_shop_sell' => 'Items Selling Rate <code style="color: darkorange;">This works as a percentage. So "0" = user does not recovers anything "100" = users recover full item price, "200" = user receive twice the item price, etc.</code><br /><small class="input">The items rate for this group, used when adding points when users sell their items back to the shop. Default is <code>90</code>.</small><br />',
 ]);

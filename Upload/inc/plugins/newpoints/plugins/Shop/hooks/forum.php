@@ -94,7 +94,8 @@ function newpoints_terminate(): bool
 {
     global $mybb;
 
-    if ($mybb->get_input('action') !== get_setting('shop_action_name')) {
+    if ($mybb->get_input('action') !== get_setting('shop_action_name') ||
+        empty($mybb->usergroup['newpoints_shop_can_view'])) {
         return false;
     }
 
@@ -174,16 +175,10 @@ function newpoints_terminate(): bool
 
                 $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
-                $rule_group = rules_group_get((int)$mybb->user['usergroup']);
-
-                if (!$rule_group) {
-                    $rule_group['items_rate'] = 1.0;
-                }
-
                 $item_price = (float)$item_data['price'];
 
-                if ($rule_group['items_rate']) {
-                    $item_price = $item_price * (float)$rule_group['items_rate'];
+                if (!empty($mybb->usergroup['newpoints_rate_shop_buy'])) {
+                    $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_buy'];
                 }
 
                 if ($item_price > $mybb->user['newpoints']) {
@@ -513,8 +508,8 @@ function newpoints_terminate(): bool
                     $item_price = 0;
                 }
 
-                if (get_setting('shop_percent')) {
-                    $item_price = $item_price * get_setting('shop_percent');
+                if (!empty($mybb->usergroup['newpoints_rate_shop_sell'])) {
+                    $item_price = $item_price * ($mybb->usergroup['newpoints_rate_shop_sell'] / 100);
                 }
 
                 $lang->newpoints_page_confirm_table_purchase_title = $lang->newpoints_shop_confirm_sell_title;
@@ -635,12 +630,6 @@ function newpoints_terminate(): bool
 
         $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
-        // check group rules - primary group check
-        $rule_group = rules_group_get((int)$mybb->user['usergroup']);
-        if (!$rule_group) {
-            $rule_group['items_rate'] = 1.0;
-        } // no rule set so default income rate is 1
-
         $item_price = (float)$item_data['price'];
 
         if ($item_price > $mybb->user['newpoints']) {
@@ -649,8 +638,8 @@ function newpoints_terminate(): bool
             $item_price_class = 'sufficient_funds';
         }
 
-        if ($rule_group['items_rate']) {
-            $item_price = $item_price * $rule_group['items_rate'];
+        if (!empty($mybb->usergroup['newpoints_rate_shop_buy'])) {
+            $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_buy'];
         }
 
         if ($item_price > $mybb->user['newpoints']) {
@@ -712,7 +701,7 @@ function newpoints_terminate(): bool
 
         $user_data = get_user($user_id);
 
-        if (!$user_data || $user_id !== $current_user_id && !get_setting('shop_viewothers')) {
+        if (!$user_data || $user_id !== $current_user_id && empty($mybb->usergroup['newpoints_shop_can_view_inventories'])) {
             error_no_permission();
         }
 
@@ -807,12 +796,12 @@ function newpoints_terminate(): bool
 
             $option_buttons = $button_sell = $button_send = '';
 
-            if (get_setting('shop_sellable') && !empty($item_data['sellable'])) {
-                $button_sell = eval(templates_get('my_items_row_options_sell'));
+            if (!empty($mybb->usergroup['newpoints_shop_can_send']) && !empty($item_data['sendable'])) {
+                $button_send = eval(templates_get('my_items_row_options_send'));
             }
 
-            if (get_setting('shop_sendable') && !empty($item_data['sendable'])) {
-                $button_send = eval(templates_get('my_items_row_options_send'));
+            if (!empty($mybb->usergroup['newpoints_shop_can_sell']) && !empty($item_data['sellable'])) {
+                $button_sell = eval(templates_get('my_items_row_options_sell'));
             }
 
             if ($button_send && $button_sell) {
@@ -831,19 +820,11 @@ function newpoints_terminate(): bool
 
             $item_icon = eval(templates_get('my_items_row_icon'));
 
-            $rule_group = rules_group_get((int)$mybb->user['usergroup']);
-
-            if (!$rule_group) {
-                $rule_group['items_rate'] = 1.0;
-            }
-
-            if (!(float)$rule_group['items_rate']) {
-                $item_data['price'] = 0;
-            } else {
-                $item_data['price'] = $item_data['price'] * (float)$rule_group['items_rate'];
-            }
-
             $item_price = (float)$item_data['price'];
+
+            if (!empty($mybb->usergroup['newpoints_rate_shop_buy'])) {
+                $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_buy'];
+            }
 
             if ($item_price > $mybb->user['newpoints']) {
                 $price_class = 'insufficient_funds';
@@ -880,15 +861,7 @@ function newpoints_terminate(): bool
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } else {
-        $group_rules = rules_get_group_rate();
-
-        $rule_group = rules_group_get((int)$mybb->user['usergroup']);
-
-        if (empty($rule_group['items_rate'])) {
-            $items_rate = 1.0;
-        } else {
-            $items_rate = $rule_group['items_rate'];
-        }
+        $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_buy'];
 
         global $cats, $items;
 
@@ -1437,12 +1410,16 @@ function postbit(array $post): array
 
 function newpoints_default_menu(array &$menu): array
 {
-    language_load('shop');
+    global $mybb;
 
-    $menu[get_setting('shop_menu_order')] = [
-        'action' => get_setting('shop_action_name'),
-        'lang_string' => 'newpoints_shop_page_title'
-    ];
+    if (!empty($mybb->usergroup['newpoints_shop_can_view'])) {
+        language_load('shop');
+
+        $menu[get_setting('shop_menu_order')] = [
+            'action' => get_setting('shop_action_name'),
+            'lang_string' => 'newpoints_shop_page_title'
+        ];
+    }
 
     return $menu;
 }
