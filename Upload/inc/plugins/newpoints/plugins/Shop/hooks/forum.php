@@ -98,6 +98,8 @@ function newpoints_terminate(): bool
     global $db, $lang, $theme, $header, $templates, $headerinclude, $footer, $options;
     global $page_title, $newpoints_pagination, $newpoints_menu, $newpoints_errors, $newpoints_additional, $newpoints_content;
 
+    $footer .= eval(templates_get('css'));
+
     $formUrl = url_handler_build([
         'action' => $action_name
     ]);
@@ -117,12 +119,12 @@ function newpoints_terminate(): bool
                 $hook_arguments = run_hooks('shop_buy_start', $hook_arguments);
 
                 // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('iid', MyBB::INPUT_INT)}'"]))) {
+                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
                 // check if the item is assigned to category
-                if (!($cat = category_get((int)$item['cid']))) {
+                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
@@ -256,12 +258,12 @@ function newpoints_terminate(): bool
                 run_hooks('shop_send_start');
 
                 // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('iid', MyBB::INPUT_INT)}'"]))) {
+                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
                 // check if the item is assigned to category
-                if (!($cat = category_get((int)$item['cid']))) {
+                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
@@ -291,7 +293,7 @@ function newpoints_terminate(): bool
                 global $shop_action, $data, $colspan;
                 $colspan = 2;
                 $shop_action = 'do_send';
-                $fields = '<input type="hidden" name="iid" value="' . $item['iid'] . '">';
+                $fields = '<input type="hidden" name="item_id" value="' . $item['iid'] . '">';
                 $data = "<td class=\"trow1\" width=\"50%\"><strong>" . $lang->newpoints_shop_send_item_username . ':</strong><br /><small>' . $lang->newpoints_shop_send_item_message . "</small></td><td class=\"trow1\" width=\"50%\"><input type=\"text\" class=\"textbox\" name=\"username\" value=\"\"></td>";
 
                 run_hooks('shop_send_end');
@@ -304,12 +306,12 @@ function newpoints_terminate(): bool
                 run_hooks('shop_do_send_start');
 
                 // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('iid', MyBB::INPUT_INT)}'"]))) {
+                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
                 // check if the item is assigned to category
-                if (!($cat = category_get((int)$item['cid']))) {
+                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
@@ -406,12 +408,12 @@ function newpoints_terminate(): bool
                 run_hooks('shop_sell_start');
 
                 // check if the item exists
-                if (!($item = item_get(["iid='{$mybb->get_input('iid', MyBB::INPUT_INT)}'"]))) {
+                if (!($item = item_get(["iid='{$mybb->get_input('item_id', MyBB::INPUT_INT)}'"]))) {
                     error($lang->newpoints_shop_invalid_item);
                 }
 
                 // check if the item is assigned to category
-                if (!($cat = category_get((int)$item['cid']))) {
+                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
@@ -441,7 +443,7 @@ function newpoints_terminate(): bool
                 global $shop_action, $data, $colspan;
                 $colspan = 1;
                 $shop_action = 'do_sell';
-                $fields = '<input type="hidden" name="iid" value="' . $item['iid'] . '">';
+                $fields = '<input type="hidden" name="item_id" value="' . $item['iid'] . '">';
                 $data = "<td class=\"trow1\" width=\"100%\">" . $lang->sprintf(
                         $lang->newpoints_shop_sell_item_confirm,
                         htmlspecialchars_uni($item['name']),
@@ -465,7 +467,7 @@ function newpoints_terminate(): bool
                 }
 
                 // check if the item is assigned to category
-                if (!($cat = category_get((int)$item['cid']))) {
+                if (!($cat = category_get(["cid='{$item['cid']}'"]))) {
                     error($lang->newpoints_shop_invalid_cat);
                 }
 
@@ -548,28 +550,33 @@ function newpoints_terminate(): bool
 
     $newpoints_buttons = '';
 
-    if ($mybb->get_input('view') == 'view') {
-        // check if the item exists
-        if (!($item = item_get(["iid='{$mybb->get_input('iid', MyBB::INPUT_INT)}'"]))) {
+    if ($mybb->get_input('view') == 'item') {
+        $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+
+        $item_data = item_get(
+            ["iid='{$item_id}'", "visible='1'"],
+            ['cid', 'name', 'description', 'price', 'icon', 'infinite', 'stock', 'sendable', 'sellable']
+        );
+
+        if (!$item_data) {
             error($lang->newpoints_shop_invalid_item);
         }
 
-        // check if the item is assigned to category
-        if (!($cat = category_get((int)$item['cid']))) {
+        $category_id = (int)$item_data['cid'];
+
+        $category_data = category_get(["cid='{$category_id}'", "visible='1'"], ['usergroups']);
+
+        if (empty($category_data)) {
             error($lang->newpoints_shop_invalid_cat);
         }
 
-        // check if we have permissions to view the parent category
-        if (!is_member($cat['usergroups'])) {
+        if (!is_member($category_data['usergroups'])) {
             error_no_permission();
         }
 
-        if ($item['visible'] == 0 || $cat['visible'] == 0) {
-            error_no_permission();
-        }
+        $item_name = htmlspecialchars_uni($item_data['name']);
 
-        $item['name'] = htmlspecialchars_uni($item['name']);
-        $item['description'] = htmlspecialchars_uni($item['description']);
+        $item_description = htmlspecialchars_uni($item_data['description']);
 
         // check group rules - primary group check
         $rule_group = rules_group_get((int)$mybb->user['usergroup']);
@@ -577,42 +584,48 @@ function newpoints_terminate(): bool
             $rule_group['items_rate'] = 1.0;
         } // no rule set so default income rate is 1
 
-        // if the group items rate is 0, the price of the item is 0
-        if (!(float)$rule_group['items_rate']) {
-            $item['price'] = 0;
+        $item_price = (float)$item_data['price'];
+
+        if ($item_price > $mybb->user['newpoints']) {
+            $item_price_class = 'insufficient_funds';
         } else {
-            $item['price'] = $item['price'] * (float)$rule_group['items_rate'];
+            $item_price_class = 'sufficient_funds';
         }
 
-        $item['price'] = points_format((float)$item['price']);
-        if ($item['price'] > $mybb->user['newpoints']) {
-            $item['price'] = '<span style="color: #FF0000;">' . $item['price'] . '</span>';
+        if ($rule_group['items_rate']) {
+            $item_price = $item_price * $rule_group['items_rate'];
         }
 
-        // build icon
-        if ($item['icon'] != '') {
-            $item['icon'] = htmlspecialchars_uni($item['icon']);
-            $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/' . $item['icon'] . '">';
+        $item_price = points_format($item_price);
+
+        $item_icon = htmlspecialchars_uni(
+            $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+        );
+
+        $view_item_url = url_handler_build([
+            'action' => $action_name,
+            'view' => 'item',
+            'item_id' => $item_id
+        ]);
+
+        $item_icon = eval(templates_get('view_item_icon'));
+
+        if (!empty($item_data['infinite'])) {
+            $item_stock = $lang->newpoints_shop_infinite;
         } else {
-            $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">';
+            $item_stock = my_number_format($item_data['stock']);
         }
 
-        if ($item['infinite'] == 1) {
-            $item['stock'] = $lang->newpoints_shop_infinite;
+        if (!empty($item_data['sendable'])) {
+            $item_can_be_sent = $lang->newpoints_shop_yes;
         } else {
-            $item['stock'] = (int)$item['stock'];
+            $item_can_be_sent = $lang->newpoints_shop_no;
         }
 
-        if ($item['sendable'] == 1) {
-            $item['sendable'] = $lang->newpoints_shop_yes;
+        if (!empty($item_data['sellable'])) {
+            $item_can_be_sold = $lang->newpoints_shop_yes;
         } else {
-            $item['sendable'] = $lang->newpoints_shop_no;
-        }
-
-        if ($item['sellable'] == 1) {
-            $item['sellable'] = $lang->newpoints_shop_yes;
-        } else {
-            $item['sellable'] = $lang->newpoints_shop_no;
+            $item_can_be_sold = $lang->newpoints_shop_no;
         }
 
         $buy_item_url = url_handler_build([
@@ -620,7 +633,11 @@ function newpoints_terminate(): bool
             'view' => 'buy'
         ]);
 
-        $page = eval(templates_get('view_item'));
+        $page_title = $lang->newpoints_shop_view_item;
+
+        $newpoints_content = eval(templates_get('view_item'));
+
+        $page = eval(\Newpoints\Core\templates_get('page'));
     } elseif ($mybb->get_input('view') == 'my_items') {
         $uid = $mybb->get_input('uid', MyBB::INPUT_INT);
         $uidpart = '';
@@ -719,7 +736,7 @@ function newpoints_terminate(): bool
                         $tdstart = '<td width="100%">';
                     }
 
-                    $sell = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="sell"><input type="hidden" name="iid" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_sell . '"></form></td>';
+                    $sell = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="sell"><input type="hidden" name="item_id" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_sell . '"></form></td>';
                 } else {
                     $sell = '';
                 }
@@ -731,7 +748,7 @@ function newpoints_terminate(): bool
                         $tdstart = '<td width="50%">';
                     }
 
-                    $send = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="send"><input type="hidden" name="iid" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_send . '"></form></td>';
+                    $send = $tdstart . '<form action="' . $formUrl . '" method="POST"><input type="hidden" name="action" value="' . $action_name . '"><input type="hidden" name="view" value="send"><input type="hidden" name="item_id" value="' . $item['iid'] . '"><input type="hidden" name="my_post_key" value="' . $mybb->post_code . '"><input type="submit" name="submit" value="' . $lang->newpoints_shop_send . '"></form></td>';
                 } else {
                     $send = '';
                 }
@@ -761,7 +778,7 @@ function newpoints_terminate(): bool
                 // build icon
                 if ($item['icon'] != '') {
                     $item['icon'] = htmlspecialchars_uni($item['icon']);
-                    $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/' . $item['icon'] . '" style="width: 24px; height: 24px">';
+                    $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/' . $item['icon'] . '" style=" max-width: 24px; max-height: 24px">';
                 } else {
                     $item['icon'] = '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">';
                 }
@@ -772,8 +789,8 @@ function newpoints_terminate(): bool
 
                 $view_item_url = url_handler_build([
                     'action' => $action_name,
-                    'view' => 'view',
-                    'iid' => $item['iid']
+                    'view' => 'item',
+                    'item_id' => $item['iid']
                 ]);
 
                 $items .= eval(templates_get('myitems_item'));
@@ -1016,15 +1033,15 @@ function newpoints_terminate(): bool
                     } else {
                         $view_item_url = url_handler_build([
                             'action' => $action_name,
-                            'view' => 'view',
-                            'iid' => $item_id
+                            'view' => 'item',
+                            'item_id' => $item_id
                         ]);
                     }
 
                     $buy_item_url = url_handler_build([
                         'action' => $action_name,
                         'view' => 'buy',
-                        'iid' => $item_id
+                        'item_id' => $item_id
                     ]);
 
                     $items_rows .= eval(templates_get('item'));
@@ -1154,7 +1171,7 @@ function member_profile_end(): bool
 
     $shop_items = '';
 
-    $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
+    $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
 
     if (!empty($memprofile['newpoints_items'])) {
         $user_id = (int)$memprofile['uid'];
@@ -1178,7 +1195,9 @@ function member_profile_end(): bool
 
             $view_item_url = url_handler_build($url_params);
 
-            $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
+            $item_icon = htmlspecialchars_uni(
+                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+            );
 
             $item_name = htmlspecialchars_uni($item_data['name']);
 
@@ -1297,7 +1316,7 @@ function postbit(array $post): array
 
     $shop_items = '';
 
-    $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
+    $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
 
     foreach ($user_items_objects as $user_item_id => $item_id) {
         if ($user_limit < 1 || empty($post_items_cache[$item_id])) {
@@ -1310,7 +1329,9 @@ function postbit(array $post): array
 
         $view_item_url = url_handler_build($url_params);
 
-        $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
+        $item_icon = htmlspecialchars_uni(
+            $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+        );
 
         $item_name = htmlspecialchars_uni($item_data['name']);
 
@@ -1459,7 +1480,7 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
         $shop_items = '';
 
-        $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
+        $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
 
         $tab_index = 20;
 
@@ -1474,7 +1495,9 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
             $view_item_url = url_handler_build($url_params);
 
-            $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
+            $item_icon = htmlspecialchars_uni(
+                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+            );
 
             $item_name = htmlspecialchars_uni($item_data['name']);
 

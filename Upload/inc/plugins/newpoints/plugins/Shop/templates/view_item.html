@@ -1,64 +1,41 @@
-<html>
-<head>
-    <title>{$lang->newpoints} - {$lang->newpoints_shop_view_item}</title>
-    {$headerinclude}
-</head>
-<body>
-{$header}
-<table width="100%" border="0" align="center">
+<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
+       class="tborder">
     <tr>
-        <td valign="top" width="180">
-            <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
-                   class="tborder">
-                <tr>
-                    <td class="thead"><strong>{$lang->newpoints_menu}</strong></td>
-                </tr>
-                {$options}
-            </table>
+        <td class="thead">
+            <strong>{$lang->newpoints_shop_view_item}:</strong> {$item_name}
         </td>
-        <td valign="top">
-            {$newpoints_errors}
-            <table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}"
-                   class="tborder">
-                <tr>
-                    <td class="thead" width="100%"><strong>{$lang->newpoints_shop_view_item}:</strong> {$item['name']}
-                    </td>
-                </tr>
-                <tr>
-                    <td class="trow1" width="100%">
-                        <div style="float: left; padding: 5px">{$item['icon']}</div>
-                        {$item['name']}<br/><span class="smalltext">{$item['description']}</span></td>
-                </tr>
-                <tr>
-                    <td class="trow2" width="100%"><strong>{$lang->newpoints_shop_price}:</strong> {$item['price']}</td>
-                </tr>
-                <tr>
-                    <td class="trow1" width="100%"><strong>{$lang->newpoints_shop_stock}:</strong> {$item['stock']}</td>
-                </tr>
-                <tr>
-                    <td class="trow2" width="100%"><strong>{$lang->newpoints_shop_sendable}:</strong>
-                        {$item['sendable']}
-                    </td>
-                </tr>
-                <tr>
-                    <td class="trow1" width="100%"><strong>{$lang->newpoints_shop_sellable}:</strong>
-                        {$item['sellable']}
-                    </td>
-                </tr>
-                <tr>
-                    <td class="tfoot" width="100%" align="center" colspan="2">
-                        <form action="{$mybb->settings['bburl']}/{$buy_item_url}" method="POST"><input
-                                type="hidden" name="my_post_key" value="{$mybb->post_code}"><input type="hidden"
-                                                                                                   name="iid"
-                                                                                                   value="{$item['iid']}"><input
-                                type="submit" name="buy" value="{$lang->newpoints_shop_buy}"
-                                onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');"></form>
-                    </td>
-                </tr>
-            </table>
+    </tr>
+    <tr>
+        <td class="trow1">
+            <div style="float: left; padding: 5px">{$item_icon}</div>
+            {$item_name}<br/><span class="smalltext">{$item_description}</span>
+        </td>
+    </tr>
+    <tr>
+        <td class="trow2"><strong>{$lang->newpoints_shop_price}:</strong> {$item_price}</td>
+    </tr>
+    <tr>
+        <td class="trow1"><strong>{$lang->newpoints_shop_stock}:</strong> {$item_stock}</td>
+    </tr>
+    <tr>
+        <td class="trow2"><strong>{$lang->newpoints_shop_sendable}:</strong>
+            {$item_can_be_sent}
+        </td>
+    </tr>
+    <tr>
+        <td class="trow1"><strong>{$lang->newpoints_shop_sellable}:</strong>
+            {$item_can_be_sold}
+        </td>
+    </tr>
+    <tr>
+        <td class="tfoot" align="center" colspan="2">
+            <form action="{$mybb->settings['bburl']}/{$buy_item_url}" method="POST">
+                <input type="hidden" name="my_post_key" value="{$mybb->post_code}">
+                <input type="hidden" name="item_id" value="{$item_id}">
+                <input type="submit" name="buy" value="{$lang->newpoints_shop_buy}"
+                       onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');">
+            </form>
         </td>
     </tr>
 </table>
-{$footer}
-</body>
-</html>
+<br/>

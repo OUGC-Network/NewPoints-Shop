@@ -133,15 +133,15 @@ function item_get(array $where_clauses = [], array $query_fields = ['*'], array 
     return (array)$db->fetch_array($query);
 }
 
-function category_get(int $cid = 0): array
+function category_get(array $where_clauses, array $query_fields = ['*']): array
 {
-    if (!$cid) {
-        return [];
-    }
-
     global $db;
 
-    $query = $db->simple_select('newpoints_shop_categories', '*', "cid='{$cid}'");
+    $query = $db->simple_select(
+        'newpoints_shop_categories',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses)
+    );
 
     if (!$db->num_rows($query)) {
         return [];

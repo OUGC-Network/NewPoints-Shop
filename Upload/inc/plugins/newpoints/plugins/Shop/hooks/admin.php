@@ -213,7 +213,7 @@ function newpoints_admin_load()
                 break;
             case 'do_editcat':
 
-                if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+                if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
                     \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
                 }
 
@@ -346,7 +346,7 @@ function newpoints_admin_load()
 
                 $sellable = $mybb->get_input('sellable', MyBB::INPUT_INT);
 
-                if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+                if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
                     \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
                 }
 
@@ -378,7 +378,7 @@ function newpoints_admin_load()
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_item_added, false, 'items&amp;cid=' . $cid);
                 break;
             case 'do_edititem':
-                $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
+                $iid = $mybb->get_input('item_id', MyBB::INPUT_INT);
                 if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
                     \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items');
                 }
@@ -439,7 +439,7 @@ function newpoints_admin_load()
 
                 $sellable = $mybb->get_input('sellable', MyBB::INPUT_INT);
 
-                if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+                if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
                     \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
                 }
 
@@ -488,7 +488,7 @@ function newpoints_admin_load()
         }
 
         if ($mybb->request_method == 'post') {
-            if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+            if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
             }
 
@@ -520,7 +520,7 @@ function newpoints_admin_load()
 
         $page->output_header($lang->newpoints_shop);
 
-        $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
+        $iid = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         if (isset($mybb->input['no'])) {
             admin_redirect('index.php?module=newpoints-shop', 0, 'items&amp;cid=' . $cid);
@@ -541,7 +541,7 @@ function newpoints_admin_load()
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_item_deleted, false, 'items&amp;cid=' . $cid);
         } else {
             $form = new Form(
-                "index.php?module=newpoints-shop&amp;action=do_deleteitem&amp;iid={$mybb->get_input('iid', MyBB::INPUT_INT)}&amp;my_post_key={$mybb->post_code}",
+                "index.php?module=newpoints-shop&amp;action=do_deleteitem&amp;iid={$mybb->get_input('item_id', MyBB::INPUT_INT)}&amp;my_post_key={$mybb->post_code}",
                 'post'
             );
 
@@ -561,7 +561,7 @@ function newpoints_admin_load()
 
         $page->output_header($lang->newpoints_shop);
 
-        $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
+        $iid = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         if (isset($mybb->input['no'])) {
             admin_redirect('index.php?module=newpoints-shop', 0, 'items&amp;cid=' . $cid);
@@ -622,7 +622,7 @@ function newpoints_admin_load()
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_item_removed, false, 'inventory&amp;uid=' . $uid);
         } else {
             $form = new Form(
-                "index.php?module=newpoints-shop&amp;action=remove&amp;iid={$mybb->get_input('iid', MyBB::INPUT_INT)}&amp;uid={$mybb->get_input('uid', MyBB::INPUT_INT)}&amp;my_post_key={$mybb->post_code}",
+                "index.php?module=newpoints-shop&amp;action=remove&amp;iid={$mybb->get_input('item_id', MyBB::INPUT_INT)}&amp;uid={$mybb->get_input('uid', MyBB::INPUT_INT)}&amp;my_post_key={$mybb->post_code}",
                 'post'
             );
 
@@ -754,7 +754,7 @@ function newpoints_admin_load()
                     $cat['icon']
                 ) ? '<img src="' . $mybb->settings['bburl'] . '/' . htmlspecialchars_uni(
                         $cat['icon']
-                    ) . '" style="width: 24px; height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
+                    ) . '" style="max-width: 24px; max-height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
                 ['class' => 'align_center']
             );
 
@@ -877,7 +877,7 @@ function newpoints_admin_load()
     } elseif ($mybb->get_input('action') === 'editcat') {
         $page->output_nav_tabs($sub_tabs, 'newpoints_shop_categories_edit');
 
-        if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+        if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
         }
 
@@ -970,7 +970,7 @@ function newpoints_admin_load()
     } elseif ($mybb->get_input('action') === 'items') {
         $page->output_nav_tabs($sub_tabs, 'newpoints_shop_items');
 
-        if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+        if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
         }
 
@@ -1017,7 +1017,7 @@ function newpoints_admin_load()
                     $item['icon']
                 ) ? '<img src="' . $mybb->settings['bburl'] . '/' . htmlspecialchars_uni(
                         $item['icon']
-                    ) . '" style="width: 24px; height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
+                    ) . '" style="max-width: 24px; max-height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
                 ['class' => 'align_center']
             );
 
@@ -1060,7 +1060,7 @@ function newpoints_admin_load()
         $page->output_nav_tabs($sub_tabs, 'newpoints_shop_items_add');
 
         if ($cid > 0) {
-            if ($cid <= 0 || (!($cat = category_get((int)$cid)))) {
+            if ($cid <= 0 || (!($cat = category_get(["cid='{$cid}'"])))) {
                 \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_cat, true);
             }
         } else {
@@ -1209,7 +1209,7 @@ function newpoints_admin_load()
     } elseif ($mybb->get_input('action') === 'edititem') {
         $page->output_nav_tabs($sub_tabs, 'newpoints_shop_items_edit');
 
-        $iid = $mybb->get_input('iid', MyBB::INPUT_INT);
+        $iid = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         if ($iid <= 0 || (!($item = item_get(["iid='{$iid}'"])))) {
             \Newpoints\Shop\Admin\redirect($lang->newpoints_shop_invalid_item, true, 'items');
@@ -1225,7 +1225,7 @@ function newpoints_admin_load()
 
         $form = new Form('index.php?module=newpoints-shop&amp;action=do_edititem', 'post', 'newpoints_shop', 1);
 
-        echo $form->generate_hidden_field('iid', $iid);
+        echo $form->generate_hidden_field('item_id', $iid);
 
         $form_container = new FormContainer($lang->newpoints_shop_additem);
 
@@ -1430,7 +1430,7 @@ function newpoints_admin_load()
                     $item['icon']
                 ) ? '<img src="' . $mybb->settings['bburl'] . '/' . htmlspecialchars_uni(
                         $item['icon']
-                    ) . '" style="width: 24px; height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
+                    ) . '" style="max-width: 24px; max-height: 24px">' : '<img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png">',
                 ['class' => 'align_center']
             );
 
