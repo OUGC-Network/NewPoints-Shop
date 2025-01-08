@@ -172,6 +172,8 @@ function newpoints_terminate(): bool
 
                 $item_name = htmlspecialchars_uni($item_data['name']);
 
+                $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
+
                 $rule_group = rules_group_get((int)$mybb->user['usergroup']);
 
                 if (!$rule_group) {
@@ -205,13 +207,12 @@ function newpoints_terminate(): bool
                     }
                 }
 
-                if (empty($errors)) {
+                if (empty($errors) && isset($mybb->input['confirm'])) {
                     $insert_data = [
                         'user_id' => $current_user_id,
                         'item_id' => $item_id,
                         'item_price' => $item_price
                     ];
-
 
                     $user_item_id = user_item_insert($insert_data);
 
@@ -279,6 +280,37 @@ function newpoints_terminate(): bool
                         $lang->newpoints_shop_item_bought_title
                     );
                 }
+
+                if (!isset($mybb->input['confirm'])) {
+                    $message = $lang->sprintf(
+                        $lang->newpoints_shop_sell_item_confirm,
+                        $item_name,
+                        points_format($item_price)
+                    );
+
+                    $item_price = points_format($item_price);
+
+                    $item_icon = htmlspecialchars_uni(
+                        $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+                    );
+
+                    $view_item_url = url_handler_build([
+                        'action' => $action_name,
+                        'view' => 'item',
+                        'item_id' => $item_id
+                    ]);
+
+                    $item_icon = eval(templates_get('confirm_buy_icon'));
+
+                    page_build_purchase_confirmation(
+                        $lang->newpoints_shop_confirm_buy_description,
+                        'item_id',
+                        $item_id,
+                        'buy',
+                        eval(templates_get('confirm_buy'))
+                    );
+                }
+
                 break;
             case 'send':
                 $user_item_id = $mybb->get_input('user_item_id', MyBB::INPUT_INT);

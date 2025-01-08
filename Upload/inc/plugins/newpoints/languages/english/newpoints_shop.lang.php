@@ -127,6 +127,10 @@ $l = array_merge($l, [
 
     'newpoints_shop_stats_empty' => 'No purchases were found.',
 
+    'newpoints_shop_confirm_buy_description' => ' Are you sure you want to buy the selected item? ',
+    'newpoints_shop_confirm_buy_item' => 'Item',
+    'newpoints_shop_confirm_buy_price' => 'Price',
+
     'newpoints_shop_confirm_send_title' => 'Send Item',
     'newpoints_shop_confirm_send_description' => ' Are you sure you want to send the selected item? ',
     'newpoints_shop_confirm_send_button' => 'Send Item',
