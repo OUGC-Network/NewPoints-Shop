@@ -124,4 +124,6 @@ $l = array_merge($l, [
 
     'newpoints_shop_quick_edit' => 'Shop Items',
     'newpoints_shop_quick_edit_description' => 'Select the items you want to remove from this user.',
+
+    'newpoints_shop_stats_empty' => 'No purchases were found.',
 ]);

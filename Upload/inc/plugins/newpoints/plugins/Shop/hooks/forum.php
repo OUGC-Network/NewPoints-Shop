@@ -1081,43 +1081,61 @@ function newpoints_terminate(): bool
 
 function newpoints_stats_start()
 {
-    global $mybb, $db, $templates, $cache, $theme, $newpoints_shop_lastpurchases, $last_purchases, $lang;
+    global $mybb, $db, $templates, $cache, $theme, $lang;
+    global $last_purchases, $statistics_items;
 
-    // load language
     language_load('shop');
+
     $last_purchases = '';
 
-    // build stats table
-    $query = $db->simple_select(
-        'newpoints_log',
-        '*',
-        'action=\'shop_purchase\'',
-        [
-            'order_by' => 'date',
-            'order_dir' => 'DESC',
-            'limit' => (int)get_setting('shop_lastpurchases')
-        ]
-    );
-    while ($purchase = $db->fetch_array($query)) {
+    $alternative_background = alt_trow(true);
+
+    foreach (
+        user_items_get(
+            ["is_visible='1'"],
+            ['user_item_id, user_id, item_id, user_item_stamp'],
+            ['order_by' => 'display_order', 'order_dir' => 'desc']
+        ) as $user_item_id => $user_item_data
+    ) {
+        $item_id = (int)$user_item_data['item_id'];
+
+        $item_data = item_get(["iid='{$item_id}'", "visible='1'"], ['iid', 'name']);
+
+        if (empty($item_data)) {
+            continue;
+        }
+
+        $item_name = htmlspecialchars_uni($item_data['name']);
+
+        $user_id = $user_item_data['user_id'];
+
+        $user_data = get_user($user_id);
+
+        $user_profile_link = '';
+
+        if (!empty($user_data)) {
+            $user_profile_link = build_profile_link(
+                format_name(
+                    htmlspecialchars_uni($user_data['username']),
+                    $user_data['usergroup'],
+                    $user_data['displaygroup']
+                ),
+                $user_id
+            );
+        }
+
+        $user_item_stamp = my_date('normal', $user_item_data['user_item_stamp']);
+
+        $last_purchases .= eval(templates_get('stats_row'));
+
         $alternative_background = alt_trow();
-        $data = explode('-', $purchase['data']);
-
-        $item = item_get(["iid='{$data[0]}'"]);
-        $purchase['item'] = htmlspecialchars_uni($item['name']);
-
-        $link = build_profile_link(htmlspecialchars_uni($purchase['username']), (int)$purchase['uid']);
-        $purchase['user'] = $link;
-
-        $purchase['date'] = my_date($mybb->settings['dateformat'], (int)$purchase['date'], '', false);
-
-        $last_purchases .= eval(templates_get('stats_purchase'));
     }
 
     if (!$last_purchases) {
-        $last_purchases = eval(templates_get('stats_nopurchase'));
+        $last_purchases = eval(templates_get('stats_empty'));
     }
 
-    $newpoints_shop_lastpurchases = eval(templates_get('stats'));
+    $statistics_items[] = eval(templates_get('stats'));
 }
 
 function member_profile_end(): bool
@@ -1130,7 +1148,9 @@ function member_profile_end(): bool
         return false;
     }
 
-    global $mybb, $lang, $db, $memprofile, $newpoints_shop_profile;
+    global $mybb, $lang, $memprofile, $newpoints_shop_profile;
+
+    language_load('shop');
 
     $shop_items = '';
 
@@ -1189,14 +1209,6 @@ function member_profile_end(): bool
     $newpoints_shop_profile = eval(templates_get('profile'));
 
     return true;
-}
-
-function member_profile_start()
-{
-    global $lang;
-
-    // load language
-    language_load('shop');
 }
 
 function postbit_prev(array &$postData): array

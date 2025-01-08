@@ -125,7 +125,7 @@ function item_get(array $where_clauses = [], array $query_fields = ['*'], array 
 
     $query = $db->simple_select(
         'newpoints_shop_items',
-        implode(' AND ', $query_fields),
+        implode(',', $query_fields),
         implode(' AND ', $where_clauses),
         $query_options
     );
