@@ -59,6 +59,12 @@ function newpoints_global_start(array &$hook_arguments): array
         'newpoints_shop_profile',
     ]);
 
+    $hook_arguments['showthread.php'] = array_merge($hook_arguments['showthread.php'], [
+        'newpoints_shop_post_icon',
+        'newpoints_shop_post_view_all',
+        'newpoints_shop_post',
+    ]);
+
     return $hook_arguments;
 }
 
@@ -1111,7 +1117,9 @@ function member_profile_end(): bool
 {
     $newpoints_shop_profile = '';
 
-    if (!get_setting('shop_itemsprofile')) {
+    $display_limit = (int)get_setting('shop_itemsprofile');
+
+    if (!get_setting('shop_itemsprofile') || $display_limit < 1) {
         return false;
     }
 
@@ -1121,38 +1129,34 @@ function member_profile_end(): bool
 
     $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
 
-    $limit = (int)get_setting('shop_itemsprofile');
-
     if (!empty($memprofile['newpoints_items'])) {
         $user_id = (int)$memprofile['uid'];
 
-        $user_shop_objects = user_items_get(["user_id='{$user_id}'"], ['user_item_id, item_id']);
+        $user_shop_objects = user_items_get(["user_id='{$user_id}'", "is_visible='1'"], ['user_item_id, item_id']);
 
         $items_ids = implode("','", array_map('intval', array_unique(array_column($user_shop_objects, 'item_id'))));
 
-        $items_cache = items_get(["iid IN ('{$items_ids}')"], ['iid AS item_id', 'name', 'icon']);
+        $user_limit = $display_limit;
 
-        if ($limit > 0 && !empty($user_shop_objects)) {
-            foreach ($items_cache as $item_data) {
-                if ($limit < 1) {
-                    break;
-                }
-
-                $item_id = $url_params['item_id'] = (int)$item_data['item_id'];
-
-                $view_item_url = url_handler_build($url_params);
-
-                $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
-
-                $icon_name = htmlspecialchars_uni($item_data['name']);
-
-                $shop_items .= eval(templates_get('profile_icon'));
-
-                --$limit;
+        foreach (items_get(["iid IN ('{$items_ids}')", "visible='1'"], ['iid', 'name', 'icon']) as $item_data) {
+            if ($user_limit < 1) {
+                break;
             }
 
-            unset($url_params['item_id']);
+            $item_id = $url_params['item_id'] = (int)$item_data['iid'];
+
+            $view_item_url = url_handler_build($url_params);
+
+            $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
+
+            $icon_name = htmlspecialchars_uni($item_data['name']);
+
+            $shop_items .= eval(templates_get('profile_icon'));
+
+            --$user_limit;
         }
+
+        unset($url_params['item_id']);
     }
 
     if (!$shop_items) {
@@ -1165,7 +1169,7 @@ function member_profile_end(): bool
 
     $view_all_link = '';
 
-    if ($memprofile['newpoints_shop_total_items'] > $limit) {
+    if ($memprofile['newpoints_shop_total_items'] > $display_limit) {
         $my_items_url = url_handler_build($url_params);
 
         $view_all_link = eval(templates_get('profile_view_all'));
@@ -1201,87 +1205,116 @@ function postbit_announcement(array $postData): array
 
 function postbit(array $post): array
 {
-    global $mybb, $lang, $db, $templates;
+    global $mybb, $lang, $db;
 
-    $post['newpoints_shop_items'] = '';
+    $post['newpoints_shop_items'] = $post['newpoints_shop_items_count'] = '';
 
-    if (!get_setting('shop_itemspostbit')) {
+    $display_limit = (int)get_setting('shop_itemspostbit');
+
+    if (!get_setting('shop_itemspostbit') || $display_limit < 1) {
         return $post;
     }
 
-    if (empty($post['newpoints_items'])) {
+    $post['newpoints_shop_items_count'] = my_number_format($post['newpoints_shop_total_items']);
+
+    $post_user_id = (int)$post['uid'];
+
+    static $post_items_cache = null;
+
+    static $post_user_items_cache = null;
+
+    if (!isset($post_items_cache)) {
+        global $db;
+
+        $user_ids = [$post_user_id];
+
+        if (isset($GLOBALS['pids'])) {
+            $query = $db->simple_select('posts', 'uid', "{$GLOBALS['pids']}");
+
+            while ($post_data = $db->fetch_array($query)) {
+                $user_ids[] = (int)$post_data['uid'];
+            }
+        }
+
+        $user_ids = implode("','", array_unique($user_ids));
+
+        $where_clauses = [
+            "user_id IN ('{$user_ids}')",
+            "is_visible='1'",
+        ];
+
+        $user_items_objects = user_items_get(
+            $where_clauses,
+            ['user_item_id, user_id, item_id'],
+            ['order_by' => 'display_order', 'order_dir' => 'desc',]
+        );
+
+        foreach ($user_items_objects as $user_item) {
+            if (!isset($post_user_items_cache[$user_item['user_id']])) {
+                $post_user_items_cache[$user_item['user_id']] = [];
+            }
+
+            $post_user_items_cache[(int)$user_item['user_id']][(int)$user_item['user_item_id']] = (int)$user_item['item_id'];
+        }
+
+        $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
+
+        $post_items_cache = items_get(["iid IN ('{$items_ids}')", "visible='1'"], ['iid', 'name', 'icon']);
+    }
+
+    if (empty($post_user_items_cache[$post_user_id]) || empty($post_items_cache)) {
         return $post;
     }
 
-    $items = unserialize($post['newpoints_items']);
-
-    if (empty($items)) {
-        return $post;
-    }
-
-    // load language
     language_load('shop');
 
-    static $postbit_items_cache; // we need to cache all items' icons and names to use less queries
+    $user_items = array_unique($post_user_items_cache[$post_user_id]);
 
-    if (!isset($postbit_items_cache) || !is_array($postbit_items_cache)) {
-        $postbit_items_cache = [];
-        $query = $db->simple_select('newpoints_shop_items', 'iid,name,icon', 'visible=1');
-        while ($item = $db->fetch_array($query)) {
-            $postbit_items_cache[$item['iid']] = ['name' => $item['name'], 'icon' => $item['icon']];
-        }
-    }
-
-    if (empty($postbit_items_cache)) {
-        return $post;
-    }
+    $user_limit = $display_limit;
 
     $shop_items = '';
-    $count = 1;
 
-    $items = array_unique($items);
+    $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'view'];
 
-    foreach ($postbit_items_cache as $iid => $item) {
-        if (!in_array($iid, $items)) {
-            continue;
-        }
-
-        $view_item_url = url_handler_build([
-            'action' => get_setting('shop_action_name'),
-            'view' => 'view',
-            'iid' => $iid
-        ]);
-
-        if ($item['icon'] != '') {
-            $shop_items .= '<a href="' . $mybb->settings['bburl'] . '/' . $view_item_url . '"><img src="' . $mybb->settings['bburl'] . '/' . $item['icon'] . '" title="' . htmlspecialchars_uni(
-                    $item['name']
-                ) . '" style="width: 24px; height: 24px"></a> ';
-        } else {
-            $shop_items .= '<a href="' . $mybb->settings['bburl'] . '/' . $view_item_url . '"><img src="' . $mybb->settings['bburl'] . '/images/newpoints/default.png" title="' . htmlspecialchars_uni(
-                    $item['name']
-                ) . '"></a> ';
-        }
-
-        $count++;
-
-        if ($count > (int)get_setting('shop_itemspostbit')) {
+    foreach ($user_items as $user_item_id => $item_id) {
+        if ($user_limit < 1 || empty($post_items_cache[$item_id])) {
             break;
         }
+
+        $item_data = $post_items_cache[$item_id];
+
+        $url_params['item_id'] = $item_id;
+
+        $view_item_url = url_handler_build($url_params);
+
+        $item_icon = htmlspecialchars_uni($item_data['icon'] ?? 'images/newpoints/default.png');
+
+        $icon_name = htmlspecialchars_uni($item_data['name']);
+
+        $shop_items .= eval(templates_get('post_icon'));
+
+        --$user_limit;
     }
 
-    $my_items_url = url_handler_build([
-        'action' => get_setting('shop_action_name'),
-        'view' => 'my_items',
-        'uid' => $post['uid']
-    ]);
+    unset($url_params['item_id']);
 
-    $post['newpoints_shop_items'] = eval(templates_get('postbit'));
-
-    if ($shop_items != '') {
-        $post['newpoints_shop_items_count'] = count($items);
-    } else {
-        $post['newpoints_shop_items_count'] = '0';
+    if (!$shop_items) {
+        $shop_items = $lang->newpoints_shop_post_items_empty;
     }
+
+    $url_params['view'] = 'my_items';
+
+    $url_params['uid'] = $post['uid'];
+
+    $view_all_link = '';
+
+    if ($post['newpoints_shop_total_items'] > $display_limit) {
+        $my_items_url = url_handler_build($url_params);
+
+        $view_all_link = eval(templates_get('post_view_all'));
+    }
+
+    $post['newpoints_shop_items'] = eval(templates_get('post'));
 
     return $post;
 }

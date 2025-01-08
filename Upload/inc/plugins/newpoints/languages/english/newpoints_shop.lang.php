@@ -119,4 +119,8 @@ $l = array_merge($l, [
     'newpoints_shop_profile_items' => 'Items',
     'newpoints_shop_profile_items_empty' => 'This user has no items.',
     'newpoints_shop_profile_items_view_all' => 'View All Items',
+
+    'newpoints_shop_post_items' => 'Items',
+    'newpoints_shop_post_items_empty' => 'This user has no items.',
+    'newpoints_shop_post_items_view_all' => 'View All Items',
 ]);

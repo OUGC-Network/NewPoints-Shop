@@ -81,7 +81,11 @@ function items_get(
 
     if ($db->num_rows($query)) {
         while ($item_data = $db->fetch_array($query)) {
-            $items_objects[] = $item_data;
+            if (!empty($item_data['iid'])) {
+                $items_objects[(int)$item_data['iid']] = $item_data;
+            } else {
+                $items_objects[] = $item_data;
+            }
         }
     }
 
@@ -131,21 +135,29 @@ function user_item_insert(array $item_data = []): int
     return (int)$db->insert_query('newpoints_shop_user_items', $insert_data);
 }
 
-function user_items_get(array $where_clauses = [], array $query_fields = ['user_item_id']): array
-{
+function user_items_get(
+    array $where_clauses = [],
+    array $query_fields = ['user_item_id'],
+    array $query_options = []
+): array {
     global $db;
 
     $query = $db->simple_select(
         'newpoints_shop_user_items',
         implode(',', $query_fields),
-        implode(' AND ', $where_clauses)
+        implode(' AND ', $where_clauses),
+        $query_options
     );
 
     $user_items_objects = [];
 
     if ($db->num_rows($query)) {
         while ($user_item_data = $db->fetch_array($query)) {
-            $user_items_objects[] = $user_item_data;
+            if (!empty($user_item_data['user_item_id'])) {
+                $user_items_objects[(int)$user_item_data['user_item_id']] = $user_item_data;
+            } else {
+                $user_items_objects[] = $user_item_data;
+            }
         }
     }
 
