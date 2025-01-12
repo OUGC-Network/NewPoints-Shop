@@ -1,0 +1,9 @@
+<td class="{$alternative_background}" align="center" valign="middle">
+    <form action="{$mybb->settings['bburl']}/{$form_url}" method="get" id="categoryForm{$category_id}"></form>
+    <select name="action" form="categoryForm{$category_id}">
+        <option value="edit_item">Edit Item</option>
+        <option value="delete_item">Delete Item</option>
+    </select>
+    <input type="hidden" name="item_id" value="{$item_id}" form="categoryForm{$category_id}">
+    <input type="submit" class="button" value="{$lang->go}" form="categoryForm{$category_id}">
+</td>

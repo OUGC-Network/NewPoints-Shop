@@ -41,9 +41,9 @@ $l['setting_newpoints_shop_itemspostbit_desc'] = 'Number of items to show in pos
 $l['setting_newpoints_shop_pmadmins'] = 'PM Admins';
 $l['setting_newpoints_shop_pmadmins_desc'] = 'Enter the user IDs of the users that get PMs whenever an item is bought (separated by a comma).';
 $l['setting_newpoints_shop_pm_default'] = 'Default PM';
-$l['setting_newpoints_shop_pm_default_desc'] = 'Enter the content of the message body that is sent by default to users when they buy an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.';
+$l['setting_newpoints_shop_pm_default_desc'] = 'Enter the content of the message body that is sent by default to users when they purchase an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.';
 $l['setting_newpoints_shop_pmadmin_default'] = 'Default Admin PM';
-$l['setting_newpoints_shop_pmadmin_default_desc'] = 'Enter the content of the message body that is sent by default to admins when a user buys an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.';
+$l['setting_newpoints_shop_pmadmin_default_desc'] = 'Enter the content of the message body that is sent by default to admins when a user purchases an item (note: this PM can be customized for each item; this is used in case one is not present). You can use {item_name} and {item_id}.';
 $l['setting_newpoints_shop_manage_groups'] = 'Manage Groups';
 $l['setting_newpoints_shop_manage_groups_desc'] = 'Select the groups that can manage the shop.';
 $l['setting_newpoints_shop_action_name'] = 'Action Name';
@@ -121,7 +121,7 @@ $l['newpoints_shop_addedit_item_disporder_desc'] = 'Display order of the item.';
 $l['newpoints_shop_addedit_item_stock'] = 'Stock';
 $l['newpoints_shop_addedit_item_stock_desc'] = 'Number of items in stock.';
 $l['newpoints_shop_addedit_item_limit'] = 'Limit per User';
-$l['newpoints_shop_addedit_item_limit_desc'] = 'Maximum number of items of this type one user can buy. Leave empty/zero for infinite.';
+$l['newpoints_shop_addedit_item_limit_desc'] = 'Maximum number of items of this type one user can purchase. Leave empty/zero for infinite.';
 $l['newpoints_shop_addedit_item_infinite'] = 'Infinite Stock';
 $l['newpoints_shop_addedit_item_infinite_desc'] = 'Set to yes if you want this item to have an infinite stock.';
 $l['newpoints_shop_addedit_item_sendable'] = 'Users can send';
@@ -131,9 +131,9 @@ $l['newpoints_shop_addedit_item_sellable_desc'] = 'Users can sell this item to o
 $l['newpoints_shop_addedit_item_category'] = 'Category';
 $l['newpoints_shop_addedit_item_category_desc'] = 'The category where this item is going to be placed.';
 $l['newpoints_shop_addedit_item_pm'] = 'Private Message';
-$l['newpoints_shop_addedit_item_pm_desc'] = 'Enter the private message received by users when they buy this item. Leave blank to use the default PM.';
+$l['newpoints_shop_addedit_item_pm_desc'] = 'Enter the private message received by users when they purchase this item. Leave blank to use the default PM.';
 $l['newpoints_shop_addedit_item_pmadmin'] = 'Admin Private Message';
-$l['newpoints_shop_addedit_item_pmadmin_desc'] = 'Enter the private message received by admins when users buy this item. Leave to use the default PM.';
+$l['newpoints_shop_addedit_item_pmadmin_desc'] = 'Enter the private message received by admins when users purchase this item. Leave to use the default PM.';
 $l['newpoints_shop_infinite'] = 'Infinite';
 $l['newpoints_shop_select_cat'] = 'Select a category';
 
@@ -195,6 +195,6 @@ $l = array_merge($l, [
     'newpoints_user_groups_shop_can_view_inventories' => 'Can view inventories?',
     'newpoints_user_groups_shop_can_send' => 'Can send items?',
     'newpoints_user_groups_shop_can_sell' => 'Can sell items?',
-    'newpoints_user_groups_rate_shop_buy' => 'Items Purchase Rate <br /><small class="input">The items rate for this group, used when subtracting points from users when purchasing items. Default is <code>1</code>.</small><br />',
+    'newpoints_user_groups_rate_shop_purchase' => 'Items Purchase Rate <br /><small class="input">The items rate for this group, used when subtracting points from users when purchasing items. Default is <code>1</code>.</small><br />',
     'newpoints_user_groups_rate_shop_sell' => 'Items Selling Rate <code style="color: darkorange;">This works as a percentage. So "0" = user does not recovers anything "100" = users recover full item price, "200" = user receive twice the item price, etc.</code><br /><small class="input">The items rate for this group, used when adding points when users sell their items back to the shop. Default is <code>90</code>.</small><br />',
 ]);

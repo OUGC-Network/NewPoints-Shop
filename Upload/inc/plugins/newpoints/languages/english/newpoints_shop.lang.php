@@ -31,7 +31,7 @@ $l['newpoints_shop'] = 'Shop';
 $l['newpoints_shop_icon'] = 'Icon';
 $l['newpoints_shop_categories'] = 'Categories';
 $l['newpoints_shop_items'] = 'Items';
-$l['newpoints_shop_buy'] = 'Buy';
+$l['newpoints_shop_purchase'] = 'Purchase';
 $l['newpoints_shop_price'] = 'Price';
 $l['newpoints_shop_stock'] = 'Stock';
 $l['newpoints_shop_name'] = 'Name';
@@ -61,7 +61,7 @@ $l['newpoints_shop_edit_inventory'] = 'Edit Inventory';
 $l['newpoints_shop_invalid_item'] = 'Invalid item';
 $l['newpoints_shop_invalid_cat'] = 'Invalid category';
 $l['newpoints_shop_outofstock'] = 'The item you selected is out of stock.';
-$l['newpoints_shop_not_enough'] = 'You do not have enough points to buy the selected item.';
+$l['newpoints_shop_not_enough'] = 'You do not have enough points to purchase the selected item.';
 $l['newpoints_shop_inline_errors'] = 'The following errors have occurred:';
 $l['newpoints_shop_inventory_empty'] = 'Your inventory is empty.';
 $l['newpoints_shop_selected_item_not_owned'] = 'You do not own the selected item.';
@@ -85,7 +85,7 @@ $l['newpoints_shop_send_item_message'] = 'Enter the name of the user you want to
 $l['newpoints_shop_sell_item_confirm'] = 'Are you sure you want to sell the item "{1}" for {2}?';
 $l['newpoints_shop_bought_item_pm_subject'] = 'You have bought an item';
 $l['newpoints_shop_bought_item_pmadmin_subject'] = 'User bought an item';
-$l['newpoints_shop_confirm_buy'] = 'Are you sure you want to buy this item?';
+$l['newpoints_shop_confirm_purchase'] = 'Are you sure you want to purchase this item?';
 
 // Log
 $l['newpoints_shop_purchased_log'] = '{1}-{2}-(first number = item id, second number = price)';
@@ -127,9 +127,9 @@ $l = array_merge($l, [
 
     'newpoints_shop_stats_empty' => 'No purchases were found.',
 
-    'newpoints_shop_confirm_buy_description' => ' Are you sure you want to buy the selected item? ',
-    'newpoints_shop_confirm_buy_item' => 'Item',
-    'newpoints_shop_confirm_buy_price' => 'Price',
+    'newpoints_shop_confirm_purchase_description' => ' Are you sure you want to purchase the selected item? ',
+    'newpoints_shop_confirm_purchase_item' => 'Item',
+    'newpoints_shop_confirm_purchase_price' => 'Price',
 
     'newpoints_shop_confirm_send_title' => 'Send Item',
     'newpoints_shop_confirm_send_description' => ' Are you sure you want to send the selected item? ',
@@ -138,4 +138,14 @@ $l = array_merge($l, [
     'newpoints_shop_confirm_sell_title' => 'Sell Item',
     'newpoints_shop_confirm_sell_description' => ' Are you sure you want to sell the selected item? ',
     'newpoints_shop_confirm_sell_button' => 'Sell Item',
+
+    'newpoints_shop_category_empty' => 'There are currently no items in this category.',
+    'newpoints_shop_category_thead_icon' => 'Icon',
+    'newpoints_shop_category_thead_name' => 'Name',
+    'newpoints_shop_category_thead_price' => 'Price',
+    'newpoints_shop_category_thead_stock' => 'Stock',
+    'newpoints_shop_category_thead_purchase' => 'Purchase',
+    'newpoints_shop_category_thead_options' => 'Options',
+
+
 ]);

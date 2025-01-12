@@ -31,11 +31,11 @@
     </tr>
     <tr>
         <td class="tfoot" align="center" colspan="2">
-            <form action="{$mybb->settings['bburl']}/{$buy_item_url}" method="POST">
+            <form action="{$mybb->settings['bburl']}/{$purchase_item_url}" method="POST">
                 <input type="hidden" name="my_post_key" value="{$mybb->post_code}">
                 <input type="hidden" name="item_id" value="{$item_id}">
-                <input type="submit" name="buy" class="button" value="{$lang->newpoints_shop_buy}"
-                       onclick="return confirm('{$lang->newpoints_shop_confirm_buy}');">
+                <input type="submit" name="purchase" class="button" value="{$lang->newpoints_shop_purchase}"
+                       onclick="return confirm('{$lang->newpoints_shop_confirm_purchase}');">
             </form>
         </td>
     </tr>

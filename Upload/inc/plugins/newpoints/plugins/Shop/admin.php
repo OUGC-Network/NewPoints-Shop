@@ -260,7 +260,7 @@ const FIELDS_DATA = [
             'default' => 1,
             'formType' => 'checkBox'
         ],
-        'newpoints_rate_shop_buy' => [
+        'newpoints_rate_shop_purchase' => [
             'type' => 'FLOAT',
             'unsigned' => true,
             'default' => 1,
