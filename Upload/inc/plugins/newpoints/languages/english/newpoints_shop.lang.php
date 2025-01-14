@@ -115,6 +115,7 @@ $l = array_merge($l, [
     'newpoints_shop_menu_title' => 'Shop',
 
     'newpoints_buttons_my_items' => 'My Items',
+    'newpoints_buttons_add_category' => 'Add Category',
 
     'newpoints_shop_profile_items' => 'Items',
     'newpoints_shop_profile_items_empty' => 'This user has no items.',
@@ -142,6 +143,9 @@ $l = array_merge($l, [
     'newpoints_shop_confirm_sell_button' => 'Sell Item',
 
     'newpoints_shop_category_empty' => 'There are currently no items in this category.',
+    'newpoints_shop_category_edit_category' => 'Edit Category',
+    'newpoints_shop_category_delete_category' => 'Delete Category',
+    'newpoints_shop_category_add_item' => 'Add Item',
     'newpoints_shop_category_thead_icon' => 'Icon',
     'newpoints_shop_category_thead_name' => 'Name',
     'newpoints_shop_category_thead_price' => 'Price',
@@ -150,6 +154,30 @@ $l = array_merge($l, [
     'newpoints_shop_category_thead_options' => 'Options',
     'newpoints_shop_category_thead_options_edit' => 'Edit',
     'newpoints_shop_category_thead_options_delete' => 'Delete',
+
+    'newpoints_shop_add_category' => 'Add Category',
+    'newpoints_shop_add_category_table_title' => 'Add Category',
+
+    'newpoints_shop_edit_category' => 'Edit Category',
+    'newpoints_shop_edit_category_table_title' => 'Edit Category',
+    'newpoints_shop_edit_category_table_description' => 'Use the form below to update the selected category.',
+    'newpoints_shop_edit_category_table_category_name' => 'Category Name',
+    'newpoints_shop_edit_category_table_category_name_description' => 'Set a short name for this category. ',
+    'newpoints_shop_edit_category_table_category_description' => 'Category Description',
+    'newpoints_shop_edit_category_table_category_description_description' => 'Set a short description for this category.',
+    'newpoints_shop_edit_category_table_category_category' => 'Allowed Groups',
+    'newpoints_shop_edit_category_table_category_category_description' => 'Select the groups allowed to navigate this category.',
+    'newpoints_shop_edit_category_table_category_icon_file' => 'Category Icon',
+    'newpoints_shop_edit_category_table_category_icon_file_description' => 'Upload an image for this category.',
+    'newpoints_shop_edit_category_table_category_icon_file_description_note' => 'Current file icon will be replaced if a new file is uploaded.',
+    'newpoints_shop_edit_category_table_category_display_order' => 'Display Order',
+    'newpoints_shop_edit_category_table_category_display_order_description' => 'Set the display order for this category.',
+    'newpoints_shop_edit_category_table_category_is_visible' => 'Is Visible',
+    'newpoints_shop_edit_category_table_category_is_visible_description' => 'Is this category visible to users?',
+    'newpoints_shop_edit_category_button_update' => 'Update Category',
+
+    'newpoints_shop_add_item' => 'Add Item',
+    'newpoints_shop_add_item_table_title' => 'Add Item',
 
     'newpoints_shop_edit_item' => 'Edit Item',
     'newpoints_shop_edit_item_table_title' => 'Edit Item',
@@ -185,6 +213,9 @@ $l = array_merge($l, [
     'newpoints_shop_edit_item_table_item_can_be_sold_description' => 'Users can sell this item back to other users?',
     'newpoints_shop_edit_item_button_update' => 'Update Item',
 
+    'newpoints_shop_redirect_category_add' => 'The selected category has been added successfully.<br/>You will now be redirected back to the previous page.',
+    'newpoints_shop_redirect_category_update' => 'The selected category has been updated successfully.<br/>You will now be redirected back to the previous page.',
+    'newpoints_shop_redirect_category_delete' => 'The selected category has been deleted successfully.<br/>You will now be redirected back to the previous page.',
     'newpoints_shop_redirect_item_add' => 'The selected item has been added successfully.<br/>You will now be redirected back to the previous page.',
     'newpoints_shop_redirect_item_update' => 'The selected item has been updated successfully.<br/>You will now be redirected back to the previous page.',
     'newpoints_shop_redirect_item_delete' => 'The selected item has been deleted successfully.<br/>You will now be redirected back to the previous page.',
@@ -193,8 +224,12 @@ $l = array_merge($l, [
     'newpoints_shop_error_invalid_item_icon' => 'The selected icon file is invalid.',
     'newpoints_shop_error_invalid_item_category' => 'The selected category is invalid.',
 
+    'newpoints_shop_confirm_category_delete_title' => 'Confirm Category Delete',
+    'newpoints_page_confirm_category_delete_text' => 'Are you sure you want to delete the selected category?',
+    'newpoints_shop_confirm_category_delete_button' => 'Confirm Delete',
+
     'newpoints_shop_confirm_item_delete_title' => 'Confirm Item Delete',
-    'newpoints_page_confirm_table_cancel_text' => 'Are you sure you want to delete the selected item?',
+    'newpoints_page_confirm_item_delete_text' => 'Are you sure you want to delete the selected item?',
     'newpoints_shop_confirm_item_delete_button' => 'Confirm Delete',
 
     'newpoints_shop_yes' => 'Yes',

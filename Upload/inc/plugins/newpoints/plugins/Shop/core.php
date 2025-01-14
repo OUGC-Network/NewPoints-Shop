@@ -152,6 +152,62 @@ function item_get(array $where_clauses = [], array $query_fields = ['*'], array 
     return (array)$db->fetch_array($query);
 }
 
+function category_insert(array $category_data, bool $is_update = false, int $category_id = 0): int
+{
+    global $db;
+
+    $insert_data = [];
+
+    if (isset($category_data['cid'])) {
+        $insert_data['cid'] = (int)$category_data['cid'];
+    }
+
+    if (isset($category_data['name'])) {
+        $insert_data['name'] = $db->escape_string($category_data['name']);
+    }
+
+    if (isset($category_data['description'])) {
+        $insert_data['description'] = $db->escape_string($category_data['description']);
+    }
+
+    if (isset($category_data['visible'])) {
+        $insert_data['visible'] = (int)$category_data['visible'];
+    }
+
+    if (isset($category_data['icon'])) {
+        $insert_data['icon'] = $db->escape_string($category_data['icon']);
+    }
+
+    if (isset($category_data['usergroups'])) {
+        $insert_data['usergroups'] = $db->escape_string($category_data['usergroups']);
+    }
+
+    if (isset($category_data['disporder'])) {
+        $insert_data['disporder'] = (int)$category_data['disporder'];
+    }
+
+    if (isset($category_data['items'])) {
+        $insert_data['items'] = (int)$category_data['items'];
+    }
+
+    if (isset($category_data['expanded'])) {
+        $insert_data['expanded'] = (int)$category_data['expanded'];
+    }
+
+    if ($is_update) {
+        $db->update_query('newpoints_shop_categories', $insert_data, "cid='{$category_id}'", 1);
+    } else {
+        $category_id = (int)$db->insert_query('newpoints_shop_categories', $insert_data);
+    }
+
+    return $category_id;
+}
+
+function category_update(array $category_data, int $category_id): int
+{
+    return category_insert($category_data, true, $category_id);
+}
+
 function category_get(array $where_clauses, array $query_fields = ['*'], array $query_options = ['limit' => 1]): array
 {
     global $db;
@@ -181,6 +237,21 @@ function category_get(array $where_clauses, array $query_fields = ['*'], array $
     }
 
     return $category_objects;
+}
+
+function category_delete(int $category_id): bool
+{
+    global $db;
+
+    $query = $db->simple_select('newpoints_shop_items', 'iid', "cid='{$category_id}'");
+
+    while ($item_data = $db->fetch_array($query)) {
+        item_delete((int)$item_data['iid']);
+    }
+
+    $db->delete_query('newpoints_shop_categories', "cid='{$category_id}'", 1);
+
+    return true;
 }
 
 function items_get(
@@ -227,7 +298,7 @@ function items_get_visible(): array
     return array_unique(array_column($active_items_ids, 'iid'));
 }
 
-function item_upload_icon(array $item_file, int $item_id): array
+function item_upload_icon(array $item_file): array
 {
     require_once MYBB_ROOT . 'inc/functions_upload.php';
 
