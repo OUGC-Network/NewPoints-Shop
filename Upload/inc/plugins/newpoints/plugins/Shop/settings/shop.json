@@ -38,5 +38,17 @@
   "menu_order": {
     "type": "numeric",
     "value": 140
+  },
+  "upload_path": {
+    "type": "text",
+    "value": "./uploads/shop"
+  },
+  "upload_dimensions": {
+    "type": "text",
+    "value": "32|32"
+  },
+  "upload_size": {
+    "type": "numeric",
+    "value": 50
   }
 }
