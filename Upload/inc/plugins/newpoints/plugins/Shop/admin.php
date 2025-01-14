@@ -82,9 +82,8 @@ const TABLES_DATA = [
             'default' => ''
         ],
         'usergroups' => [
-            'type' => 'VARCHAR',
-            'size' => 5,
-            'default' => ''
+            'type' => 'TEXT',
+            'null' => true
         ],
         'disporder' => [
             'type' => 'INT',

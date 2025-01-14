@@ -283,9 +283,51 @@ function items_get(
     return $items_objects;
 }
 
-function items_get_visible(): array
+function items_get_visible(int $user_id = 0): array
 {
-    $categories_data = category_get(["visible='1'"], ['cid'], []);
+    global $db;
+
+    if (empty($user_id)) {
+        global $mybb;
+
+        $user_id = (int)$mybb->user['uid'];
+    }
+
+    $user_data = get_user($user_id);
+
+    $is_moderator = is_member(get_setting('shop_manage_groups'));
+
+    $where_clauses = $group_conditional = [];
+
+    if ($is_moderator) {
+        $where_clauses[] = "visible='1'";
+    }
+
+    $user_groups = $user_data['usergroup'] ?? '';
+
+    if (!empty($user_data['additionalgroups'])) {
+        $user_groups .= ',' . $user_data['additionalgroups'];
+    }
+
+    foreach (explode(',', $user_groups) as $user_group_id) {
+        $user_group_id = (int)$user_group_id;
+
+        switch ($db->type) {
+            case 'pgsql':
+            case 'sqlite':
+                $group_conditional[] = "','||usergroups||',' LIKE '%,{$user_group_id},%'";
+                break;
+            default:
+                $group_conditional[] = "CONCAT(',',usergroups,',') LIKE '%,{$user_group_id},%'";
+                break;
+        }
+    }
+
+    $group_conditional = implode(' OR ', $group_conditional);
+
+    $where_clauses[] = "({$group_conditional})";
+
+    $categories_data = category_get($where_clauses, ['cid'], []);
 
     if (empty($categories_data)) {
         return [];

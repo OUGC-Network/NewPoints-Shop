@@ -42,8 +42,6 @@ use function Newpoints\Core\points_format;
 use function Newpoints\Core\points_subtract;
 use function Newpoints\Core\post_parser_parse_message;
 use function Newpoints\Core\private_message_send;
-use function Newpoints\Core\rules_get_group_rate;
-use function Newpoints\Core\rules_group_get;
 use function Newpoints\Core\run_hooks;
 use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\users_get_by_username;
@@ -155,7 +153,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["iid='{$item_id}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $item_data = item_get(
@@ -179,7 +177,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["cid='{$item_data['cid']}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $category_data = category_get(
@@ -351,7 +349,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["iid='{$item_id}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $item_data = item_get($where_clauses, ['cid', 'name']);
@@ -365,7 +363,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["cid='{$item_data['cid']}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $category_data = category_get($where_clauses, ['usergroups']);
@@ -512,7 +510,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["iid='{$item_id}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $item_data = item_get($where_clauses, ['cid', 'name', 'stock']);
@@ -526,7 +524,7 @@ function newpoints_terminate(): bool
                 $where_clauses = ["cid='{$item_data['cid']}'"];
 
                 if (!$is_moderator) {
-                    $where_clauses = ["visible='1'"];
+                    $where_clauses[] = "visible='1'";
                 }
 
                 $category_data = category_get($where_clauses, ['usergroups']);
@@ -745,7 +743,7 @@ function newpoints_terminate(): bool
             $where_clauses = [];
 
             if (!$is_moderator) {
-                $where_clauses = ["visible='1'"];
+                $where_clauses[] = "visible='1'";
             }
 
             foreach (
@@ -973,7 +971,7 @@ function newpoints_terminate(): bool
             $where_clauses = [];
 
             if (!$is_moderator) {
-                $where_clauses = ["visible='1'"];
+                $where_clauses[] = "visible='1'";
             }
 
             foreach (
@@ -1073,7 +1071,7 @@ function newpoints_terminate(): bool
         $where_clauses = ["cid='{$category_id}'"];
 
         if (!$is_moderator) {
-            $where_clauses = ["visible='1'"];
+            $where_clauses[] = "visible='1'";
         }
 
         $category_data = category_get($where_clauses, ['usergroups']);
@@ -1191,6 +1189,7 @@ function newpoints_terminate(): bool
                 ['group_by' => 'item_id']
             )
         );
+
 
         if ($mybb->get_input('page', MyBB::INPUT_INT) > 1) {
             $start = ($mybb->get_input('page', MyBB::INPUT_INT) * $per_page) - $per_page;
@@ -1327,14 +1326,22 @@ function newpoints_terminate(): bool
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } else {
+        $page_title = $lang->newpoints_shop;
+
         $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_purchase'];
 
         global $cats, $items;
 
+        $where_clauses = [];
+
+        if (!$is_moderator) {
+            $where_clauses[] = "visible='1'";
+        }
+
         $query = $db->simple_select(
             'newpoints_shop_categories',
             'cid, name, description, visible, icon, usergroups, disporder, items, expanded',
-            '',
+            implode(' AND ', $where_clauses),
             ['order_by' => 'disporder', 'order_dir' => 'ASC']
         );
 
