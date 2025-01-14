@@ -1,9 +1,10 @@
 <td class="{$alternative_background}" align="center" valign="middle">
-    <form action="{$mybb->settings['bburl']}/{$form_url}" method="get" id="categoryForm{$category_id}"></form>
-    <select name="action" form="categoryForm{$category_id}">
-        <option value="edit_item">Edit Item</option>
-        <option value="delete_item">Delete Item</option>
+    <form action="{$mybb->settings['bburl']}/{$newpoints_file}" method="get" id="categoryForm{$item_id}"></form>
+    <input type="hidden" name="action" value="{$action_name}" form="categoryForm{$item_id}">
+    <select name="view" form="categoryForm{$item_id}">
+        <option value="edit_item">{$lang->newpoints_shop_category_thead_options_edit}</option>
+        <option value="delete_item">{$lang->newpoints_shop_category_thead_options_delete}</option>
     </select>
-    <input type="hidden" name="item_id" value="{$item_id}" form="categoryForm{$category_id}">
-    <input type="submit" class="button" value="{$lang->go}" form="categoryForm{$category_id}">
+    <input type="hidden" name="item_id" value="{$item_id}" form="categoryForm{$item_id}">
+    <input type="submit" class="button" value="{$lang->go}" form="categoryForm{$item_id}">
 </td>

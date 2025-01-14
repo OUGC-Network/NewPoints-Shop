@@ -32,7 +32,7 @@ namespace Newpoints\Shop\Hooks\Shared;
 
 function newpoints_task_backup_tables(array &$backup_fields): array
 {
-    $backup_fields[] = 'newpoints_items';
+    $backup_fields[] = 'newpoints_shop_total_items';
 
     return $backup_fields;
 }

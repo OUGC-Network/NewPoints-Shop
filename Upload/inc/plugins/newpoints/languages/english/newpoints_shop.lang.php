@@ -67,7 +67,7 @@ $l['newpoints_shop_inventory_empty'] = 'Your inventory is empty.';
 $l['newpoints_shop_selected_item_not_owned'] = 'You do not own the selected item.';
 $l['newpoints_shop_invalid_user'] = 'You have selected an invalid user.';
 $l['newpoints_shop_out_of_stock'] = 'Item out of stock';
-$l['newpoints_shop_limit_reached'] = 'You cannot purchase anymore items of this type.';
+$l['newpoints_shop_user_limit_reached'] = 'You cannot purchase anymore items of this type.';
 
 // Success messages
 $l['newpoints_shop_item_bought'] = 'You have successfully bought the selected item.<br />You will now be redirected back to the previous page.';
@@ -112,6 +112,8 @@ $l['newpoints_shop_user_no_items'] = 'This user has no items.';
 $l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
 
 $l = array_merge($l, [
+    'newpoints_shop_menu_title' => 'Shop',
+
     'newpoints_buttons_my_items' => 'My Items',
 
     'newpoints_shop_profile_items' => 'Items',
@@ -146,6 +148,55 @@ $l = array_merge($l, [
     'newpoints_shop_category_thead_stock' => 'Stock',
     'newpoints_shop_category_thead_purchase' => 'Purchase',
     'newpoints_shop_category_thead_options' => 'Options',
+    'newpoints_shop_category_thead_options_edit' => 'Edit',
+    'newpoints_shop_category_thead_options_delete' => 'Delete',
 
+    'newpoints_shop_edit_item' => 'Edit Item',
+    'newpoints_shop_edit_item_table_title' => 'Edit Item',
+    'newpoints_shop_edit_item_table_description' => 'Use the form below to update the selected item.',
+    'newpoints_shop_edit_item_table_item_name' => 'Item Name',
+    'newpoints_shop_edit_item_table_item_name_description' => 'Set a short name for this item. ',
+    'newpoints_shop_edit_item_table_item_description' => 'Item Description',
+    'newpoints_shop_edit_item_table_item_description_description' => 'Set a short description for this item.',
+    'newpoints_shop_edit_item_table_item_category' => 'Item Category',
+    'newpoints_shop_edit_item_table_item_category_description' => 'Select the category for this item.',
+    'newpoints_shop_edit_item_table_item_icon_file' => 'Item Icon',
+    'newpoints_shop_edit_item_table_item_icon_file_description' => 'Upload an image for this item.',
+    'newpoints_shop_edit_item_table_item_icon_file_description_note' => 'Current file icon will be replaced if a new file is uploaded.',
+    'newpoints_shop_edit_item_table_item_price' => 'Item Price',
+    'newpoints_shop_edit_item_table_item_price_description' => 'Set a price for this item.',
+    'newpoints_shop_edit_item_table_item_private_message' => 'Private Message Content',
+    'newpoints_shop_edit_item_table_item_private_message_description' => 'If not empty, will send a Private Message whenever this item is purchased.',
+    'newpoints_shop_edit_item_table_item_private_message_admin' => 'Private Message Content',
+    'newpoints_shop_edit_item_table_item_private_message_admin_description' => 'If not empty, will send a Private Message to shop managers whenever this item is purchased.',
+    'newpoints_shop_edit_item_table_item_display_order' => 'Display Order',
+    'newpoints_shop_edit_item_table_item_display_order_description' => 'Set the display order for this item.',
+    'newpoints_shop_edit_item_table_item_stock' => 'Item Stock',
+    'newpoints_shop_edit_item_table_item_stock_description' => 'Set a stock for this item.',
+    'newpoints_shop_edit_item_table_item_infinite' => 'Infinite Stock',
+    'newpoints_shop_edit_item_table_item_infinite_description' => 'Infinite Stock',
+    'newpoints_shop_edit_item_table_item_limit' => 'User Limit',
+    'newpoints_shop_edit_item_table_item_limit_description' => 'Set a limit for users to own at the same time.',
+    'newpoints_shop_edit_item_table_item_is_visible' => 'Is Visible',
+    'newpoints_shop_edit_item_table_item_is_visible_description' => 'Is this item visible to users?',
+    'newpoints_shop_edit_item_table_item_can_be_sent' => 'Can Be Sent',
+    'newpoints_shop_edit_item_table_item_can_be_sent_description' => 'Users can send this item to other users?',
+    'newpoints_shop_edit_item_table_item_can_be_sold' => 'Can Be Sold',
+    'newpoints_shop_edit_item_table_item_can_be_sold_description' => 'Users can sell this item back to other users?',
+    'newpoints_shop_edit_item_button_update' => 'Update Item',
 
+    'newpoints_shop_redirect_item_add' => 'The selected item has been added successfully.<br/>You will now be redirected back to the previous page.',
+    'newpoints_shop_redirect_item_update' => 'The selected item has been updated successfully.<br/>You will now be redirected back to the previous page.',
+    'newpoints_shop_redirect_item_delete' => 'The selected item has been deleted successfully.<br/>You will now be redirected back to the previous page.',
+
+    'newpoints_shop_error_invalid_item_name' => 'The selected name is invalid.',
+    'newpoints_shop_error_invalid_item_icon' => 'The selected icon file is invalid.',
+    'newpoints_shop_error_invalid_item_category' => 'The selected category is invalid.',
+
+    'newpoints_shop_confirm_item_delete_title' => 'Confirm Item Delete',
+    'newpoints_page_confirm_table_cancel_text' => 'Are you sure you want to delete the selected item?',
+    'newpoints_shop_confirm_item_delete_button' => 'Confirm Delete',
+
+    'newpoints_shop_yes' => 'Yes',
+    'newpoints_shop_no' => 'No',
 ]);

@@ -35,6 +35,7 @@ use MyBB;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
+use function Newpoints\Core\page_build_cancel_confirmation;
 use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
@@ -48,8 +49,11 @@ use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\users_get_by_username;
 use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_get;
+use function Newpoints\Shop\Core\item_delete;
 use function Newpoints\Shop\Core\item_get;
+use function Newpoints\Shop\Core\item_insert;
 use function Newpoints\Shop\Core\item_update;
+use function Newpoints\Shop\Core\item_upload_icon;
 use function Newpoints\Shop\Core\items_get_visible;
 use function Newpoints\Shop\Core\templates_get;
 use function Newpoints\Shop\Core\items_get;
@@ -99,6 +103,8 @@ function newpoints_terminate(): bool
         return false;
     }
 
+    $is_moderator = (bool)is_member(get_setting('shop_manage_groups'));
+
     global $action_name;
 
     $action_name = get_setting('shop_action_name');
@@ -116,7 +122,7 @@ function newpoints_terminate(): bool
     ];
 
     global $db, $lang, $theme, $header, $templates, $headerinclude, $footer, $options;
-    global $page_title, $newpoints_pagination, $newpoints_menu, $newpoints_errors, $newpoints_additional, $newpoints_content;
+    global $page_title, $newpoints_pagination, $newpoints_menu, $newpoints_errors, $newpoints_additional, $newpoints_content, $newpoints_file;
 
     $footer .= eval(templates_get('css'));
 
@@ -143,8 +149,14 @@ function newpoints_terminate(): bool
 
                 $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
+                $where_clauses = ["iid='{$item_id}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
                 $item_data = item_get(
-                    ["iid='{$item_id}'", "visible='1'"],
+                    $where_clauses,
                     [
                         'iid',
                         'cid',
@@ -161,7 +173,16 @@ function newpoints_terminate(): bool
                     error($lang->newpoints_shop_invalid_item);
                 }
 
-                $category_data = category_get(["cid='{$item_data['cid']}'", "visible='1'"], ['usergroups']);
+                $where_clauses = ["cid='{$item_data['cid']}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
+                $category_data = category_get(
+                    $where_clauses,
+                    ['usergroups']
+                );
 
                 if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
@@ -189,7 +210,7 @@ function newpoints_terminate(): bool
                     $errors[] = $lang->newpoints_shop_out_of_stock;
                 }
 
-                if (!empty($item_data['limit'])) {
+                if (!empty($item_data['user_limit'])) {
                     $total_user_items = user_items_get(
                         ["item_id='{$item_id}'"],
                         ['COUNT(user_item_id) AS total_user_items']
@@ -197,8 +218,8 @@ function newpoints_terminate(): bool
 
                     $total_user_items = (int)($total_user_items[0]['total_user_items'] ?? 0);
 
-                    if ($total_user_items >= $item_data['limit']) {
-                        $errors[] = $lang->newpoints_shop_limit_reached;
+                    if ($total_user_items >= $item_data['user_limit']) {
+                        $errors[] = $lang->newpoints_shop_user_limit_reached;
                     }
                 }
 
@@ -285,8 +306,12 @@ function newpoints_terminate(): bool
 
                     $item_price = points_format($item_price);
 
+                    $upload_path = (string)get_setting('shop_upload_path');
+
                     $item_icon = htmlspecialchars_uni(
-                        $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+                        $mybb->get_asset_url(
+                            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+                        )
                     );
 
                     $view_item_url = url_handler_build([
@@ -320,7 +345,13 @@ function newpoints_terminate(): bool
                     $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
                 }
 
-                $item_data = item_get(["iid='{$item_id}'", "visible='1'"], ['cid', 'name']);
+                $where_clauses = ["iid='{$item_id}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
+                $item_data = item_get($where_clauses, ['cid', 'name']);
 
                 run_hooks('shop_send_start');
 
@@ -328,7 +359,13 @@ function newpoints_terminate(): bool
                     error($lang->newpoints_shop_invalid_item);
                 }
 
-                $category_data = category_get(["cid='{$item_data['cid']}'", "visible='1'"], ['usergroups']);
+                $where_clauses = ["cid='{$item_data['cid']}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
+                $category_data = category_get($where_clauses, ['usergroups']);
 
                 if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
@@ -469,7 +506,13 @@ function newpoints_terminate(): bool
                     $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
                 }
 
-                $item_data = item_get(["iid='{$item_id}'", "visible='1'"], ['cid', 'name', 'stock']);
+                $where_clauses = ["iid='{$item_id}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
+                $item_data = item_get($where_clauses, ['cid', 'name', 'stock']);
 
                 run_hooks('shop_sell_start');
 
@@ -477,7 +520,13 @@ function newpoints_terminate(): bool
                     error($lang->newpoints_shop_invalid_item);
                 }
 
-                $category_data = category_get(["cid='{$item_data['cid']}'", "visible='1'"], ['usergroups']);
+                $where_clauses = ["cid='{$item_data['cid']}'"];
+
+                if (!$is_moderator) {
+                    $where_clauses = ["visible='1'"];
+                }
+
+                $category_data = category_get($where_clauses, ['usergroups']);
 
                 if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
@@ -602,11 +651,255 @@ function newpoints_terminate(): bool
 
     $newpoints_buttons = '';
 
-    if ($mybb->get_input('view') == 'item') {
+    if ($mybb->get_input('view') === 'delete_item') {
+        if (!$is_moderator) {
+            error_no_permission();
+        }
+
         $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         $item_data = item_get(
-            ["iid='{$item_id}'", "visible='1'"],
+            ["iid='{$item_id}'"],
+            [
+                'cid',
+                'name',
+                'description',
+                'price',
+                'icon',
+                'visible',
+                'disporder',
+                'infinite',
+                'user_limit',
+                'stock',
+                'sendable',
+                'sellable',
+                'pm',
+                'pmadmin'
+            ]
+        );
+
+        if (!$item_data) {
+            error_no_permission();
+        }
+
+        if (!empty($mybb->input['confirm'])) {
+            item_delete($item_id);
+
+            redirect(
+                $mybb->settings['bburl'] . '/' . $form_url,
+                $lang->newpoints_shop_redirect_item_delete
+            );
+        }
+
+        $lang->newpoints_page_confirm_table_cancel_title = $lang->newpoints_shop_confirm_item_delete_title;
+
+        $lang->newpoints_page_confirm_table_cancel_button = $lang->newpoints_shop_confirm_item_delete_button;
+
+        page_build_cancel_confirmation(
+            'item_id',
+            $item_id,
+            $lang->newpoints_page_confirm_table_cancel_text,
+            'delete_item',
+        );
+    } elseif (in_array($mybb->get_input('view'), ['edit_item', 'add_item'], true)) {
+        if (!$is_moderator) {
+            error_no_permission();
+        }
+
+        $is_add_page = $mybb->get_input('view') === 'add_item';
+
+        $page_title = $lang->newpoints_shop_edit_item;
+
+        $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+
+        $item_data = item_get(
+            ["iid='{$item_id}'"],
+            [
+                'cid',
+                'name',
+                'description',
+                'price',
+                'icon',
+                'visible',
+                'disporder',
+                'infinite',
+                'user_limit',
+                'stock',
+                'sendable',
+                'sellable',
+                'pm',
+                'pmadmin'
+            ]
+        );
+
+        if (!$item_data && !$is_add_page) {
+            error_no_permission();
+        }
+
+        if ($mybb->request_method === 'post') {
+            verify_post_check($mybb->get_input('my_post_key'));
+
+            $insert_data = [
+                'cid' => $mybb->get_input('category_id', MyBB::INPUT_INT),
+                'name' => $mybb->get_input('name'),
+                'description' => $mybb->get_input('description'),
+                'price' => $mybb->get_input('price', MyBB::INPUT_FLOAT),
+                'visible' => $mybb->get_input('is_visible', MyBB::INPUT_INT),
+                'disporder' => $mybb->get_input('display_order', MyBB::INPUT_INT),
+                'infinite' => $mybb->get_input('infinite', MyBB::INPUT_INT),
+                'user_limit' => $mybb->get_input('user_limit', MyBB::INPUT_INT),
+                'stock' => $mybb->get_input('stock', MyBB::INPUT_INT),
+                'sendable' => $mybb->get_input('can_be_sent', MyBB::INPUT_INT),
+                'sellable' => $mybb->get_input('can_be_sold', MyBB::INPUT_INT),
+                'pm' => $mybb->get_input('private_message'),
+                'pmadmin' => $mybb->get_input('private_message_admin'),
+            ];
+
+            $errors = [];
+
+            if (my_strlen($insert_data['name']) > 100 || my_strlen($insert_data['name']) < 1) {
+                $errors[] = $lang->newpoints_shop_error_invalid_item_name;
+            }
+
+            if (my_strlen($insert_data['price']) < 0) {
+                $errors[] = $lang->newpoints_shop_error_invalid_item_icon;
+            }
+
+            if (!category_get(["cid='{$insert_data['cid']}'"], ['cid'])) {
+                $errors[] = $lang->newpoints_shop_error_invalid_item_category;
+            }
+
+            if (empty($errors) && !empty($_FILES['icon_file']['name'])) {
+                $upload = item_upload_icon($_FILES['icon_file'], $item_id);
+            }
+
+            if (empty($errors)) {
+                if (!empty($upload['file_name'])) {
+                    $insert_data['icon'] = $db->escape_string($upload['file_name']);
+                }
+
+                if ($is_add_page) {
+                    item_insert($insert_data);
+
+                    redirect(
+                        $mybb->settings['bburl'] . '/' . $form_url,
+                        $lang->newpoints_shop_redirect_item_add
+                    );
+                } else {
+                    item_update($insert_data, $item_id);
+
+                    redirect(
+                        $mybb->settings['bburl'] . '/' . $form_url,
+                        $lang->newpoints_shop_redirect_item_update
+                    );
+                }
+            }
+
+            if ($errors) {
+                $newpoints_errors = inline_error($errors);
+            }
+
+            $item_data = array_merge($item_data, $insert_data);
+        }
+
+        $category_id = (int)($item_data['cid'] ?? 0);
+
+        $categories_select = (function (int $selected_category) use ($item_data, $is_moderator): string {
+            $select_options = '';
+
+            $where_clauses = [];
+
+            if (!$is_moderator) {
+                $where_clauses = ["visible='1'"];
+            }
+
+            foreach (
+                category_get(
+                    $where_clauses,
+                    ['cid', 'name'],
+                    ['order_by' => 'name']
+                ) as $category_id => $category_data
+            ) {
+                $category_name = htmlspecialchars_uni($category_data['name']);
+
+                $category_selected = '';
+
+                if ($category_id === $selected_category) {
+                    $category_selected = 'selected="selected"';
+                }
+
+                $select_options .= eval(templates_get('item_add_edit_form_category_option'));
+            }
+
+            return eval(templates_get('item_add_edit_form_category'));
+        })(
+            $category_id
+        );
+
+        $item_name = htmlspecialchars_uni($item_data['name'] ?? '');
+
+        $item_description = htmlspecialchars_uni($item_data['description'] ?? '');
+
+        $item_private_message = htmlspecialchars_uni($item_data['pm'] ?? '');
+
+        $item_private_message_admin = htmlspecialchars_uni($item_data['pmadmin'] ?? '');
+
+        $item_icon = htmlspecialchars_uni($item_data['icon'] ?? '');
+
+        $item_display_order = (int)($item_data['disporder'] ?? 0);
+
+        $item_stock = (int)($item_data['stock'] ?? 0);
+
+        $item_user_limit = (int)($item_data['user_limit'] ?? 0);
+
+        $item_price = (float)($item_data['price'] ?? 0);
+
+        $item_checked_element_infinite_yes = $item_checked_element_infinite_no = $item_checked_element_is_visible_yes = $item_checked_element_is_visible_no = $item_checked_element_can_be_sent_yes = $item_checked_element_can_be_sent_no = $item_checked_element_can_be_sold_yes = $item_checked_element_can_be_sold_no = '';
+
+        if (!empty($item_data['infinite'])) {
+            $item_checked_element_infinite_yes = 'checked="checked"';
+        } else {
+            $item_checked_element_infinite_no = 'checked="checked"';
+        }
+
+        if (!empty($item_data['visible'])) {
+            $item_checked_element_is_visible_yes = 'checked="checked"';
+        } else {
+            $item_checked_element_is_visible_no = 'checked="checked"';
+        }
+
+        if (!empty($item_data['sendable'])) {
+            $item_checked_element_can_be_sent_yes = 'checked="checked"';
+        } else {
+            $item_checked_element_can_be_sent_no = 'checked="checked"';
+        }
+
+        if (!empty($item_data['sellable'])) {
+            $item_checked_element_can_be_sold_yes = 'checked="checked"';
+        } else {
+            $item_checked_element_can_be_sold_no = 'checked="checked"';
+        }
+
+        $icon_file_row = '';
+
+        if (!$is_add_page) {
+            $icon_file_row = eval(templates_get('item_add_edit_form_upload'));
+        }
+
+        $newpoints_content = eval(templates_get('item_add_edit_form'));
+
+        $page = eval(\Newpoints\Core\templates_get('page'));
+    } elseif ($mybb->get_input('view') === 'item') {
+        $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+
+        $where_clause = ["iid='{$item_id}'"];
+
+        if (!$is_moderator) {
+            $where_clause[] = "visible='1'";
+        }
+
+        $item_data = item_get(
+            $where_clause,
             ['cid', 'name', 'description', 'price', 'icon', 'infinite', 'stock', 'sendable', 'sellable']
         );
 
@@ -616,7 +909,13 @@ function newpoints_terminate(): bool
 
         $category_id = (int)$item_data['cid'];
 
-        $category_data = category_get(["cid='{$category_id}'", "visible='1'"], ['usergroups']);
+        $where_clauses = ["cid='{$category_id}'"];
+
+        if (!$is_moderator) {
+            $where_clauses = ["visible='1'"];
+        }
+
+        $category_data = category_get($where_clauses, ['usergroups']);
 
         if (empty($category_data)) {
             error($lang->newpoints_shop_invalid_cat);
@@ -650,8 +949,12 @@ function newpoints_terminate(): bool
 
         $item_price = points_format($item_price);
 
+        $upload_path = (string)get_setting('shop_upload_path');
+
         $item_icon = htmlspecialchars_uni(
-            $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+            $mybb->get_asset_url(
+                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+            )
         );
 
         $view_item_url = url_handler_build([
@@ -690,7 +993,7 @@ function newpoints_terminate(): bool
         $newpoints_content = eval(templates_get('view_item'));
 
         $page = eval(\Newpoints\Core\templates_get('page'));
-    } elseif ($mybb->get_input('view') == 'my_items') {
+    } elseif ($mybb->get_input('view') === 'my_items') {
         $user_id = $mybb->get_input('uid', MyBB::INPUT_INT);
 
         if (empty($user_id)) {
@@ -714,7 +1017,11 @@ function newpoints_terminate(): bool
 
         $visible_items_ids = implode("','", $visible_items_ids);
 
-        $where_clauses = ["user_id='{$user_id}'", "is_visible='1'", "item_id IN ('{$visible_items_ids}')"];
+        $where_clauses = ["user_id='{$user_id}'", "item_id IN ('{$visible_items_ids}')"];
+
+        if (!$is_moderator) {
+            $where_clauses[] = "is_visible='1'";
+        }
 
         $total_user_items = count(
             user_items_get(
@@ -753,12 +1060,6 @@ function newpoints_terminate(): bool
                 $mybb->settings['bburl'] . '/' . $my_items_url
             );
         }
-
-        $user_items_objects = user_items_get(
-            $where_clauses,
-            ['user_item_id', 'item_id'],
-            ['order_by' => 'user_item_stamp', 'order_dir' => 'desc', 'limit' => $per_page, 'limit_start' => $start]
-        );
 
         $user_items_objects = user_items_get(
             $where_clauses,
@@ -812,8 +1113,12 @@ function newpoints_terminate(): bool
 
             $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
+            $upload_path = (string)get_setting('shop_upload_path');
+
             $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+                $mybb->get_asset_url(
+                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+                )
             );
 
             $view_item_url = url_handler_build($url_params);
@@ -878,6 +1183,8 @@ function newpoints_terminate(): bool
 
         $hook_arguments['categories_cache'] = &$categories_cache;
 
+        $upload_path = (string)get_setting('shop_upload_path');
+
         while ($category_data = $db->fetch_array($query)) {
             $categories_cache[] = [
                 'category_id' => (int)$category_data['cid'],
@@ -886,8 +1193,8 @@ function newpoints_terminate(): bool
                 'is_visible' => (bool)$category_data['visible'],
                 'icon_url' => (string)$category_data['icon'],
                 'allowed_groups' => (string)$category_data['usergroups'],
-                'total_items' => (function () use ($category_data): int {
-                    if (!is_member(get_setting('shop_manage_groups'))) {
+                'total_items' => (function () use ($category_data, $is_moderator): int {
+                    if (!$is_moderator) {
                         return (int)$category_data['items'];
                     }
 
@@ -902,14 +1209,18 @@ function newpoints_terminate(): bool
                     return (int)$db->fetch_field($query, 'total_items');
                 })(),
                 'is_expanded' => (bool)$category_data['expanded'],
-                'get_items' => function (int $category_id, array $category_data) use ($per_page): array {
+                'get_items' => function (int $category_id, array $category_data) use (
+                    $per_page,
+                    $upload_path,
+                    $is_moderator
+                ): array {
                     global $mybb, $db;
 
                     $items_objects = [];
 
                     $where_clauses = ["cid='{$category_id}'"];
 
-                    if (!is_member(get_setting('shop_manage_groups'))) {
+                    if (!$is_moderator) {
                         $where_clauses[] = "visible='1'";
                     }
 
@@ -947,7 +1258,7 @@ function newpoints_terminate(): bool
                             'name' => (string)$item['name'],
                             'description' => (string)$item['description'],
                             'price' => (float)$item['price'],
-                            'icon_url' => (string)$item['icon'],
+                            'icon_url' => "{$upload_path}/{$item['icon']}",
                             'is_visible' => (bool)$item['visible'],
                             'is_infinite' => (bool)$item['infinite'],
                             'stock' => (int)$item['stock'],
@@ -962,8 +1273,6 @@ function newpoints_terminate(): bool
         }
 
         $hook_arguments = run_hooks('shop_main_start', $hook_arguments);
-
-        $is_moderator = (bool)is_member(get_setting('shop_manage_groups'));
 
         global $extdisplay, $expcolimage, $expdisplay, $expaltext;
 
@@ -1020,7 +1329,7 @@ function newpoints_terminate(): bool
             $category_icon = '';
 
             if (!empty($category_data['icon_url'])) {
-                $category_icon = $mybb->get_asset_url($category_data['icon_url']);
+                $category_icon = htmlspecialchars_uni($mybb->get_asset_url($category_data['icon_url']));
 
                 $category_icon = eval(templates_get('category_icon'));
             }
@@ -1084,7 +1393,7 @@ function newpoints_terminate(): bool
                     $item_icon = '';
 
                     if (!empty($item_data['icon_url'])) {
-                        $item_icon = $mybb->get_asset_url($item_data['icon_url']);
+                        $item_icon = htmlspecialchars_uni($mybb->get_asset_url($item_data['icon_url']));
 
                         $item_icon = eval(templates_get('item_icon'));
                     }
@@ -1268,8 +1577,12 @@ function member_profile_end(): bool
 
             $view_item_url = url_handler_build($url_params);
 
+            $upload_path = (string)get_setting('shop_upload_path');
+
             $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+                $mybb->get_asset_url(
+                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+                )
             );
 
             $item_name = htmlspecialchars_uni($item_data['name']);
@@ -1402,8 +1715,12 @@ function postbit(array $post): array
 
         $view_item_url = url_handler_build($url_params);
 
+        $upload_path = (string)get_setting('shop_upload_path');
+
         $item_icon = htmlspecialchars_uni(
-            $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+            $mybb->get_asset_url(
+                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+            )
         );
 
         $item_name = htmlspecialchars_uni($item_data['name']);
@@ -1445,7 +1762,7 @@ function newpoints_default_menu(array &$menu): array
 
         $menu[get_setting('shop_menu_order')] = [
             'action' => get_setting('shop_action_name'),
-            'lang_string' => 'newpoints_shop_page_title'
+            'lang_string' => 'newpoints_shop_menu_title',
         ];
     }
 
@@ -1574,8 +1891,12 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
             $view_item_url = url_handler_build($url_params);
 
+            $upload_path = (string)get_setting('shop_upload_path');
+
             $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url($item_data['icon'] ?? 'images/newpoints/default.png')
+                $mybb->get_asset_url(
+                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+                )
             );
 
             $item_name = htmlspecialchars_uni($item_data['name']);

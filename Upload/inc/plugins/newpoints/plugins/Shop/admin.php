@@ -32,10 +32,12 @@ namespace Newpoints\Shop\Admin;
 
 use MyBB;
 
+use function Newpoints\Admin\db_build_field_definition;
 use function Newpoints\Admin\db_verify_columns;
 use function Newpoints\Admin\db_verify_columns_exists;
 use function Newpoints\Admin\db_verify_tables;
 use function Newpoints\Admin\db_verify_tables_exists;
+use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_remove;
 use function Newpoints\Core\plugins_version_delete;
@@ -46,6 +48,7 @@ use function Newpoints\Core\rules_rebuild_cache;
 use function Newpoints\Core\settings_remove;
 use function Newpoints\Core\templates_remove;
 
+use function Newpoints\Shop\Core\item_update;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_update;
@@ -146,8 +149,8 @@ const TABLES_DATA = [
             'unsigned' => true,
             'default' => 0
         ],
-        'limit' => [
-            'type' => 'SMALLINT',
+        'user_limit' => [
+            'type' => 'INT',
             'unsigned' => true,
             'default' => 0
         ],
@@ -297,7 +300,7 @@ function plugin_information(): array
 
 function plugin_activation(): bool
 {
-    global $cache;
+    global $db;
 
     language_load('shop');
 
@@ -305,15 +308,33 @@ function plugin_activation(): bool
 
     $new_version = (int)plugin_information()['versioncode'];
 
+    /*~*~* RUN UPDATES START *~*~*/
+
+    if ($db->field_exists('limit', 'newpoints_shop_items') &&
+        !$db->field_exists('user_limit', 'newpoints_shop_items')) {
+        $db->rename_column(
+            'newpoints_shop_items',
+            'limit',
+            'user_limit',
+            db_build_field_definition(TABLES_DATA['newpoints_shop_items']['user_limit'])
+        );
+    }
+
+    $upload_path = (string)get_setting('shop_upload_path');
+
+    $query = $db->simple_select('newpoints_shop_items', 'iid, icon', "icon LIKE '%/%'");
+
+    while ($item_data = $db->fetch_array($query)) {
+        item_update(['icon' => basename($item_data['icon'])], (int)$item_data['iid']);
+    }
+
+    /*~*~* RUN UPDATES END *~*~*/
+
     db_verify_tables(TABLES_DATA);
 
     db_verify_columns(FIELDS_DATA);
 
     rules_rebuild_cache();
-
-    /*~*~* RUN UPDATES START *~*~*/
-
-    /*~*~* RUN UPDATES END *~*~*/
 
     plugins_version_update('newpoints_shop', $new_version);
 

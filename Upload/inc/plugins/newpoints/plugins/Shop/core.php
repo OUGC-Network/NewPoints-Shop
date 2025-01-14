@@ -34,6 +34,14 @@ use function Newpoints\Core\get_setting;
 
 use const Newpoints\Shop\ROOT;
 
+const FILE_UPLOAD_ERROR_FAILED = 1;
+
+const FILE_UPLOAD_ERROR_INVALID_TYPE = 2;
+
+const FILE_UPLOAD_ERROR_UPLOAD_SIZE = 3;
+
+const FILE_UPLOAD_ERROR_RESIZE = 4;
+
 function templates_get(string $template_name = '', bool $enable_html_comments = true): string
 {
     return \Newpoints\Core\templates_get($template_name, $enable_html_comments, ROOT, 'shop_');
@@ -81,8 +89,8 @@ function item_insert(array $item_data, bool $is_update = false, int $item_id = 0
         $insert_data['infinite'] = (int)$item_data['infinite'];
     }
 
-    if (isset($item_data['limit'])) {
-        $insert_data['limit'] = (int)$item_data['limit'];
+    if (isset($item_data['user_limit'])) {
+        $insert_data['user_limit'] = (int)$item_data['user_limit'];
     }
 
     if (isset($item_data['stock'])) {
@@ -112,6 +120,17 @@ function item_insert(array $item_data, bool $is_update = false, int $item_id = 0
     }
 
     return $item_id;
+}
+
+function item_delete(int $item_id): bool
+{
+    global $db;
+
+    $db->delete_query('newpoints_shop_user_items', "item_id='{$item_id}'");
+
+    $db->delete_query('newpoints_shop_items', "iid='{$item_id}'", 1);
+
+    return true;
 }
 
 function item_update(array $item_data, int $item_id): int
@@ -206,6 +225,119 @@ function items_get_visible(): array
     $active_items_ids = items_get(["visible='1'", "cid IN ('{$visible_category_ids}')"]);
 
     return array_unique(array_column($active_items_ids, 'iid'));
+}
+
+function item_upload_icon(array $item_file, int $item_id): array
+{
+    require_once MYBB_ROOT . 'inc/functions_upload.php';
+
+    if (!is_uploaded_file($item_file['tmp_name'])) {
+        return ['error' => FILE_UPLOAD_ERROR_FAILED];
+    }
+
+    $file_extension = get_extension(my_strtolower($item_file['name']));
+
+    if (!preg_match('#^(gif|jpg|jpeg|jpe|bmp|png)$#i', $file_extension)) {
+        return ['error' => FILE_UPLOAD_ERROR_INVALID_TYPE];
+    }
+
+    $upload_path = get_setting('shop_upload_path');
+
+    $file_name = 'icon_' . TIME_NOW . '_' . md5(uniqid((string)rand(), true)) . '.' . $file_extension;
+
+    $file_upload = upload_file($item_file, $upload_path, $file_name);
+
+    $full_file_path = "{$upload_path}/{$file_name}";
+
+    if (!empty($file_upload['error'])) {
+        delete_uploaded_file($full_file_path);
+
+        return ['error' => FILE_UPLOAD_ERROR_FAILED];
+    }
+
+    if (!file_exists($full_file_path)) {
+        delete_uploaded_file($full_file_path);
+
+        return ['error' => FILE_UPLOAD_ERROR_FAILED];
+    }
+
+    $image_dimensions = getimagesize($full_file_path);
+
+    if (!is_array($image_dimensions)) {
+        delete_uploaded_file($full_file_path);
+
+        return ['error' => FILE_UPLOAD_ERROR_FAILED];
+    }
+
+    if (get_setting('upload_dimensions')) {
+        list($maximum_width, $maximum_height) = preg_split('/[|x]/', get_setting('upload_dimensions'));
+
+        if (($maximum_width && $image_dimensions[0] > $maximum_width) || ($maximum_height && $image_dimensions[1] > $maximum_height)) {
+            require_once MYBB_ROOT . 'inc/functions_image.php';
+
+            $thumbnail = generate_thumbnail(
+                $full_file_path,
+                $upload_path,
+                $file_name,
+                $maximum_height,
+                $maximum_width
+            );
+
+            if (empty($thumbnail['filename'])) {
+                delete_uploaded_file($full_file_path);
+
+                return ['error' => FILE_UPLOAD_ERROR_RESIZE];
+            } else {
+                copy_file_to_cdn("{$upload_path}/{$thumbnail['filename']}");
+
+                $item_file['size'] = filesize($full_file_path);
+
+                $image_dimensions = getimagesize($full_file_path);
+            }
+        }
+    }
+
+    $item_file['type'] = my_strtolower($item_file['type']);
+
+    switch ($item_file['type']) {
+        case 'image/gif':
+            $imageType = 1;
+            break;
+        case 'image/jpeg':
+        case 'image/x-jpg':
+        case 'image/x-jpeg':
+        case 'image/pjpeg':
+        case 'image/jpg':
+            $imageType = 2;
+            break;
+        case 'image/png':
+        case 'image/x-png':
+            $imageType = 3;
+            break;
+        case 'image/bmp':
+        case 'image/x-bmp':
+        case 'image/x-windows-bmp':
+            $imageType = 6;
+            break;
+    }
+
+    if (empty($imageType) || (int)$image_dimensions[2] !== $imageType) {
+        delete_uploaded_file($full_file_path);
+
+        return ['error' => FILE_UPLOAD_ERROR_FAILED];
+    }
+
+    if (get_setting('upload_size') > 0 && $item_file['size'] > (get_setting('upload_size') * 1024)) {
+        delete_uploaded_file($full_file_path);
+
+        return ['error' => FILE_UPLOAD_ERROR_UPLOAD_SIZE];
+    }
+
+    return [
+        'file_name' => $file_name,
+        'file_width' => (int)$image_dimensions[0],
+        'file_height' => (int)$image_dimensions[1]
+    ];
 }
 
 function user_update(int $user_id, array $update_data): int

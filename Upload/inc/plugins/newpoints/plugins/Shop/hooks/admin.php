@@ -355,7 +355,7 @@ function newpoints_admin_load()
                     $stock = $mybb->get_input('stock', MyBB::INPUT_INT);
                 }
 
-                $limit = $mybb->get_input('limit', MyBB::INPUT_INT);
+                $user_limit = $mybb->get_input('user_limit', MyBB::INPUT_INT);
 
                 $visible = $mybb->get_input('visible', MyBB::INPUT_INT);
 
@@ -378,7 +378,7 @@ function newpoints_admin_load()
                     'price' => $price,
                     'infinite' => $infinite,
                     'stock' => $stock,
-                    'limit' => $limit,
+                    'user_limit' => $user_limit,
                     'sendable' => $sendable,
                     'sellable' => $sellable,
                     'cid' => $cid,
@@ -448,7 +448,7 @@ function newpoints_admin_load()
                     $stock = $mybb->get_input('stock', MyBB::INPUT_INT);
                 }
 
-                $limit = $mybb->get_input('limit', MyBB::INPUT_INT);
+                $user_limit = $mybb->get_input('user_limit', MyBB::INPUT_INT);
 
                 $visible = $mybb->get_input('visible', MyBB::INPUT_INT);
 
@@ -471,7 +471,7 @@ function newpoints_admin_load()
                     'price' => $price,
                     'infinite' => $infinite,
                     'stock' => $stock,
-                    'limit' => $limit,
+                    'user_limit' => $user_limit,
                     'sendable' => $sendable,
                     'sellable' => $sellable,
                     'cid' => $cid,
@@ -1166,9 +1166,9 @@ function newpoints_admin_load()
         $form_container->output_row(
             $lang->newpoints_shop_addedit_item_limit,
             $lang->newpoints_shop_addedit_item_limit_desc,
-            $form->generate_text_box('limit', '0', ['id' => 'limit']
+            $form->generate_text_box('user_limit', '0', ['id' => 'user_limit']
             ),
-            'limit'
+            'user_limit'
         );
 
         $form_container->output_row(
@@ -1319,9 +1319,9 @@ function newpoints_admin_load()
         $form_container->output_row(
             $lang->newpoints_shop_addedit_item_limit,
             $lang->newpoints_shop_addedit_item_limit_desc,
-            $form->generate_text_box('limit', (int)$item['limit'], ['id' => 'limit']
+            $form->generate_text_box('user_limit', (int)$item['user_limit'], ['id' => 'user_limit']
             ),
-            'limit'
+            'user_limit'
         );
 
         $form_container->output_row(
