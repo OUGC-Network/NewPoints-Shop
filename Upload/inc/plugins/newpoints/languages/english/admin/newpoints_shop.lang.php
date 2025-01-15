@@ -53,11 +53,11 @@ $l['setting_newpoints_shop_per_page_desc'] = 'Number of items to display per pag
 $l['setting_newpoints_shop_menu_order'] = 'Menu Order';
 $l['setting_newpoints_shop_menu_order_desc'] = 'Order in the Newpoints menu item';
 $l['setting_newpoints_shop_upload_path'] = 'Uploads Path';
-$l['setting_newpoints_shop_upload_path_desc'] = 'Type the path where the awards images will be uploaded.';
+$l['setting_newpoints_shop_upload_path_desc'] = 'Type the path where the category  and item images will be uploaded.';
 $l['setting_newpoints_shop_upload_dimensions'] = 'Uploads Dimensions';
-$l['setting_newpoints_shop_upload_dimensions_desc'] = 'Type the maximum dimensions for the awards images. Default 32|32.';
+$l['setting_newpoints_shop_upload_dimensions_desc'] = 'Type the maximum dimensions for the category and item images. Default 32|32.';
 $l['setting_newpoints_shop_upload_size'] = 'Uploads Size';
-$l['setting_newpoints_shop_upload_size_desc'] = 'Type the maximum size in bytes for the awards images. Default 50.';
+$l['setting_newpoints_shop_upload_size_desc'] = 'Type the maximum size in bytes for the category and item images. Default 50.';
 
 // Tabs
 $l['newpoints_shop_categories'] = 'Categories';

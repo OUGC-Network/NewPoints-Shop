@@ -345,6 +345,12 @@ function newpoints_terminate(): bool
                         points_format($item_price)
                     );
 
+                    if ($item_price > $mybb->user['newpoints']) {
+                        $price_class = 'insufficient_funds';
+                    } else {
+                        $price_class = 'sufficient_funds';
+                    }
+
                     $item_price = points_format($item_price);
 
                     $upload_path = (string)get_setting('shop_upload_path');
