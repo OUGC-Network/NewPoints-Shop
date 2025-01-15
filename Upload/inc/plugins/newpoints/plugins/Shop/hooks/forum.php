@@ -135,14 +135,16 @@ function newpoints_terminate(): bool
 
     $current_user_id = (int)$mybb->user['uid'];
 
+    $errors = [];
+
+    $hook_arguments['errors'] = &$errors;
+
     if ($mybb->request_method === 'post') {
         verify_post_check($mybb->get_input('my_post_key'));
 
         add_breadcrumb($lang->newpoints_shop, url_handler_build(['action' => 'shop']));
 
-        $errors = [];
-
-        run_hooks('do_shop_start');
+        $hook_arguments = run_hooks('shop_post_start', $hook_arguments);
 
         switch ($mybb->get_input('view')) {
             case 'purchase':
@@ -171,6 +173,8 @@ function newpoints_terminate(): bool
                         'pmadmin'
                     ]
                 );
+
+                $hook_arguments['item_data'] = &$item_data;
 
                 if (!$item_data) {
                     error($lang->newpoints_shop_invalid_item);
@@ -225,6 +229,8 @@ function newpoints_terminate(): bool
                         $errors[] = $lang->newpoints_shop_user_limit_reached;
                     }
                 }
+
+                $hook_arguments = run_hooks('shop_purchase_intermediate', $hook_arguments);
 
                 if (empty($errors) && isset($mybb->input['confirm'])) {
                     $insert_data = [
@@ -327,7 +333,7 @@ function newpoints_terminate(): bool
                         );
                     }
 
-                    $item_data = run_hooks('shop_purchase_end', $item_data);
+                    $hook_arguments = run_hooks('shop_purchase_end', $hook_arguments);
 
                     user_update_details($current_user_id);
 
@@ -380,6 +386,8 @@ function newpoints_terminate(): bool
 
                 break;
             case 'send':
+                $hook_arguments = run_hooks('shop_send_start', $hook_arguments);
+
                 $user_item_id = $mybb->get_input('user_item_id', MyBB::INPUT_INT);
 
                 if (!empty($user_item_id)) {
@@ -400,7 +408,7 @@ function newpoints_terminate(): bool
 
                 $item_data = item_get($where_clauses, ['cid', 'name']);
 
-                run_hooks('shop_send_start');
+                $hook_arguments['item_data'] = &$item_data;
 
                 if (empty($item_data)) {
                     error($lang->newpoints_shop_invalid_item);
@@ -413,6 +421,8 @@ function newpoints_terminate(): bool
                 }
 
                 $category_data = category_get($where_clauses, ['usergroups']);
+
+                $hook_arguments['category_data'] = &$category_data;
 
                 if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
@@ -430,6 +440,8 @@ function newpoints_terminate(): bool
                     $user_item_id = (int)(array_column($user_items_objects, 'user_item_id')[0] ?? 0);
                 }
 
+                $hook_arguments['user_item_id'] = &$user_item_id;
+
                 if (empty($user_item_id)) {
                     error($lang->newpoints_shop_selected_item_not_owned);
                 }
@@ -442,7 +454,7 @@ function newpoints_terminate(): bool
 
                 $user_name = $mybb->get_input('username');
 
-                run_hooks('shop_send_intermediate');
+                $hook_arguments = run_hooks('shop_send_intermediate', $hook_arguments);
 
                 if (isset($mybb->input['confirm'])) {
                     $user_data = users_get_by_username($user_name);
@@ -455,10 +467,12 @@ function newpoints_terminate(): bool
                         $errors[] = $lang->newpoints_shop_cant_send_item_self;
                     }
 
+                    $hook_arguments = run_hooks('shop_post_send_start', $hook_arguments);
+
                     if (empty($errors)) {
                         $user_id = (int)$user_data['uid'];
 
-                        run_hooks('shop_do_send_start');
+                        $hook_arguments = run_hooks('shop_post_send_start', $hook_arguments);
 
                         user_item_update(
                             ['user_id' => $user_id],
@@ -510,7 +524,7 @@ function newpoints_terminate(): bool
                             'view' => 'my_items'
                         ]);
 
-                        run_hooks('shop_do_send_end');
+                        $hook_arguments = run_hooks('shop_post_send_end', $hook_arguments);
 
                         redirect(
                             $mybb->settings['bburl'] . '/' . $my_items_url,
@@ -526,7 +540,7 @@ function newpoints_terminate(): bool
                     $user_name = htmlspecialchars_uni($user_name);
                 }
 
-                run_hooks('shop_send_end');
+                $hook_arguments = run_hooks('shop_send_end', $hook_arguments);
 
                 if (!isset($mybb->input['confirm'])) {
                     page_build_purchase_confirmation(
@@ -539,6 +553,8 @@ function newpoints_terminate(): bool
                 }
                 break;
             case 'sell':
+                $hook_arguments = run_hooks('shop_sell_start', $hook_arguments);
+
                 $user_item_id = $mybb->get_input('user_item_id', MyBB::INPUT_INT);
 
                 if (!empty($user_item_id)) {
@@ -561,7 +577,7 @@ function newpoints_terminate(): bool
 
                 $item_data = item_get($where_clauses, ['cid', 'name', 'stock']);
 
-                run_hooks('shop_sell_start');
+                $hook_arguments['item_data'] = &$item_data;
 
                 if (empty($item_data)) {
                     error($lang->newpoints_shop_invalid_item);
@@ -574,6 +590,8 @@ function newpoints_terminate(): bool
                 }
 
                 $category_data = category_get($where_clauses, ['usergroups']);
+
+                $hook_arguments['category_data'] = &$category_data;
 
                 if (!$category_data) {
                     error($lang->newpoints_shop_invalid_cat);
@@ -616,11 +634,11 @@ function newpoints_terminate(): bool
 
                 $user_name = $mybb->get_input('username');
 
-                run_hooks('shop_sell_intermediate');
+                $hook_arguments = run_hooks('shop_sell_intermediate', $hook_arguments);
 
                 if (isset($mybb->input['confirm'])) {
                     if (empty($errors)) {
-                        run_hooks('shop_do_sell_start');
+                        $hook_arguments = run_hooks('shop_post_sell_start', $hook_arguments);
 
                         user_item_delete($user_item_id);
 
@@ -649,7 +667,7 @@ function newpoints_terminate(): bool
                             'view' => 'my_items'
                         ]);
 
-                        run_hooks('shop_do_sell_end');
+                        $hook_arguments = run_hooks('shop_post_sell_end', $hook_arguments);
 
                         redirect(
                             $mybb->settings['bburl'] . '/' . $my_items_url,
@@ -665,7 +683,7 @@ function newpoints_terminate(): bool
                     $user_name = htmlspecialchars_uni($user_name);
                 }
 
-                run_hooks('shop_sell_end');
+                $hook_arguments = run_hooks('shop_sell_end', $hook_arguments);
 
                 if (!isset($mybb->input['confirm'])) {
                     $message = $lang->sprintf(
@@ -689,12 +707,12 @@ function newpoints_terminate(): bool
             $newpoints_errors = inline_error($errors);
         }
 
-        run_hooks('do_shop_end');
+        $hook_arguments = run_hooks('shop_post_end', $hook_arguments);
     }
 
     add_breadcrumb($lang->newpoints_shop, url_handler_build(['action' => 'shop']));
 
-    run_hooks('shop_start');
+    $hook_arguments = run_hooks('shop_start', $hook_arguments);
 
     $newpoints_buttons = '';
 
@@ -704,6 +722,8 @@ function newpoints_terminate(): bool
         }
 
         $is_add_page = $mybb->get_input('view') === 'add_category';
+
+        $hook_arguments = run_hooks('shop_add_edit_category_start', $hook_arguments);
 
         if ($is_add_page) {
             $page_title = $lang->newpoints_shop_add_category;
@@ -729,6 +749,8 @@ function newpoints_terminate(): bool
             ]
         );
 
+        $hook_arguments['category_data'] = &$category_data;
+
         if (!$category_data && !$is_add_page) {
             error_no_permission();
         }
@@ -744,8 +766,6 @@ function newpoints_terminate(): bool
                 'disporder' => $mybb->get_input('display_order', MyBB::INPUT_INT),
             ];
 
-            $errors = [];
-
             if (my_strlen($insert_data['name']) > 100 || my_strlen($insert_data['name']) < 1) {
                 $errors[] = $lang->newpoints_shop_error_invalid_item_name;
             }
@@ -754,10 +774,14 @@ function newpoints_terminate(): bool
                 $upload = item_upload_icon($_FILES['icon_file']);
             }
 
+            $hook_arguments = run_hooks('shop_post_add_edit_category_intermediate', $hook_arguments);
+
             if (empty($errors)) {
                 if (!empty($upload['file_name'])) {
                     $insert_data['icon'] = $db->escape_string($upload['file_name']);
                 }
+
+                $hook_arguments = run_hooks('shop_post_add_edit_category_end', $hook_arguments);
 
                 if ($is_add_page) {
                     category_insert($insert_data);
@@ -776,7 +800,7 @@ function newpoints_terminate(): bool
                 }
             }
 
-            if ($errors) {
+            if (!empty($errors)) {
                 $newpoints_errors = inline_error($errors);
             }
 
@@ -841,15 +865,21 @@ function newpoints_terminate(): bool
             error_no_permission();
         }
 
+        $hook_arguments = run_hooks('shop_delete_category_start', $hook_arguments);
+
         $category_id = $mybb->get_input('category_id', MyBB::INPUT_INT);
 
         $category_data = category_get(["cid='{$category_id}'"]);
+
+        $hook_arguments['category_data'] = &$category_data;
 
         if (!$category_data) {
             error_no_permission();
         }
 
         if (!empty($mybb->input['confirm'])) {
+            $hook_arguments = run_hooks('shop_delete_category_confirm', $hook_arguments);
+
             category_delete($category_id);
 
             redirect(
@@ -873,15 +903,21 @@ function newpoints_terminate(): bool
             error_no_permission();
         }
 
+        $hook_arguments = run_hooks('shop_delete_item_start', $hook_arguments);
+
         $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         $item_data = item_get(["iid='{$item_id}'"]);
+
+        $hook_arguments['item_data'] = &$item_data;
 
         if (!$item_data) {
             error_no_permission();
         }
 
         if (!empty($mybb->input['confirm'])) {
+            $hook_arguments = run_hooks('shop_delete_item_confirm', $hook_arguments);
+
             item_delete($item_id);
 
             redirect(
@@ -906,6 +942,8 @@ function newpoints_terminate(): bool
         }
 
         $is_add_page = $mybb->get_input('view') === 'add_item';
+
+        $hook_arguments = run_hooks('shop_add_edit_item_start', $hook_arguments);
 
         if ($is_add_page) {
             $page_title = $lang->newpoints_shop_add_item;
@@ -939,6 +977,8 @@ function newpoints_terminate(): bool
             ]
         );
 
+        $hook_arguments['item_data'] = &$item_data;
+
         if (!$item_data && !$is_add_page) {
             error_no_permission();
         }
@@ -962,8 +1002,6 @@ function newpoints_terminate(): bool
                 'pmadmin' => $mybb->get_input('private_message_admin'),
             ];
 
-            $errors = [];
-
             if (my_strlen($insert_data['name']) > 100 || my_strlen($insert_data['name']) < 1) {
                 $errors[] = $lang->newpoints_shop_error_invalid_item_name;
             }
@@ -980,10 +1018,14 @@ function newpoints_terminate(): bool
                 $upload = item_upload_icon($_FILES['icon_file'], $item_id);
             }
 
+            $hook_arguments = run_hooks('shop_post_add_edit_item_intermediate', $hook_arguments);
+
             if (empty($errors)) {
                 if (!empty($upload['file_name'])) {
                     $insert_data['icon'] = $db->escape_string($upload['file_name']);
                 }
+
+                $hook_arguments = run_hooks('shop_post_add_edit_item_end', $hook_arguments);
 
                 if ($is_add_page) {
                     item_insert($insert_data);
@@ -1002,7 +1044,7 @@ function newpoints_terminate(): bool
                 }
             }
 
-            if ($errors) {
+            if (!empty($errors)) {
                 $newpoints_errors = inline_error($errors);
             }
 
@@ -1095,6 +1137,8 @@ function newpoints_terminate(): bool
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } elseif ($mybb->get_input('view') === 'item') {
+        $hook_arguments = run_hooks('shop_item_start', $hook_arguments);
+
         $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         $where_clause = ["iid='{$item_id}'"];
@@ -1107,6 +1151,8 @@ function newpoints_terminate(): bool
             $where_clause,
             ['cid', 'name', 'description', 'price', 'icon', 'infinite', 'stock', 'sendable', 'sellable']
         );
+
+        $hook_arguments['item_data'] = &$item_data;
 
         if (!$item_data) {
             error($lang->newpoints_shop_invalid_item);
@@ -1121,6 +1167,10 @@ function newpoints_terminate(): bool
         }
 
         $category_data = category_get($where_clauses, ['usergroups']);
+
+        $hook_arguments['category_data'] = &$category_data;
+
+        $hook_arguments = run_hooks('shop_item_intermediate', $hook_arguments);
 
         if (empty($category_data)) {
             error($lang->newpoints_shop_invalid_cat);
@@ -1195,10 +1245,14 @@ function newpoints_terminate(): bool
 
         $page_title = $lang->newpoints_shop_view_item;
 
+        $hook_arguments = run_hooks('shop_item_end', $hook_arguments);
+
         $newpoints_content = eval(templates_get('view_item'));
 
         $page = eval(\Newpoints\Core\templates_get('page'));
     } elseif ($mybb->get_input('view') === 'my_items') {
+        $hook_arguments = run_hooks('shop_my_items_start', $hook_arguments);
+
         $user_id = $mybb->get_input('uid', MyBB::INPUT_INT);
 
         if (empty($user_id)) {
@@ -1208,6 +1262,8 @@ function newpoints_terminate(): bool
         $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
 
         $user_data = get_user($user_id);
+
+        $hook_arguments['user_data'] = &$user_data;
 
         if (!$user_data || $user_id !== $current_user_id && empty($mybb->usergroup['newpoints_shop_can_view_inventories'])) {
             error_no_permission();
@@ -1236,6 +1292,7 @@ function newpoints_terminate(): bool
             )
         );
 
+        $hook_arguments['total_user_items'] = &$total_user_items;
 
         if ($mybb->get_input('page', MyBB::INPUT_INT) > 1) {
             $start = ($mybb->get_input('page', MyBB::INPUT_INT) * $per_page) - $per_page;
@@ -1279,6 +1336,8 @@ function newpoints_terminate(): bool
             ]
         );
 
+        $hook_arguments['user_items_objects'] = &$user_items_objects;
+
         $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
 
         $post_items_cache = items_get(
@@ -1287,6 +1346,8 @@ function newpoints_terminate(): bool
         );
 
         $shop_items = '';
+
+        $hook_arguments['shop_items'] = &$shop_items;
 
         $alternative_background = alt_trow(true);
 
@@ -1300,6 +1361,10 @@ function newpoints_terminate(): bool
             }
 
             $item_data = $post_items_cache[$item_id];
+
+            $hook_arguments['item_data'] = &$item_data;
+
+            $hook_arguments = run_hooks('shop_my_items_item_start', $hook_arguments);
 
             $option_buttons = $button_sell = $button_send = '';
 
@@ -1347,13 +1412,13 @@ function newpoints_terminate(): bool
 
             $item_stock = my_number_format($user_item_data['total_user_items']);
 
-            $item_data = run_hooks('shop_myitems_item', $item_data);
-
             $view_item_url = url_handler_build([
                 'action' => $action_name,
                 'view' => 'item',
                 'item_id' => $item_id
             ]);
+
+            $hook_arguments = run_hooks('shop_my_items_item_end', $hook_arguments);
 
             $shop_items .= eval(templates_get('my_items_row'));
 
@@ -1363,6 +1428,8 @@ function newpoints_terminate(): bool
         }
 
         unset($url_params['item_id']);
+
+        $hook_arguments = run_hooks('shop_my_items_end', $hook_arguments);
 
         if (!$shop_items) {
             $shop_items = eval(templates_get('my_items_empty'));
@@ -1718,7 +1785,9 @@ function newpoints_terminate(): bool
         $page = eval(\Newpoints\Core\templates_get('page'));
     }
 
-    $page = run_hooks('shop_end', $page);
+    $hook_arguments['page'] = &$page;
+
+    $hook_arguments = run_hooks('shop_end', $hook_arguments);
 
     output_page($page);
 
