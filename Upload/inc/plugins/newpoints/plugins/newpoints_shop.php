@@ -1,4 +1,5 @@
 <?php
+
 /***************************************************************************
  *
  *    NewPoints Shop plugin (/inc/plugins/newpoints/plugins/newpoints_shop.php)
