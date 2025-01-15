@@ -1340,7 +1340,7 @@ function newpoints_terminate(): bool
 
         $query = $db->simple_select(
             'newpoints_shop_categories',
-            'cid, name, description, visible, icon, usergroups, disporder, items, expanded',
+            'cid, name, description, visible, icon, usergroups, disporder',
             implode(' AND ', $where_clauses),
             ['order_by' => 'disporder', 'order_dir' => 'ASC']
         );
@@ -1362,8 +1362,12 @@ function newpoints_terminate(): bool
                 'icon_url' => "{$upload_path}/{$category_data['icon']}",
                 'allowed_groups' => (string)$category_data['usergroups'],
                 'total_items' => (function () use ($category_data, $is_moderator): int {
+                    $category_id = (int)$category_data['cid'];
+
+                    $where_clauses = ["cid='{$category_id}'"];
+
                     if (!$is_moderator) {
-                        return (int)$category_data['items'];
+                        $where_clauses[] = "visible='1'";
                     }
 
                     global $db;
@@ -1371,12 +1375,12 @@ function newpoints_terminate(): bool
                     $query = $db->simple_select(
                         'newpoints_shop_items',
                         'COUNT(iid) AS total_items',
-                        'cid=' . (int)$category_data['cid']
+                        implode(' AND ', $where_clauses)
                     );
 
                     return (int)$db->fetch_field($query, 'total_items');
                 })(),
-                'is_expanded' => (bool)$category_data['expanded'],
+                //'is_expanded' => (bool)$category_data['expanded'],
                 'get_items' => function (int $category_id, array $category_data) use (
                     $per_page,
                     $upload_path,

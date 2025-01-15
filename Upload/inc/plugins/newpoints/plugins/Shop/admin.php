@@ -90,7 +90,7 @@ const TABLES_DATA = [
             'unsigned' => true,
             'default' => 0
         ],
-        'items' => [
+        'items' => [ // implement this for visible items
             'type' => 'INT',
             'unsigned' => true,
             'default' => 0
