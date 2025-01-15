@@ -167,6 +167,8 @@ function newpoints_terminate(): bool
                         'icon',
                         'infinite',
                         'stock',
+                        'pm',
+                        'pmadmin'
                     ]
                 );
 
@@ -251,17 +253,37 @@ function newpoints_terminate(): bool
                         LOGGING_TYPE_CHARGE
                     );
 
-                    if (!empty($item_data['pm']) || get_setting('shop_pm_default')) {
-                        $item_data['pm'] = str_replace(
-                            ['{itemname}', '{itemid}', '{item_name}', '{item_id}'],
-                            [$item_name, $item_id, $item_name, $item_id],
-                            $item_data['pm'] ?? get_setting('shop_pm_default')
-                        );
+                    $upload_path = (string)get_setting('shop_upload_path');
 
+                    $item_icon = $mybb->get_asset_url(
+                        !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+                    );
+
+                    $private_message = $item_data['pm'] ?? get_setting('shop_pm_default');
+
+                    if (!empty($private_message)) {
                         private_message_send(
                             [
                                 'subject' => $lang->newpoints_shop_bought_item_pm_subject,
-                                'message' => $item_data['pm'],
+                                'message' => str_replace(
+                                    [
+                                        '{itemname}',
+                                        '{itemid}',
+                                        '{user_name}',
+                                        '{item_name}',
+                                        '{item_id}',
+                                        '{item_image}'
+                                    ],
+                                    [
+                                        $item_data['name'],
+                                        $item_data['iid'],
+                                        $mybb->user['username'],
+                                        $item_data['name'],
+                                        $item_data['iid'],
+                                        $item_icon
+                                    ],
+                                    $private_message
+                                ),
                                 'touid' => $current_user_id,
                                 'receivepms' => 1
                             ],
@@ -269,18 +291,36 @@ function newpoints_terminate(): bool
                         );
                     }
 
-                    if (!empty($item_data['pmadmin']) || get_setting('shop_pmadmins')) {
-                        $item_data['pmadmin'] = str_replace(
-                            ['{itemname}', '{itemid}', '{item_name}', '{item_id}'],
-                            [$item_data['name'], $item_data['iid'], $item_data['name'], $item_data['iid']],
-                            $item_data['pmadmin'] ?? get_setting('shop_pmadmin_default')
-                        );
+                    $private_message_admin = $item_data['pmadmin'] ?? get_setting('shop_pmadmin_default');
 
+                    $private_message_admin_user_ids = array_filter(
+                        array_map('intval', explode(',', get_setting('shop_pmadmins')))
+                    );
+
+                    if (!empty($private_message_admin) && $private_message_admin_user_ids) {
                         private_message_send(
                             [
                                 'subject' => $lang->newpoints_shop_bought_item_pmadmin_subject,
-                                'message' => $item_data['pmadmin'],
-                                'touid' => [explode(',', get_setting('shop_pmadmins'))],
+                                'message' => str_replace(
+                                    [
+                                        '{itemname}',
+                                        '{itemid}',
+                                        '{user_name}',
+                                        '{item_name}',
+                                        '{item_id}',
+                                        '{item_image}'
+                                    ],
+                                    [
+                                        $item_data['name'],
+                                        $item_data['iid'],
+                                        $mybb->user['username'],
+                                        $item_data['name'],
+                                        $item_data['iid'],
+                                        $item_icon
+                                    ],
+                                    $private_message_admin
+                                ),
+                                'touid' => $private_message_admin_user_ids,
                                 'receivepms' => 1
                             ],
                             $current_user_id

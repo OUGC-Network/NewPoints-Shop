@@ -195,8 +195,16 @@ $l = array_merge($l, [
     'newpoints_shop_edit_item_table_item_price_description' => 'Set a price for this item.',
     'newpoints_shop_edit_item_table_item_private_message' => 'Private Message Content',
     'newpoints_shop_edit_item_table_item_private_message_description' => 'If not empty, will send a Private Message whenever this item is purchased.',
+    'newpoints_shop_edit_item_table_item_private_message_note' => '{user_name} = Username
+{item_name} = Item name
+{item_id} = Item ID
+{item_image} = Image',
     'newpoints_shop_edit_item_table_item_private_message_admin' => 'Private Message Content',
     'newpoints_shop_edit_item_table_item_private_message_admin_description' => 'If not empty, will send a Private Message to shop managers whenever this item is purchased.',
+    'newpoints_shop_edit_item_table_item_private_message_admin_note' => '{user_name} = Username
+{item_name} = Item name
+{item_id} = Item ID
+{item_image} = Image',
     'newpoints_shop_edit_item_table_item_display_order' => 'Display Order',
     'newpoints_shop_edit_item_table_item_display_order_description' => 'Set the display order for this item.',
     'newpoints_shop_edit_item_table_item_stock' => 'Item Stock',
