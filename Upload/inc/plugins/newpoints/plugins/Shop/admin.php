@@ -327,6 +327,12 @@ function plugin_activation(): bool
         item_update(['icon' => basename($item_data['icon'])], (int)$item_data['iid']);
     }
 
+    templates_remove([
+        'myitems_no_items',
+        'nopurchase',
+        'purchase',
+    ], 'newpoints_shop_');
+
     /*~*~* RUN UPDATES END *~*~*/
 
     db_verify_tables(TABLES_DATA);
@@ -390,22 +396,52 @@ function plugin_uninstallation(): bool
     );
 
     templates_remove([
-        'page',
         'category',
+        'category_add_edit_form',
+        'category_add_edit_form_category',
+        'category_add_edit_form_category_option',
+        'category_add_edit_form_upload',
+        'category_empty',
+        'category_icon',
+        'category_links',
+        'category_pagination',
+        'category_thead_options',
+        'confirm_purchase',
+        'confirm_purchase_icon',
+        'confirm_sell',
+        'confirm_send',
+        'css',
         'item',
-        'no_items',
+        'item_add_edit_form',
+        'item_add_edit_form_category',
+        'item_add_edit_form_category_option',
+        'item_add_edit_form_upload',
+        'item_icon',
+        'item_row_options',
+        'my_items_content',
+        'my_items_empty',
+        'my_items_row',
+        'my_items_row_icon',
+        'my_items_row_options',
+        'my_items_row_options_sell',
+        'my_items_row_options_send',
         'no_cats',
-        'myitems',
-        'myitems_item',
-        'myitems_no_items',
-        'do_action',
-        'v',
-        'stats_purchase',
-        'stats_nopurchase',
-        'myitems_item_empty',
+        'page_button_add_category',
+        'page_button_my_items',
+        'post',
+        'post_icon',
+        'post_view_all',
         'profile',
+        'profile_icon',
+        'profile_view_all',
+        'quick_edit_row',
+        'quick_edit_row_item',
+        'quick_edit_row_item_icon',
+        'stats',
+        'stats_empty',
+        'stats_row',
         'view_item',
-        'postbit',
+        'view_item_icon'
     ], 'newpoints_shop_');
 
     plugins_version_delete('newpoints_shop');
