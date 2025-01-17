@@ -88,7 +88,7 @@ function newpoints_shop_activate(): bool
 (function () {
     global $groupzerolesser, $grouppermbyswitch;
 
-    $groupzerolesser[] = 'newpoints_rate_shop_sell';
+    $groupzerolesser[] = 'newpoints_rate_shop_purchase';
 
-    $grouppermbyswitch['newpoints_rate_shop_sell'] = 'newpoints_shop_can_sell';
+    $grouppermbyswitch['newpoints_rate_shop_purchase'] = 'newpoints_shop_can_purchase';
 })();

@@ -1,0 +1,10 @@
+<td class="{$alternative_background}" align="center" valign="middle">
+    <form action="{$mybb->settings['bburl']}/{$purchase_item_url}" method="post">
+        <input type="hidden" name="action" value="{$action_name}"/>
+        <input type="hidden" name="my_post_key" value="{$mybb->post_code}"/>
+        <input type="hidden" name="item_id" value="{$item_id}"/>
+        <input type="hidden" name="type" value="{$category_type}"/>
+        <input type="submit" class="button"
+               value="{$lang->newpoints_shop_purchase}"/>
+    </form>
+</td>

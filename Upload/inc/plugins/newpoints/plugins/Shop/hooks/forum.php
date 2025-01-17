@@ -71,6 +71,30 @@ use const Newpoints\Core\LOGGING_TYPE_INCOME;
 function newpoints_global_start(array &$hook_arguments): array
 {
     $hook_arguments['newpoints.php'] = array_merge($hook_arguments['newpoints.php'], [
+        'newpoints_shop_category',
+        'newpoints_shop_category_add_edit_form',
+        'newpoints_shop_category_add_edit_form_category',
+        'newpoints_shop_category_add_edit_form_category_option',
+        'newpoints_shop_category_add_edit_form_upload',
+        'newpoints_shop_category_empty',
+        'newpoints_shop_category_icon',
+        'newpoints_shop_category_links',
+        'newpoints_shop_category_pagination',
+        'newpoints_shop_category_thead_options',
+        'newpoints_shop_category_thead_purchase',
+        'newpoints_shop_confirm_purchase',
+        'newpoints_shop_confirm_purchase_icon',
+        'newpoints_shop_confirm_sell',
+        'newpoints_shop_confirm_send',
+        'newpoints_shop_css',
+        'newpoints_shop_item',
+        'newpoints_shop_item_add_edit_form',
+        'newpoints_shop_item_add_edit_form_category',
+        'newpoints_shop_item_add_edit_form_category_option',
+        'newpoints_shop_item_add_edit_form_upload',
+        'newpoints_shop_item_icon',
+        'newpoints_shop_item_purchase',
+        'newpoints_shop_item_row_options',
         'newpoints_shop_my_items_content',
         'newpoints_shop_my_items_empty',
         'newpoints_shop_my_items_row',
@@ -78,6 +102,20 @@ function newpoints_global_start(array &$hook_arguments): array
         'newpoints_shop_my_items_row_options',
         'newpoints_shop_my_items_row_options_sell',
         'newpoints_shop_my_items_row_options_send',
+        'newpoints_shop_no_cats',
+        'newpoints_shop_nopurchase',
+        'newpoints_shop_page_button_add_category',
+        'newpoints_shop_page_button_my_items',
+        'newpoints_shop_purchase',
+        'newpoints_shop_quick_edit_row',
+        'newpoints_shop_quick_edit_row_item',
+        'newpoints_shop_quick_edit_row_item_icon',
+        'newpoints_shop_stats',
+        'newpoints_shop_stats_empty',
+        'newpoints_shop_stats_row',
+        'newpoints_shop_view_item',
+        'newpoints_shop_view_item_icon',
+        'newpoints_shop_view_item_purchase',
     ]);
 
     $hook_arguments['member.php'] = array_merge($hook_arguments['member.php'], [
@@ -148,7 +186,13 @@ function newpoints_terminate(): bool
 
         switch ($mybb->get_input('view')) {
             case 'purchase':
+                if (empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
+                    error_no_permission();
+                }
+
                 $hook_arguments = run_hooks('shop_purchase_start', $hook_arguments);
+
+                $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_purchase'];
 
                 $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
@@ -203,11 +247,7 @@ function newpoints_terminate(): bool
 
                 $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
-                $item_price = (float)$item_data['price'];
-
-                if (!empty($mybb->usergroup['newpoints_rate_shop_purchase'])) {
-                    $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_purchase'];
-                }
+                $item_price = (float)$item_data['price'] * ($items_rate / 100);
 
                 if ($item_price > $mybb->user['newpoints']) {
                     $errors[] = $lang->newpoints_shop_not_enough;
@@ -575,13 +615,21 @@ function newpoints_terminate(): bool
                     $where_clauses[] = "visible='1'";
                 }
 
-                $item_data = item_get($where_clauses, ['cid', 'name', 'stock']);
-
-                $hook_arguments['item_data'] = &$item_data;
+                $item_data = item_get($where_clauses, ['cid', 'name', 'stock', 'item_price']);
 
                 if (empty($item_data)) {
                     error($lang->newpoints_shop_invalid_item);
                 }
+
+                $hook_arguments['item_data'] = &$item_data;
+
+                if (!isset($item_price)) {
+                    $item_price = (float)$item_data['item_price'];
+                }
+
+                $items_rate = (int)$mybb->usergroup['newpoints_rate_shop_sell'];
+
+                $item_price = $item_price * ($items_rate / 100);
 
                 $where_clauses = ["cid='{$item_data['cid']}'"];
 
@@ -618,14 +666,6 @@ function newpoints_terminate(): bool
                     error($lang->newpoints_shop_selected_item_not_owned);
                 }
 
-                if (!isset($item_price)) {
-                    $item_price = 0;
-                }
-
-                if (!empty($mybb->usergroup['newpoints_rate_shop_sell'])) {
-                    $item_price = $item_price * ($mybb->usergroup['newpoints_rate_shop_sell'] / 100);
-                }
-
                 $lang->newpoints_page_confirm_table_purchase_title = $lang->newpoints_shop_confirm_sell_title;
 
                 $lang->newpoints_page_confirm_table_purchase_button = $lang->newpoints_shop_confirm_sell_button;
@@ -656,7 +696,7 @@ function newpoints_terminate(): bool
                             $item_price,
                             $item_id,
                             $user_item_id,
-                            0,
+                            $items_rate,
                             LOGGING_TYPE_INCOME
                         );
 
@@ -1139,6 +1179,8 @@ function newpoints_terminate(): bool
     } elseif ($mybb->get_input('view') === 'item') {
         $hook_arguments = run_hooks('shop_item_start', $hook_arguments);
 
+        $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_purchase'];
+
         $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
 
         $where_clause = ["iid='{$item_id}'"];
@@ -1184,16 +1226,12 @@ function newpoints_terminate(): bool
 
         $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
 
-        $item_price = (float)$item_data['price'];
+        $item_price = (float)$item_data['price'] * ($items_rate / 100);
 
         if ($item_price > $mybb->user['newpoints']) {
             $item_price_class = 'insufficient_funds';
         } else {
             $item_price_class = 'sufficient_funds';
-        }
-
-        if (!empty($mybb->usergroup['newpoints_rate_shop_purchase'])) {
-            $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_purchase'];
         }
 
         if ($item_price > $mybb->user['newpoints']) {
@@ -1238,10 +1276,16 @@ function newpoints_terminate(): bool
             $item_can_be_sold = $lang->newpoints_shop_no;
         }
 
-        $purchase_item_url = url_handler_build([
-            'action' => get_setting('shop_action_name'),
-            'view' => 'purchase'
-        ]);
+        $item_purchase_row = '';
+
+        if (!empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
+            $purchase_item_url = url_handler_build([
+                'action' => get_setting('shop_action_name'),
+                'view' => 'purchase'
+            ]);
+
+            $item_purchase_row = eval(templates_get('view_item_purchase'));
+        }
 
         $page_title = $lang->newpoints_shop_view_item;
 
@@ -1353,6 +1397,8 @@ function newpoints_terminate(): bool
 
         $inverted_background = alt_trow();
 
+        $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_purchase'];
+
         foreach ($user_items_objects as $user_item_data) {
             $item_id = $url_params['item_id'] = (int)$user_item_data['item_id'];
 
@@ -1396,11 +1442,7 @@ function newpoints_terminate(): bool
 
             $item_icon = eval(templates_get('my_items_row_icon'));
 
-            $item_price = (float)$item_data['price'];
-
-            if (!empty($mybb->usergroup['newpoints_rate_shop_purchase'])) {
-                $item_price = $item_price * $mybb->usergroup['newpoints_rate_shop_purchase'];
-            }
+            $item_price = (float)$item_data['price'] * ($items_rate / 100);
 
             if ($item_price > $mybb->user['newpoints']) {
                 $price_class = 'insufficient_funds';
@@ -1624,13 +1666,27 @@ function newpoints_terminate(): bool
 
             $column_span = 5;
 
-            $category_options_thead = '';
+            if ($is_moderator) {
+                ++$column_span;
+            }
+
+            $category_extra_columns = [];
+
+            $hook_arguments['category_extra_columns'] = &$category_extra_columns;
+
+            if (!empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
+                ++$column_span;
+
+                $category_extra_columns[] = eval(templates_get('category_thead_purchase'));
+            }
 
             if ($is_moderator) {
                 ++$column_span;
 
-                $category_options_thead = eval(templates_get('category_thead_options'));
+                $category_extra_columns[] = eval(templates_get('category_thead_options'));
             }
+
+            $category_extra_columns = implode('', $category_extra_columns);
 
             if ($total_items > 0 && is_callable($category_data['get_items'])) {
                 $alternative_background = alt_trow();
@@ -1662,7 +1718,7 @@ function newpoints_terminate(): bool
                         ['allow_imgcode' => false]
                     );
 
-                    $item_price = (float)$item_data['price'] * $items_rate;
+                    $item_price = (float)$item_data['price'] * ($items_rate / 100);
 
                     if ($item_price > $mybb->user['newpoints']) {
                         $price_class = 'insufficient_funds';
@@ -1696,7 +1752,20 @@ function newpoints_terminate(): bool
                         'item_id' => $item_id
                     ]);
 
-                    $item_options_row = '';
+                    $item_purchase_row = '';
+
+                    $item_extra_columns = [];
+
+                    $hook_arguments['item_extra_columns'] = &$item_extra_columns;
+
+                    if (!empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
+                        $purchase_item_url = url_handler_build([
+                            'action' => get_setting('shop_action_name'),
+                            'view' => 'purchase'
+                        ]);
+
+                        $item_extra_columns[] = eval(templates_get('item_purchase'));
+                    }
 
                     if ($is_moderator) {
                         $item_edit_url = url_handler_build([
@@ -1705,8 +1774,10 @@ function newpoints_terminate(): bool
                             'item_id' => $item_id
                         ]);
 
-                        $item_options_row = eval(templates_get('item_row_options'));
+                        $item_extra_columns[] = eval(templates_get('item_row_options'));
                     }
+
+                    $item_extra_columns = implode('', $item_extra_columns);
 
                     $items_rows .= eval(templates_get('item'));
                 }

@@ -256,6 +256,12 @@ const FIELDS_DATA = [
             'default' => 1,
             'formType' => 'checkBox'
         ],
+        'newpoints_shop_can_purchase' => [
+            'type' => 'TINYINT',
+            'unsigned' => true,
+            'default' => 1,
+            'formType' => 'checkBox'
+        ],
         'newpoints_shop_can_sell' => [
             'type' => 'TINYINT',
             'unsigned' => true,
@@ -263,21 +269,21 @@ const FIELDS_DATA = [
             'formType' => 'checkBox'
         ],
         'newpoints_rate_shop_purchase' => [
-            'type' => 'FLOAT',
+            'type' => 'TINYINT',
             'unsigned' => true,
-            'default' => 1,
+            'default' => 100,
             'formType' => 'numericField',
             'formOptions' => [
-                'step' => 0.01
+                'max' => 200
             ]
         ],
         'newpoints_rate_shop_sell' => [
-            'type' => 'INT',
+            'type' => 'TINYINT',
             'unsigned' => true,
             'default' => 90,
             'formType' => 'numericField',
             'formOptions' => [
-                //'max' => 100
+                'max' => 100
             ]
         ],
     ]
@@ -406,6 +412,7 @@ function plugin_uninstallation(): bool
         'category_links',
         'category_pagination',
         'category_thead_options',
+        'category_thead_purchase',
         'confirm_purchase',
         'confirm_purchase_icon',
         'confirm_sell',
@@ -417,6 +424,7 @@ function plugin_uninstallation(): bool
         'item_add_edit_form_category_option',
         'item_add_edit_form_upload',
         'item_icon',
+        'item_purchase',
         'item_row_options',
         'my_items_content',
         'my_items_empty',
@@ -441,7 +449,8 @@ function plugin_uninstallation(): bool
         'stats_empty',
         'stats_row',
         'view_item',
-        'view_item_icon'
+        'view_item_icon',
+        'view_item_purchase'
     ], 'newpoints_shop_');
 
     plugins_version_delete('newpoints_shop');

@@ -90,6 +90,7 @@ A setup that meets the following requirements is necessary to use this plugin.
    │ │ │ │ │ │ │ ├── category_links.html
    │ │ │ │ │ │ │ ├── category_pagination.html
    │ │ │ │ │ │ │ ├── category_thead_options.html
+   │ │ │ │ │ │ │ ├── category_thead_purchase.html
    │ │ │ │ │ │ │ ├── confirm_purchase.html
    │ │ │ │ │ │ │ ├── confirm_purchase_icon.html
    │ │ │ │ │ │ │ ├── confirm_sell.html
@@ -101,6 +102,7 @@ A setup that meets the following requirements is necessary to use this plugin.
    │ │ │ │ │ │ │ ├── item_add_edit_form_category_option.html
    │ │ │ │ │ │ │ ├── item_add_edit_form_upload.html
    │ │ │ │ │ │ │ ├── item_icon.html
+   │ │ │ │ │ │ │ ├── item_purchase.html
    │ │ │ │ │ │ │ ├── item_row_options.html
    │ │ │ │ │ │ │ ├── my_items_content.html
    │ │ │ │ │ │ │ ├── my_items_empty.html
@@ -126,6 +128,7 @@ A setup that meets the following requirements is necessary to use this plugin.
    │ │ │ │ │ │ │ ├── stats_row.html
    │ │ │ │ │ │ │ ├── view_item.html
    │ │ │ │ │ │ │ ├── view_item_icon.html
+   │ │ │ │ │ │ │ ├── view_item_purchase.html
    │ │ │ │ ├── newpoints_shop.php
    ├── uploads
    │ ├── shop
@@ -210,6 +213,8 @@ The following is a list of templates available for this plugin.
     - _front end_;
 - `newpoints_shop_category_thead_options`
     - _front end_;
+- `newpoints_shop_category_thead_purchase`
+    - _front end_;
 - `newpoints_shop_confirm_purchase`
     - _front end_;
 - `newpoints_shop_confirm_purchase_icon`
@@ -231,6 +236,8 @@ The following is a list of templates available for this plugin.
 - `newpoints_shop_item_add_edit_form_upload`
     - _front end_;
 - `newpoints_shop_item_icon`
+    - _front end_;
+- `newpoints_shop_item_purchase`
     - _front end_;
 - `newpoints_shop_item_row_options`
     - _front end_;
@@ -281,6 +288,8 @@ The following is a list of templates available for this plugin.
 - `newpoints_shop_view_item`
     - _front end_;
 - `newpoints_shop_view_item_icon`
+    - _front end_;
+- `newpoints_shop_view_item_purchase`
     - _front end_;
 
 [Go up to Table of Contents](#table_of_contents)

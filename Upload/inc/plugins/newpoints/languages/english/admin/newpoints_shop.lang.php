@@ -199,6 +199,6 @@ $l = array_merge($l, [
     'newpoints_user_groups_shop_can_view_inventories' => 'Can view inventories?',
     'newpoints_user_groups_shop_can_send' => 'Can send items?',
     'newpoints_user_groups_shop_can_sell' => 'Can sell items?',
-    'newpoints_user_groups_rate_shop_purchase' => 'Items Purchase Rate <br /><small class="input">The items rate for this group, used when subtracting points from users when purchasing items. Default is <code>1</code>.</small><br />',
-    'newpoints_user_groups_rate_shop_sell' => 'Items Selling Rate <code style="color: darkorange;">This works as a percentage. So "0" = user does not recovers anything "100" = users recover full item price, "200" = user receive twice the item price, etc.</code><br /><small class="input">The items rate for this group, used when adding points when users sell their items back to the shop. Default is <code>90</code>.</small><br />',
+    'newpoints_user_groups_rate_shop_purchase' => 'Shop Purchase Rate Percentage <code style="color: darkorange;">Lowest from all groups.</code><br /><small class="input">The rate for purchasing items from the shop. Default is <code>100</code>.</small><br />',
+    'newpoints_user_groups_rate_shop_sell' => 'Shop Sell Rate Percentage <br /><small class="input">The rate for selling items back to the shop. Default is <code>90</code>.</small><br />',
 ]);
