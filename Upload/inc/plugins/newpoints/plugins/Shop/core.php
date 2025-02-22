@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace Newpoints\Shop\Core;
 
 use function Newpoints\Core\get_setting;
+use function Newpoints\Core\run_hooks;
 
 use const Newpoints\Shop\ROOT;
 
@@ -52,6 +53,13 @@ function item_insert(array $item_data, bool $is_update = false, int $item_id = 0
     global $db;
 
     $insert_data = [];
+
+    $hook_arguments = [
+        'item_data' => $item_data,
+        'is_update' => $is_update,
+        'item_id' => $item_id,
+        'insert_update_data' => &$insert_data
+    ];
 
     if (isset($item_data['iid'])) {
         $insert_data['iid'] = (int)$item_data['iid'];
@@ -113,6 +121,8 @@ function item_insert(array $item_data, bool $is_update = false, int $item_id = 0
         $insert_data['pmadmin'] = $db->escape_string($item_data['pmadmin']);
     }
 
+    $hook_arguments = run_hooks('shop_item_insert_update', $hook_arguments);
+
     if ($is_update) {
         $db->update_query('newpoints_shop_items', $insert_data, "iid='{$item_id}'", 1);
     } else {
@@ -138,13 +148,13 @@ function item_update(array $item_data, int $item_id): int
     return item_insert($item_data, true, $item_id);
 }
 
-function item_get(array $where_clauses = [], array $query_fields = ['*'], array $query_options = []): array
+function item_get(array $where_clauses = [], array $query_fields = [], array $query_options = []): array
 {
     global $db;
 
     $query = $db->simple_select(
         'newpoints_shop_items',
-        implode(',', $query_fields),
+        implode(',', array_merge(['iid'], $query_fields)),
         implode(' AND ', $where_clauses),
         $query_options
     );
@@ -157,6 +167,13 @@ function category_insert(array $category_data, bool $is_update = false, int $cat
     global $db;
 
     $insert_data = [];
+
+    $hook_arguments = [
+        'category_data' => $category_data,
+        'is_update' => $is_update,
+        'category_id' => $category_id,
+        'insert_update_data' => &$insert_data
+    ];
 
     if (isset($category_data['cid'])) {
         $insert_data['cid'] = (int)$category_data['cid'];
@@ -194,6 +211,8 @@ function category_insert(array $category_data, bool $is_update = false, int $cat
         $insert_data['expanded'] = (int)$category_data['expanded'];
     }
 
+    $hook_arguments = run_hooks('shop_category_insert_update', $hook_arguments);
+
     if ($is_update) {
         $db->update_query('newpoints_shop_categories', $insert_data, "cid='{$category_id}'", 1);
     } else {
@@ -208,13 +227,13 @@ function category_update(array $category_data, int $category_id): int
     return category_insert($category_data, true, $category_id);
 }
 
-function category_get(array $where_clauses, array $query_fields = ['*'], array $query_options = ['limit' => 1]): array
+function category_get(array $where_clauses, array $query_fields = [], array $query_options = []): array
 {
     global $db;
 
     $query = $db->simple_select(
         'newpoints_shop_categories',
-        implode(',', $query_fields),
+        implode(',', array_merge(['cid'], $query_fields)),
         implode(' AND ', $where_clauses)
     );
 
@@ -327,7 +346,7 @@ function items_get_visible(int $user_id = 0): array
 
     $where_clauses[] = "({$group_conditional})";
 
-    $categories_data = category_get($where_clauses, ['cid'], []);
+    $categories_data = category_get($where_clauses);
 
     if (empty($categories_data)) {
         return [];
@@ -562,4 +581,124 @@ function user_item_delete(int $user_item_id): int
 function can_manage_quick_edit(): bool
 {
     return (bool)is_member(get_setting('quick_edit_manage_groups'));
+}
+
+function user_group_permission_get_closest(string $permission_key, int $user_id = 0, int $base_value = 100): int
+{
+    global $db;
+
+    $user_data = get_user($user_id);
+
+    $user_groups = $user_data['usergroup'] ?? '';
+
+    if (!empty($user_data['additionalgroups'])) {
+        $user_groups .= ',' . $user_data['additionalgroups'];
+    }
+
+    $user_groups = explode(',', $user_groups);
+
+    $user_group_ids = implode("','", array_map('intval', array_unique($user_groups)));
+
+    $query = $db->simple_select(
+        'usergroups',
+        'gid',
+        "gid IN ('{$user_group_ids}')",
+        ['order_by' => 'disporder', 'order_dir' => 'ASC', 'limit' => 1]
+    );
+
+    return (int)$db->fetch_field($query, 'gid');
+}
+
+function cacheUpdate(): bool
+{
+    global $cache;
+
+    $query_fields_categories = ['cid', 'name', 'description', 'visible', 'icon', 'usergroups'];
+
+    $query_fields_items = [
+        'iid',
+        'cid',
+        'name',
+        'description',
+        'price',
+        'icon',
+        'visible',
+        'infinite',
+        'user_limit',
+        'stock',
+        'sendable',
+        'sellable',
+        'pm',
+        'pmadmin'
+    ];
+
+    $cache_data = [
+        'categories' => [],
+        'items' => [],
+    ];
+
+    $hook_arguments = [
+        'query_fields_categories' => &$query_fields_categories,
+        'query_fields_items' => &$query_fields_items,
+        'cache_data' => &$cache_data,
+    ];
+
+    $hook_arguments = run_hooks('shop_cache_update_start', $hook_arguments);
+
+    foreach (
+        category_get(
+            [],
+            $query_fields_categories,
+            ['order_by' => 'disporder']
+        ) as $category_id => $category_data
+    ) {
+        $category_data['visible'] = (bool)$category_data['visible'];
+
+        $cache_data['categories'][$category_id] = $category_data;
+    }
+
+    foreach (
+        items_get(
+            [],
+            $query_fields_items,
+            ['order_by' => 'disporder']
+        ) as $item_id => $item_data
+    ) {
+        $item_data['visible'] = (bool)$item_data['visible'];
+
+        $item_data['infinite'] = (bool)$item_data['infinite'];
+
+        $item_data['sendable'] = (bool)$item_data['sendable'];
+
+        $item_data['sellable'] = (bool)$item_data['sellable'];
+
+        $cache_data['items'][$item_id] = $item_data;
+    }
+
+    $hook_arguments = run_hooks('shop_cache_update_end', $hook_arguments);
+
+    $cache->update('newpoints_shop', $cache_data);
+
+    return true;
+}
+
+function icon_get(array $item_data): string
+{
+    global $mybb;
+
+    $item_icon = htmlspecialchars_uni($mybb->get_asset_url($item_data['icon']));
+
+    $upload_path = get_setting('shop_upload_path');
+
+    $item_icon = htmlspecialchars_uni(
+        $mybb->get_asset_url(
+            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+        )
+    );
+
+    $item_name = htmlspecialchars_uni($item_data['name']);
+
+    $item_description = htmlspecialchars_uni($item_data['description']);
+
+    return eval(templates_get('item_image'));
 }

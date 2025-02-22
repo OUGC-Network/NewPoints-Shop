@@ -30,19 +30,13 @@ declare(strict_types=1);
 
 namespace Newpoints\Shop\Hooks\Admin;
 
-use Form;
-use FormContainer;
 use MyBB;
 use Table;
 
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
-use function Newpoints\Core\points_add_simple;
 use function Newpoints\Core\points_format;
-use function Newpoints\Core\run_hooks;
-use function Newpoints\Core\users_get_group_permissions;
 use function Newpoints\Shop\Admin\recount_rebuild_legacy_storage;
-use function Newpoints\Shop\Core\category_get;
 use function Newpoints\Shop\Core\item_get;
 
 use const Newpoints\Shop\Admin\FIELDS_DATA;
@@ -114,7 +108,7 @@ function newpoints_admin_stats_noaction_end(): bool
     while ($stats = $db->fetch_array($query)) {
         $data = explode('-', $stats['data']);
 
-        $item = item_get(["iid='{$data[0]}'"]);
+        $item = item_get(["iid='{$data[0]}'"], ['name']);
 
         $table->construct_cell(htmlspecialchars_uni($item['name']));
 
@@ -168,6 +162,8 @@ function admin_tools_recount_rebuild_output_list(): bool
 {
     global $lang;
     global $form_container, $form;
+
+    language_load('shop');
 
     $form_container->output_cell(
         "<label>{$lang->newpoints_recount_shop_user_items}</label><div class=\"description\">{$lang->newpoints_recount_shop_user_items_desc}</div>"

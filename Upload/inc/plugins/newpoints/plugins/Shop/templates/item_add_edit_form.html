@@ -79,37 +79,36 @@
                 <textarea id="private_message_admin" name="private_message_admin" rows="10" cols="70" tabindex="2">{$item_private_message_admin}</textarea>
             </td>
         </tr>
-        {$icon_file_row}
         <tr>
-            <td class="trow2" width="20%" style="vertical-align: top;">
+            <td class="trow1" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_display_order}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_display_order_description}
                 </div>
             </td>
-            <td class="trow2" style="vertical-align: middle;">
+            <td class="trow1" style="vertical-align: middle;">
                 <input type="number" class="textbox" name="display_order" size="5" maxlength="255" value="{$item_display_order}">
             </td>
         </tr>
         <tr>
-            <td class="trow1" width="20%" style="vertical-align: top;">
+            <td class="trow2" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_stock}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_stock_description}
                 </div>
             </td>
-            <td class="trow1" style="vertical-align: middle;">
+            <td class="trow2" style="vertical-align: middle;">
                 <input type="number" class="textbox" name="stock" size="5" maxlength="255" value="{$item_stock}">
             </td>
         </tr>
         <tr>
-            <td class="trow2" width="20%" style="vertical-align: top;">
+            <td class="trow1" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_infinite}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_infinite_description}
                 </div>
             </td>
-            <td class="trow2" style="vertical-align: middle;">
+            <td class="trow1" style="vertical-align: middle;">
                 <input type="radio" class="radio" name="infinite" value="1" id="infinite_yes" {$item_checked_element_infinite_yes}>
                 <label for="infinite_yes">{$lang->newpoints_shop_yes}</label>
                 <input type="radio" class="radio" name="infinite" value="0" id="infinite_no" {$item_checked_element_infinite_no}>
@@ -117,24 +116,24 @@
             </td>
         </tr>
         <tr>
-            <td class="trow1" width="20%" style="vertical-align: top;">
+            <td class="trow2" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_limit}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_limit_description}
                 </div>
             </td>
-            <td class="trow1" style="vertical-align: middle;">
+            <td class="trow2" style="vertical-align: middle;">
                 <input type="number" class="textbox" name="user_limit" size="5" maxlength="255" value="{$item_user_limit}">
             </td>
         </tr>
         <tr>
-            <td class="trow2" width="20%" style="vertical-align: top;">
+            <td class="trow1" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_is_visible}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_is_visible_description}
                 </div>
             </td>
-            <td class="trow2" style="vertical-align: middle;">
+            <td class="trow1" style="vertical-align: middle;">
                 <input type="radio" class="radio" name="is_visible" value="1" id="is_visible_yes" {$item_checked_element_is_visible_yes}>
                 <label for="is_visible_yes">{$lang->newpoints_shop_yes}</label>
                 <input type="radio" class="radio" name="is_visible" value="0" id="is_visible_no" {$item_checked_element_is_visible_no}>
@@ -142,13 +141,13 @@
             </td>
         </tr>
         <tr>
-            <td class="trow1" width="20%" style="vertical-align: top;">
+            <td class="trow2" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_can_be_sent}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_can_be_sent_description}
                 </div>
             </td>
-            <td class="trow1" style="vertical-align: middle;">
+            <td class="trow2" style="vertical-align: middle;">
                 <input type="radio" class="radio" name="can_be_sent" value="1" id="can_be_sent_yes" {$item_checked_element_can_be_sent_yes}>
                 <label for="can_be_sent_yes">{$lang->newpoints_shop_yes}</label>
                 <input type="radio" class="radio" name="can_be_sent" value="0" id="can_be_sent_no" {$item_checked_element_can_be_sent_no}>
@@ -156,20 +155,21 @@
             </td>
         </tr>
         <tr>
-            <td class="trow2" width="20%" style="vertical-align: top;">
+            <td class="trow1" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_item_table_item_can_be_sold}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_item_table_item_can_be_sold_description}
                 </div>
             </td>
-            <td class="trow2" style="vertical-align: middle;">
+            <td class="trow1" style="vertical-align: middle;">
                 <input type="radio" class="radio" name="can_be_sold" value="1" id="can_be_sold_yes" {$item_checked_element_can_be_sold_yes}>
                 <label for="can_be_sold_yes">{$lang->newpoints_shop_yes}</label>
                 <input type="radio" class="radio" name="can_be_sold" value="0" id="can_be_sold_no" {$item_checked_element_can_be_sold_no}>
                 <label for="can_be_sold_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
-
+        {$icon_file_row}
+        {$item_extra_rows}
         </tbody>
     </table>
     <br>

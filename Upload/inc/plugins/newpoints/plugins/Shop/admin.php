@@ -47,7 +47,7 @@ use function Newpoints\Core\rules_get_all;
 use function Newpoints\Core\rules_rebuild_cache;
 use function Newpoints\Core\settings_remove;
 use function Newpoints\Core\templates_remove;
-
+use function Newpoints\Shop\Core\cacheUpdate;
 use function Newpoints\Shop\Core\item_update;
 use function Newpoints\Shop\Core\items_get;
 use function Newpoints\Shop\Core\user_item_insert;
@@ -347,6 +347,8 @@ function plugin_activation(): bool
 
     rules_rebuild_cache();
 
+    cacheUpdate();
+
     plugins_version_update('newpoints_shop', $new_version);
 
     return true;
@@ -370,7 +372,7 @@ function plugin_is_installed(): bool
 
 function plugin_uninstallation(): bool
 {
-    global $db;
+    global $db, $cache;
 
     log_remove(['shop_purchase', 'shop_send', 'shop_sell']);
 
@@ -454,6 +456,8 @@ function plugin_uninstallation(): bool
     ], 'newpoints_shop_');
 
     plugins_version_delete('newpoints_shop');
+
+    $cache->delete('newpoints_shop');
 
     return true;
 }

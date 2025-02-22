@@ -44,7 +44,6 @@
                 {$groups_select}
             </td>
         </tr>
-        {$icon_file_row}
         <tr>
             <td class="trow2" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_category_table_category_display_order}</strong>
@@ -58,13 +57,13 @@
             </td>
         </tr>
         <tr>
-            <td class="trow2" width="20%" style="vertical-align: top;">
+            <td class="trow1" width="20%" style="vertical-align: top;">
                 <strong>{$lang->newpoints_shop_edit_category_table_category_is_visible}</strong>
                 <div class="smalltext">
                     {$lang->newpoints_shop_edit_category_table_category_is_visible_description}
                 </div>
             </td>
-            <td class="trow2" style="vertical-align: middle;">
+            <td class="trow1" style="vertical-align: middle;">
                 <input type="radio" class="radio" name="is_visible" value="1" id="is_visible_yes"
                        {$category_checked_element_is_visible_yes}>
                 <label for="is_visible_yes">{$lang->newpoints_shop_yes}</label>
@@ -73,6 +72,8 @@
                 <label for="is_visible_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
+        {$icon_file_row}
+        {$category_extra_rows}
         </tbody>
     </table>
     <br>

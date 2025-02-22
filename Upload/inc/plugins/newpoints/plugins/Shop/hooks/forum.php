@@ -45,6 +45,7 @@ use function Newpoints\Core\private_message_send;
 use function Newpoints\Core\run_hooks;
 use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\users_get_by_username;
+use function Newpoints\Shop\Core\cacheUpdate;
 use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_delete;
 use function Newpoints\Shop\Core\category_get;
@@ -62,7 +63,6 @@ use function Newpoints\Shop\Core\user_item_delete;
 use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_item_update;
 use function Newpoints\Shop\Core\user_items_get;
-
 use function Newpoints\Shop\Core\user_update_details;
 
 use const Newpoints\Core\LOGGING_TYPE_CHARGE;
@@ -93,6 +93,7 @@ function newpoints_global_start(array &$hook_arguments): array
         'newpoints_shop_item_add_edit_form_category_option',
         'newpoints_shop_item_add_edit_form_upload',
         'newpoints_shop_item_icon',
+        'newpoints_shop_item_image',
         'newpoints_shop_item_purchase',
         'newpoints_shop_item_row_options',
         'newpoints_shop_my_items_content',
@@ -232,7 +233,8 @@ function newpoints_terminate(): bool
 
                 $category_data = category_get(
                     $where_clauses,
-                    ['usergroups']
+                    ['usergroups'],
+                    ['limit' => 1]
                 );
 
                 if (!$category_data) {
@@ -460,7 +462,7 @@ function newpoints_terminate(): bool
                     $where_clauses[] = "visible='1'";
                 }
 
-                $category_data = category_get($where_clauses, ['usergroups']);
+                $category_data = category_get($where_clauses, ['usergroups'], ['limit' => 1]);
 
                 $hook_arguments['category_data'] = &$category_data;
 
@@ -637,7 +639,7 @@ function newpoints_terminate(): bool
                     $where_clauses[] = "visible='1'";
                 }
 
-                $category_data = category_get($where_clauses, ['usergroups']);
+                $category_data = category_get($where_clauses, ['usergroups'], ['limit' => 1]);
 
                 $hook_arguments['category_data'] = &$category_data;
 
@@ -763,6 +765,17 @@ function newpoints_terminate(): bool
 
         $is_add_page = $mybb->get_input('view') === 'add_category';
 
+        $query_fields_categories = [
+            'name',
+            'description',
+            'visible',
+            'icon',
+            'usergroups',
+            'disporder'
+        ];
+
+        $hook_arguments['query_fields_categories'] = &$query_fields_categories;
+
         $hook_arguments = run_hooks('shop_add_edit_category_start', $hook_arguments);
 
         if ($is_add_page) {
@@ -779,14 +792,8 @@ function newpoints_terminate(): bool
 
         $category_data = category_get(
             ["cid='{$category_id}'"],
-            [
-                'name',
-                'description',
-                'visible',
-                'icon',
-                'usergroups',
-                'disporder'
-            ]
+            $query_fields_categories,
+            ['limit' => 1]
         );
 
         $hook_arguments['category_data'] = &$category_data;
@@ -814,6 +821,8 @@ function newpoints_terminate(): bool
                 $upload = item_upload_icon($_FILES['icon_file']);
             }
 
+            $hook_arguments['insert_data'] = &$insert_data;
+
             $hook_arguments = run_hooks('shop_post_add_edit_category_intermediate', $hook_arguments);
 
             if (empty($errors)) {
@@ -826,12 +835,16 @@ function newpoints_terminate(): bool
                 if ($is_add_page) {
                     category_insert($insert_data);
 
+                    cacheUpdate();
+
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
                         $lang->newpoints_shop_redirect_category_add
                     );
                 } else {
                     category_update($insert_data, $category_id);
+
+                    cacheUpdate();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -891,11 +904,25 @@ function newpoints_terminate(): bool
             $category_checked_element_is_visible_no = 'checked="checked"';
         }
 
+        $alternative_background = alt_trow(true);
+
+        $hook_arguments['alternative_background'] = &$alternative_background;
+
         $icon_file_row = '';
 
         if (!$is_add_page) {
+            $alternative_background = alt_trow();
+
             $icon_file_row = eval(templates_get('category_add_edit_form_upload'));
         }
+
+        $category_extra_rows = [];
+
+        $hook_arguments['category_extra_rows'] = &$category_extra_rows;
+
+        $hook_arguments = run_hooks('shop_add_edit_category_end', $hook_arguments);
+
+        $category_extra_rows = implode('', $category_extra_rows);
 
         $newpoints_content = eval(templates_get('category_add_edit_form'));
 
@@ -909,7 +936,7 @@ function newpoints_terminate(): bool
 
         $category_id = $mybb->get_input('category_id', MyBB::INPUT_INT);
 
-        $category_data = category_get(["cid='{$category_id}'"]);
+        $category_data = category_get(["cid='{$category_id}'"], [], ['limit' => 1]);
 
         $hook_arguments['category_data'] = &$category_data;
 
@@ -983,6 +1010,36 @@ function newpoints_terminate(): bool
 
         $is_add_page = $mybb->get_input('view') === 'add_item';
 
+        $query_fields_items = [
+            'cid',
+            'name',
+            'description',
+            'price',
+            'icon',
+            'visible',
+            'disporder',
+            'infinite',
+            'user_limit',
+            'stock',
+            'sendable',
+            'sellable',
+            'pm',
+            'pmadmin'
+        ];
+
+        $query_fields_category = [
+            'name',
+            'description',
+            'visible',
+            'icon',
+            'usergroups',
+            'disporder'
+        ];
+
+        $hook_arguments['query_fields_items'] = &$query_fields_items;
+
+        $hook_arguments['query_fields_category'] = &$query_fields_category;
+
         $hook_arguments = run_hooks('shop_add_edit_item_start', $hook_arguments);
 
         if ($is_add_page) {
@@ -999,27 +1056,30 @@ function newpoints_terminate(): bool
 
         $item_data = item_get(
             ["iid='{$item_id}'"],
-            [
-                'cid',
-                'name',
-                'description',
-                'price',
-                'icon',
-                'visible',
-                'disporder',
-                'infinite',
-                'user_limit',
-                'stock',
-                'sendable',
-                'sellable',
-                'pm',
-                'pmadmin'
-            ]
+            $query_fields_items
         );
 
         $hook_arguments['item_data'] = &$item_data;
 
         if (!$item_data && !$is_add_page) {
+            error_no_permission();
+        }
+
+        if ($is_add_page) {
+            $category_id = $mybb->get_input('category_id', MyBB::INPUT_INT);
+        } else {
+            $category_id = (int)$item_data['cid'];
+        }
+
+        $category_data = category_get(
+            ["cid='{$category_id}'"],
+            $query_fields_category,
+            ['limit' => 1]
+        );
+
+        $hook_arguments['category_data'] = &$category_data;
+
+        if (!$category_data) {
             error_no_permission();
         }
 
@@ -1050,13 +1110,15 @@ function newpoints_terminate(): bool
                 $errors[] = $lang->newpoints_shop_error_invalid_item_icon;
             }
 
-            if (!category_get(["cid='{$insert_data['cid']}'"], ['cid'])) {
+            if (!category_get(["cid='{$insert_data['cid']}'"], [], ['limit' => 1])) {
                 $errors[] = $lang->newpoints_shop_error_invalid_item_category;
             }
 
             if (empty($errors) && !empty($_FILES['icon_file']['name'])) {
                 $upload = item_upload_icon($_FILES['icon_file'], $item_id);
             }
+
+            $hook_arguments['insert_data'] = &$insert_data;
 
             $hook_arguments = run_hooks('shop_post_add_edit_item_intermediate', $hook_arguments);
 
@@ -1070,12 +1132,16 @@ function newpoints_terminate(): bool
                 if ($is_add_page) {
                     item_insert($insert_data);
 
+                    cacheUpdate();
+
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
                         $lang->newpoints_shop_redirect_item_add
                     );
                 } else {
                     item_update($insert_data, $item_id);
+
+                    cacheUpdate();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -1105,7 +1171,7 @@ function newpoints_terminate(): bool
             foreach (
                 category_get(
                     $where_clauses,
-                    ['cid', 'name'],
+                    ['name'],
                     ['order_by' => 'name']
                 ) as $category_id => $category_data
             ) {
@@ -1167,11 +1233,25 @@ function newpoints_terminate(): bool
             $item_checked_element_can_be_sold_no = 'checked="checked"';
         }
 
+        $alternative_background = alt_trow(true);
+
+        $hook_arguments['alternative_background'] = &$alternative_background;
+
         $icon_file_row = '';
 
         if (!$is_add_page) {
+            $alternative_background = alt_trow(true);
+
             $icon_file_row = eval(templates_get('item_add_edit_form_upload'));
         }
+
+        $item_extra_rows = [];
+
+        $hook_arguments['item_extra_rows'] = &$item_extra_rows;
+
+        $hook_arguments = run_hooks('shop_add_edit_item_end', $hook_arguments);
+
+        $item_extra_rows = implode('', $item_extra_rows);
 
         $newpoints_content = eval(templates_get('item_add_edit_form'));
 
@@ -1208,7 +1288,7 @@ function newpoints_terminate(): bool
             $where_clauses[] = "visible='1'";
         }
 
-        $category_data = category_get($where_clauses, ['usergroups']);
+        $category_data = category_get($where_clauses, ['usergroups'], ['limit' => 1]);
 
         $hook_arguments['category_data'] = &$category_data;
 
@@ -1384,9 +1464,35 @@ function newpoints_terminate(): bool
 
         $items_ids = implode("','", array_map('intval', array_unique(array_column($user_items_objects, 'item_id'))));
 
+        $query_fields_items = [
+            'iid',
+            'cid',
+            'name',
+            'description',
+            'price',
+            'icon',
+            'sendable',
+            'sellable'
+        ];
+
+        $query_fields_category = [
+            'name',
+            'description',
+            'visible',
+            'icon',
+            'usergroups',
+            'disporder'
+        ];
+
+        $hook_arguments['query_fields_items'] = &$query_fields_items;
+
+        $hook_arguments['query_fields_category'] = &$query_fields_category;
+
+        $hook_arguments = run_hooks('shop_my_items_intermediate', $hook_arguments);
+
         $post_items_cache = items_get(
             ["iid IN ('{$items_ids}')", "visible='1'"],
-            ['iid', 'name', 'description', 'price', 'icon', 'sendable', 'sellable']
+            $query_fields_items
         );
 
         $shop_items = '';
@@ -1399,6 +1505,19 @@ function newpoints_terminate(): bool
 
         $items_rate = (float)$mybb->usergroup['newpoints_rate_shop_purchase'];
 
+        $category_ids = [];
+
+        foreach ($user_items_objects as $user_item_data) {
+            $category_ids[] = (int)$post_items_cache[$user_item_data['item_id']]['cid'];
+        }
+
+        $category_ids = implode("','", $category_ids);
+
+        $categories_cache = category_get(
+            ["cid IN ('{$category_ids}')"],
+            $query_fields_category
+        );
+
         foreach ($user_items_objects as $user_item_data) {
             $item_id = $url_params['item_id'] = (int)$user_item_data['item_id'];
 
@@ -1409,6 +1528,14 @@ function newpoints_terminate(): bool
             $item_data = $post_items_cache[$item_id];
 
             $hook_arguments['item_data'] = &$item_data;
+
+            $category_id = (int)$item_data['cid'];
+
+            $category_data = $categories_cache[$category_id];
+
+            $hook_arguments['category_id'] = &$category_id;
+
+            $hook_arguments['category_data'] = &$category_data;
 
             $hook_arguments = run_hooks('shop_my_items_item_start', $hook_arguments);
 
@@ -1460,7 +1587,13 @@ function newpoints_terminate(): bool
                 'item_id' => $item_id
             ]);
 
+            $item_extra_info = [];
+
+            $hook_arguments['item_extra_info'] = &$item_extra_info;
+
             $hook_arguments = run_hooks('shop_my_items_item_end', $hook_arguments);
+
+            $item_extra_info = implode('', $item_extra_info);
 
             $shop_items .= eval(templates_get('my_items_row'));
 
