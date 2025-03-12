@@ -69,6 +69,7 @@ use function Newpoints\Shop\Core\user_update_details;
 
 use const Newpoints\Core\LOGGING_TYPE_CHARGE;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
+use const Newpoints\DECIMAL_DATA_TYPE_STEP;
 use const Newpoints\Shop\ROOT;
 
 function global_intermediate(): bool
@@ -1289,6 +1290,8 @@ function newpoints_terminate(): bool
         $hook_arguments = run_hooks('shop_add_edit_item_end', $hook_arguments);
 
         $item_extra_rows = implode('', $item_extra_rows);
+
+        $step = DECIMAL_DATA_TYPE_STEP;
 
         $newpoints_content = eval(templates_get('item_add_edit_form'));
 

@@ -52,7 +52,8 @@
                 </div>
             </td>
             <td class="trow2" style="vertical-align: middle;">
-                <input type="number" class="textbox" name="price" size="5" maxlength="255" value="{$item_price}" step="0.01" /></td>
+                <input type="number" class="textbox" name="price" size="5" maxlength="255" value="{$item_price}"
+                       step="{$step}"/>
             </td>
         </tr>
         <tr>
@@ -87,7 +88,8 @@
                 </div>
             </td>
             <td class="trow1" style="vertical-align: middle;">
-                <input type="number" class="textbox" name="display_order" size="5" maxlength="255" value="{$item_display_order}">
+                <input type="number" class="textbox" name="display_order" size="5" maxlength="255"
+                       value="{$item_display_order}">
             </td>
         </tr>
         <tr>
@@ -109,9 +111,11 @@
                 </div>
             </td>
             <td class="trow1" style="vertical-align: middle;">
-                <input type="radio" class="radio" name="infinite" value="1" id="infinite_yes" {$item_checked_element_infinite_yes}>
+                <input type="radio" class="radio" name="infinite" value="1" id="infinite_yes"
+                       {$item_checked_element_infinite_yes}>
                 <label for="infinite_yes">{$lang->newpoints_shop_yes}</label>
-                <input type="radio" class="radio" name="infinite" value="0" id="infinite_no" {$item_checked_element_infinite_no}>
+                <input type="radio" class="radio" name="infinite" value="0" id="infinite_no"
+                       {$item_checked_element_infinite_no}>
                 <label for="infinite_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
@@ -123,7 +127,8 @@
                 </div>
             </td>
             <td class="trow2" style="vertical-align: middle;">
-                <input type="number" class="textbox" name="user_limit" size="5" maxlength="255" value="{$item_user_limit}">
+                <input type="number" class="textbox" name="user_limit" size="5" maxlength="255"
+                       value="{$item_user_limit}">
             </td>
         </tr>
         <tr>
@@ -134,9 +139,11 @@
                 </div>
             </td>
             <td class="trow1" style="vertical-align: middle;">
-                <input type="radio" class="radio" name="is_visible" value="1" id="is_visible_yes" {$item_checked_element_is_visible_yes}>
+                <input type="radio" class="radio" name="is_visible" value="1" id="is_visible_yes"
+                       {$item_checked_element_is_visible_yes}>
                 <label for="is_visible_yes">{$lang->newpoints_shop_yes}</label>
-                <input type="radio" class="radio" name="is_visible" value="0" id="is_visible_no" {$item_checked_element_is_visible_no}>
+                <input type="radio" class="radio" name="is_visible" value="0" id="is_visible_no"
+                       {$item_checked_element_is_visible_no}>
                 <label for="is_visible_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
@@ -148,9 +155,11 @@
                 </div>
             </td>
             <td class="trow2" style="vertical-align: middle;">
-                <input type="radio" class="radio" name="can_be_sent" value="1" id="can_be_sent_yes" {$item_checked_element_can_be_sent_yes}>
+                <input type="radio" class="radio" name="can_be_sent" value="1" id="can_be_sent_yes"
+                       {$item_checked_element_can_be_sent_yes}>
                 <label for="can_be_sent_yes">{$lang->newpoints_shop_yes}</label>
-                <input type="radio" class="radio" name="can_be_sent" value="0" id="can_be_sent_no" {$item_checked_element_can_be_sent_no}>
+                <input type="radio" class="radio" name="can_be_sent" value="0" id="can_be_sent_no"
+                       {$item_checked_element_can_be_sent_no}>
                 <label for="can_be_sent_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
@@ -162,9 +171,11 @@
                 </div>
             </td>
             <td class="trow1" style="vertical-align: middle;">
-                <input type="radio" class="radio" name="can_be_sold" value="1" id="can_be_sold_yes" {$item_checked_element_can_be_sold_yes}>
+                <input type="radio" class="radio" name="can_be_sold" value="1" id="can_be_sold_yes"
+                       {$item_checked_element_can_be_sold_yes}>
                 <label for="can_be_sold_yes">{$lang->newpoints_shop_yes}</label>
-                <input type="radio" class="radio" name="can_be_sold" value="0" id="can_be_sold_no" {$item_checked_element_can_be_sold_no}>
+                <input type="radio" class="radio" name="can_be_sold" value="0" id="can_be_sold_no"
+                       {$item_checked_element_can_be_sold_no}>
                 <label for="can_be_sold_no">{$lang->newpoints_shop_no}</label>
             </td>
         </tr>
