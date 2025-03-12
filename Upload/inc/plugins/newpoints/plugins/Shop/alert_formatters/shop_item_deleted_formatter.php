@@ -36,8 +36,6 @@ use MybbStuff_MyAlerts_Formatter_AbstractFormatter;
 
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_get;
-use function Newpoints\Core\main_file_name;
-use function Newpoints\Core\points_format;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\url_handler_build;
 use function Newpoints\Shop\Core\category_get;

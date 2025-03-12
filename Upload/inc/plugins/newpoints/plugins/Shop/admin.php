@@ -55,6 +55,8 @@ use function Newpoints\Shop\Core\user_item_insert;
 use function Newpoints\Shop\Core\user_update;
 use function Newpoints\Shop\Core\user_update_details;
 
+use const Newpoints\DECIMAL_DATA_TYPE_SIZE;
+
 const TABLES_DATA = [
     'newpoints_shop_categories' => [
         'cid' => [
@@ -125,7 +127,7 @@ const TABLES_DATA = [
         ],
         'price' => [
             'type' => 'DECIMAL',
-            'size' => '16,2',
+            'size' => DECIMAL_DATA_TYPE_SIZE,
             'unsigned' => true,
             'default' => 0
         ],
@@ -197,7 +199,7 @@ const TABLES_DATA = [
         ],
         'item_price' => [
             'type' => 'DECIMAL',
-            'size' => '16,2',
+            'size' => DECIMAL_DATA_TYPE_SIZE,
             'unsigned' => true,
             'default' => 0
         ],
