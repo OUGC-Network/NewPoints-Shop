@@ -1,4 +1,20 @@
 {
+  "action_name": {
+    "type": "text",
+    "value": "shop"
+  },
+  "manage_groups": {
+    "type": "groupselect",
+    "value": 4
+  },
+  "per_page": {
+    "type": "numeric",
+    "value": 10
+  },
+  "menu_order": {
+    "type": "numeric",
+    "value": 140
+  },
   "lastpurchases": {
     "type": "text",
     "value": 10
@@ -22,22 +38,6 @@
   "pmadmin_default": {
     "type": "textarea",
     "value": ""
-  },
-  "manage_groups": {
-    "type": "groupselect",
-    "value": 4
-  },
-  "action_name": {
-    "type": "text",
-    "value": "shop"
-  },
-  "per_page": {
-    "type": "numeric",
-    "value": 10
-  },
-  "menu_order": {
-    "type": "numeric",
-    "value": 140
   },
   "upload_path": {
     "type": "text",

@@ -58,6 +58,17 @@ function newpoints_templates_rebuild_start(array &$hook_arguments): array
     return $hook_arguments;
 }
 
+function newpoints_admin_settings_intermediate(array &$hook_arguments): array
+{
+    language_load('shop');
+
+    //unset($hook_arguments['active_plugins']['shop']);
+
+    $hook_arguments['shop'] = [];
+
+    return $hook_arguments;
+}
+
 function newpoints_admin_user_groups_edit_graph_start(array &$hook_arguments): array
 {
     language_load('shop');
