@@ -24,6 +24,7 @@
     - [Install](#install)
     - [Update](#update)
     - [Template Modifications](#template_modifications)
+    - [Uploads Directory Permissions](#directory_permissions)
 - [Settings](#settings)
 - [Templates](#templates)
 - [Built Using](#built_using)
@@ -163,6 +164,10 @@ To display NewPoints data it is required that you edit the following template fo
 2. Place `{$post['newpoints_shop_items_count']}` in the `postbit` or `postbit_classic` templates to display the user
    total items number in posts.
 3. Place `{$newpoints_shop_profile}` in the `member_profile` template to display the user items in
+
+### Uploads Directory Permissions <a name = "directory_permissions"></a>
+
+It is necessary to set the correct permissions for the uploads directory set in the `Uploads Path` setting to `777`.
 
 [Go up to Table of Contents](#table_of_contents)
 
