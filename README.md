@@ -23,6 +23,7 @@
     - [File Structure](#file_structure)
     - [Install](#install)
     - [Update](#update)
+        - [Update from 1.9](#update_19)
     - [Template Modifications](#template_modifications)
     - [Uploads Directory Permissions](#directory_permissions)
 - [Settings](#settings)
@@ -154,6 +155,17 @@ Follow the next steps in order to update your copy of this plugin.
 2. Follow step 1 and 2 from the [Install](#install) section.
 3. Browse to _Configuration » Plugins_ and activate this plugin by clicking _Activate_.
 4. Browse to _NewPoints_ to manage NewPoints modules.
+
+#### Updating from 1.9 (NewPoints 2) <a name = "update_19"></a>
+
+If you are updating the Shop from version 1.9 (NewPoints 2), you will need to follow the next steps.
+
+1. Follow all steps from the [Updating](#update) section.
+2. Browse to _Tools & Maintenance » Recount & Rebuild » Recount & Rebuild_ and run the _Rebuild NewPoints Shop User
+   Items_ rebuild tool.
+3. This will deplete the old `newpoints_items` column from the users table and convert (insert) user items into the new
+   table (store) format.
+4. Because the old system did not store the item bought time, all existing items will have the same bought time.
 
 ### Template Modifications <a name = "template_modifications"></a>
 
