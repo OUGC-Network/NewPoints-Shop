@@ -303,7 +303,7 @@ function plugin_information(): array
         'version' => '3.0.0',
         'versioncode' => 3000,
         'compatibility' => '3*',
-        'codename' => 'ougc_points_shop'
+        'codename' => 'newpoints_shop'
     ];
 }
 
