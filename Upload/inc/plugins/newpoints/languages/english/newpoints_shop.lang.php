@@ -244,6 +244,8 @@ $l = array_merge($l, [
     'newpoints_shop_no' => 'No',
 
     'newpoints_shop_dvz_stream' => 'Shop',
-    'newpoints_shop_dvz_stream_event_purchase' => 'Shop Purchase',
+    'newpoints_shop_dvz_stream_event_purchase' => 'Shop Item Purchased',
+    'newpoints_shop_dvz_stream_event_send' => 'Shop Item Sent',
     'newpoints_shop_dvz_stream_purchased' => 'Purchased item {1} for {2} {3}.',
+    'newpoints_shop_dvz_stream_sent' => 'Sent item {1} to {2}.',
 ]);
