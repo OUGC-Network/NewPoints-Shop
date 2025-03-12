@@ -300,9 +300,10 @@ function plugin_information(): array
         'website' => 'https://ougc.network',
         'author' => 'Diogo Parrinha',
         'authorsite' => 'https://ougc.network',
-        'version' => '1.9.4',
-        'versioncode' => 1940,
-        'compatibility' => '3*'
+        'version' => '3.0.0',
+        'versioncode' => 3000,
+        'compatibility' => '3*',
+        'codename' => 'ougc_points_shop'
     ];
 }
 
