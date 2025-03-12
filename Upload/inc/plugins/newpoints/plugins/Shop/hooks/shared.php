@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/newpoints/plugins/ougc/Shop/hooks/shared.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *

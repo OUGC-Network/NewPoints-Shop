@@ -4,7 +4,8 @@
  *
  *    NewPoints Shop plugin (/inc/plugins/newpoints/plugins/newpoints_shop.php)
  *    Author: Diogo Parrinha
- *    Copyright: © 2014 Diogo Parrinha
+ *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *

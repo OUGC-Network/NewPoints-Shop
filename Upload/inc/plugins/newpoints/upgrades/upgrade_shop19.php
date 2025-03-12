@@ -1,17 +1,18 @@
 <?php
+
 /***************************************************************************
  *
- *   NewPoints plugin (/inc/plugins/newpoints/upgrades/upgrade_shop19.php)
- *     Author: Pirata Nervo
- *   Copyright: © 2009-2012 Pirata Nervo
+ *    NewPoints plugin (/inc/plugins/newpoints/upgrades/upgrade_shop19.php)
+ *    Author: Diogo Parrinha
+ *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
- *   Website: http://www.mybb-plugins.com
+ *    Website: https://ougc.network
  *
- *   Upgrade file to upgrade NewPoints Shop 1.8 to NewPoints Shop 1.9
+ *    Integrates a shop system with NewPoints.
  *
- ***************************************************************************/
-
-/****************************************************************************
+ ***************************************************************************
+ ****************************************************************************
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or

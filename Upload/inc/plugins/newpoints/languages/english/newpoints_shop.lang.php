@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/newpoints_shop.lang.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
@@ -242,6 +243,14 @@ $l = array_merge($l, [
 
     'newpoints_shop_yes' => 'Yes',
     'newpoints_shop_no' => 'No',
+
+    'newpoints_alert_text_shop_item_received' => 'You received the "{1}" shop item from {2}.',
+    'newpoints_alert_text_shop_item_deleted' => 'The "{1}" shop item was deleted from your account.',
+    'newpoints_alert_text_shop_item_received_fallback' => 'You received a shop item from.',
+    'newpoints_alert_text_shop_item_deleted_fallback' => 'A shop item was deleted from your account.',
+
+    'myalerts_setting_newpoints_shop_item_received' => 'Receive alert when you receive a shop item?',
+    'myalerts_setting_newpoints_shop_item_deleted' => 'Receive alert when a shop item is deleted from my account?',
 
     'newpoints_shop_dvz_stream_purchases' => 'Shop Purchases',
     'newpoints_shop_dvz_stream_sends' => 'Shop Sends',

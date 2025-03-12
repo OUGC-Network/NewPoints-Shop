@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/newpoints/plugins/ougc/Shop/hooks/forum.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
@@ -32,6 +33,7 @@ namespace Newpoints\Shop\Hooks\Forum;
 
 use MyBB;
 
+use function Newpoints\Core\alert_send;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
@@ -67,6 +69,7 @@ use function Newpoints\Shop\Core\user_update_details;
 
 use const Newpoints\Core\LOGGING_TYPE_CHARGE;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
+use const Newpoints\Shop\ROOT;
 
 function global_intermediate(): bool
 {
@@ -559,7 +562,7 @@ function newpoints_terminate(): bool
                             $user_id
                         );
 
-                        log_add(
+                        $log_id = log_add(
                             'shop_item_received',
                             '',
                             $user_data['username'] ?? '',
@@ -569,6 +572,8 @@ function newpoints_terminate(): bool
                             $item_id,
                             $current_user_id
                         );
+
+                        alert_send($user_id, (int)$log_id, 'shop', 'item_received');
 
                         user_update_details($current_user_id);
 
@@ -2371,7 +2376,7 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
             points_add_simple($user_id, $item_price);
         }
 
-        log_add(
+        $log_id = log_add(
             'shop_quick_item_delete',
             '',
             $hook_arguments['user_data']['username'] ?? '',
@@ -2382,6 +2387,8 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
             $user_item_id,
             $log_type
         );
+
+        alert_send($user_id, (int)$log_id, 'shop', 'item_deleted');
 
         $item_data = item_get(["iid='{$item_id}'"], ['stock']);
 
@@ -2454,6 +2461,25 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
         $alternative_background = alt_trow();
     }
+
+    return $hook_arguments;
+}
+
+function newpoints_my_alerts_language_load(array &$hook_arguments): array
+{
+    language_load('shop');
+
+    return $hook_arguments;
+}
+
+function newpoints_my_alerts_init(array &$hook_arguments): array
+{
+    $hook_arguments['newpoints_my_alerts_formatters'][] = [
+        'plugin_code' => 'shop',
+        'alert_types' => ['item_received', 'item_deleted'],
+        'formatters_directory' => ROOT . '/alert_formatters/',
+        'namespace' => 'Newpoints\Shop\MyAlerts\Formatters\\'
+    ];
 
     return $hook_arguments;
 }

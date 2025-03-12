@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/newpoints/languages/english/admin/newpoints_shop.lang.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
@@ -41,7 +42,7 @@ $l['setting_newpoints_shop_per_page_desc'] = 'Number of items to display per pag
 $l['setting_newpoints_shop_menu_order'] = 'Menu Order';
 $l['setting_newpoints_shop_menu_order_desc'] = 'Order in the Newpoints menu item';
 $l['setting_newpoints_shop_enable_dvz_stream'] = 'Enable DVZ Stream Integration';
-$l['setting_newpoints_shop_enable_dvz_stream_desc'] = 'Enable DVZ Stream integration for activity rewards.';
+$l['setting_newpoints_shop_enable_dvz_stream_desc'] = 'Enable DVZ Stream integration for the shop purchases, sales, and sends.';
 $l['setting_newpoints_shop_lastpurchases'] = 'Last Purchases';
 $l['setting_newpoints_shop_lastpurchases_desc'] = 'Number of last purchases to show in statistics.';
 $l['setting_newpoints_shop_itemsprofile'] = 'Items on profile';

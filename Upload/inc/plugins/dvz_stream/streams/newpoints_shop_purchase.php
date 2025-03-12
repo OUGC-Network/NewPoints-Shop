@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/dvz_stream/streams/newpoints_shop_purchase.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
@@ -39,7 +40,7 @@ use function Newpoints\Shop\Core\icon_get;
 use function Newpoints\Shop\Core\templates_get;
 
 global $lang;
- 
+
 $stream = new Stream();
 
 $stream->setName(explode('.', basename(__FILE__))[0]);

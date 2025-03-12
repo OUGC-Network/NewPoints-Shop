@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/dvz_stream/streams/newpoints_shop_send.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *

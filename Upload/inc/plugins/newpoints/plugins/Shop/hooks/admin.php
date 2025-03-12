@@ -5,6 +5,7 @@
  *    NewPoints Shop plugin (/inc/plugins/newpoints/plugins/ougc/Shop/hooks/admin.php)
  *    Author: Diogo Parrinha
  *    Copyright: © 2009 Diogo Parrinha
+ *    Copyright: © 2024 Omar Gonzalez
  *
  *    Website: https://ougc.network
  *
@@ -209,4 +210,19 @@ function admin_tools_do_recount_rebuild(): bool
     }
 
     return true;
+}
+
+function newpoints_my_alerts_install(array &$hook_arguments): array
+{
+    $hook_arguments['newpoints_my_alerts_formatters'][] = [
+        'plugin_code' => 'shop',
+        'alert_types' => ['item_received', 'item_deleted'],
+    ];
+
+    return $hook_arguments;
+}
+
+function newpoints_my_alerts_uninstall(array &$hook_arguments): array
+{
+    return newpoints_my_alerts_install($hook_arguments);
 }
