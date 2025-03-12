@@ -73,7 +73,7 @@ function global_intermediate(): bool
     global $mybb;
 
     if (get_setting('shop_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
-        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send';
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send,newpoints_shop_sell';
     }
 
     return true;
@@ -84,7 +84,7 @@ function xmlhttp(): bool
     global $mybb;
 
     if (get_setting('shop_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
-        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send';
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send,newpoints_shop_sell';
     }
 
     return true;
@@ -655,7 +655,23 @@ function newpoints_terminate(): bool
                 $hook_arguments['item_data'] = &$item_data;
 
                 if (!isset($item_price)) {
-                    $item_price = (float)$item_data['item_price'];
+                    $item_price = (float)$item_data['price'];
+                }
+
+                if (empty($user_item_id)) {
+                    $user_items_objects = user_items_get(
+                        ["user_id='{$current_user_id}'", "item_id='{$item_id}'"],
+                        ['user_item_id', 'item_price'],
+                        ['limit' => 1]
+                    );
+
+                    $user_item_id = (int)($user_items_objects['user_item_id'] ?? 0);
+
+                    $item_price = (float)($user_items_objects['item_price'] ?? 0);
+                }
+
+                if (empty($user_item_id)) {
+                    error($lang->newpoints_shop_selected_item_not_owned);
                 }
 
                 $items_rate = (int)$mybb->usergroup['newpoints_rate_shop_sell'];
@@ -681,22 +697,6 @@ function newpoints_terminate(): bool
                 }
 
                 $item_name = htmlspecialchars_uni($item_data['name']);
-
-                if (empty($user_item_id)) {
-                    $user_items_objects = user_items_get(
-                        ["user_id='{$current_user_id}'", "item_id='{$item_id}'"],
-                        ['user_item_id', 'item_price'],
-                        ['limit' => 1]
-                    );
-
-                    $user_item_id = (int)($user_items_objects['user_item_id'] ?? 0);
-
-                    $item_price = (float)($user_items_objects['item_price'] ?? 0);
-                }
-
-                if (empty($user_item_id)) {
-                    error($lang->newpoints_shop_selected_item_not_owned);
-                }
 
                 $lang->newpoints_page_confirm_table_purchase_title = $lang->newpoints_shop_confirm_sell_title;
 

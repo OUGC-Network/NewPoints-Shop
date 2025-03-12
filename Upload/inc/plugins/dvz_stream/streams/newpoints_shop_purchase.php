@@ -1,6 +1,30 @@
 <?php
 
-global $lang;
+/***************************************************************************
+ *
+ *    NewPoints Shop plugin (/inc/plugins/dvz_stream/streams/newpoints_shop_purchase.php)
+ *    Author: Diogo Parrinha
+ *    Copyright: © 2009 Diogo Parrinha
+ *
+ *    Website: https://ougc.network
+ *
+ *    Integrates a shop system with NewPoints.
+ *
+ ***************************************************************************
+ ****************************************************************************
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ****************************************************************************/
 
 use dvzStream\Stream;
 use dvzStream\StreamEvent;
@@ -13,15 +37,16 @@ use function Newpoints\Core\url_handler_build;
 use function Newpoints\Shop\Core\cache_get;
 use function Newpoints\Shop\Core\icon_get;
 use function Newpoints\Shop\Core\templates_get;
-use function Newpoints\Shop\Core\user_items_get;
 
+global $lang;
+ 
 $stream = new Stream();
 
 $stream->setName(explode('.', basename(__FILE__))[0]);
 
 language_load('newpoints_shop');
 
-$stream->setTitle($lang->newpoints_shop_dvz_stream);
+$stream->setTitle($lang->newpoints_shop_dvz_stream_purchases);
 
 $stream->setEventTitle($lang->newpoints_shop_dvz_stream_event_purchase);
 
@@ -128,7 +153,7 @@ $stream->addProcessHandler(function (StreamEvent $streamEvent) {
         'uid' => $user_data['id']
     ]);
 
-    $stream_item = eval(templates_get('stream_item_purchase'));
+    $stream_item = eval(templates_get('stream_item'));
 
     $streamEvent->setItem($stream_item);
 });
