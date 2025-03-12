@@ -275,10 +275,12 @@ function category_delete(int $category_id): bool
 
 function items_get(
     array $where_clauses = [],
-    array $query_fields = ['iid'],
+    array $query_fields = [],
     array $query_options = []
 ): array {
     global $db;
+
+    $query_fields[] = 'iid';
 
     $query = $db->simple_select(
         'newpoints_shop_items',
@@ -291,11 +293,7 @@ function items_get(
 
     if ($db->num_rows($query)) {
         while ($item_data = $db->fetch_array($query)) {
-            if (!empty($item_data['iid'])) {
-                $items_objects[(int)$item_data['iid']] = $item_data;
-            } else {
-                $items_objects[] = $item_data;
-            }
+            $items_objects[(int)$item_data['iid']] = $item_data;
         }
     }
 
@@ -488,10 +486,12 @@ function user_update_details(int $user_id): int
 {
     $user_shop_objects = user_items_get(
         ["user_id='{$user_id}'", "is_visible='1'"],
-        ['COUNT(user_item_id) AS total_user_items']
+        ['COUNT(user_item_id) AS total_user_items'],
+        ['limit' => 1],
+        true
     );
 
-    $total_user_items = (int)($user_shop_objects[0]['total_user_items'] ?? 0);
+    $total_user_items = (int)($user_shop_objects['total_user_items'] ?? 0);
 
     return user_update($user_id, ['newpoints_shop_total_items' => $total_user_items]);
 }
@@ -544,7 +544,45 @@ function user_item_update(array $user_item_data = [], int $user_item_id = 0): in
 
 function user_items_get(
     array $where_clauses = [],
-    array $query_fields = ['user_item_id'],
+    array $query_fields = [],
+    array $query_options = [],
+    bool $distinct = false
+): array {
+    global $db;
+
+    if (!$distinct) {
+        $query_fields[] = 'user_item_id';
+    }
+
+    $query = $db->simple_select(
+        'newpoints_shop_user_items',
+        implode(',', $query_fields),
+        implode(' AND ', $where_clauses),
+        $query_options
+    );
+
+    if (isset($query_options['limit']) && $query_options['limit'] === 1) {
+        return (array)$db->fetch_array($query);
+    }
+
+    $user_items_objects = [];
+
+    if ($db->num_rows($query)) {
+        while ($user_item_data = $db->fetch_array($query)) {
+            if (isset($user_item_data['user_item_id'])) {
+                $user_items_objects[(int)$user_item_data['user_item_id']] = $user_item_data;
+            } else {
+                $user_items_objects[] = $user_item_data;
+            }
+        }
+    }
+
+    return $user_items_objects;
+}
+
+function user_items_get_distinct(
+    array $where_clauses = [],
+    array $query_fields = [],
     array $query_options = []
 ): array {
     global $db;
@@ -560,11 +598,7 @@ function user_items_get(
 
     if ($db->num_rows($query)) {
         while ($user_item_data = $db->fetch_array($query)) {
-            if (!empty($user_item_data['user_item_id'])) {
-                $user_items_objects[(int)$user_item_data['user_item_id']] = $user_item_data;
-            } else {
-                $user_items_objects[] = $user_item_data;
-            }
+            $user_items_objects[(int)$user_item_data['user_item_id']] = $user_item_data;
         }
     }
 
@@ -609,7 +643,7 @@ function user_group_permission_get_closest(string $permission_key, int $user_id 
     return (int)$db->fetch_field($query, 'gid');
 }
 
-function cacheUpdate(): bool
+function cache_update(): bool
 {
     global $cache;
 
@@ -682,23 +716,26 @@ function cacheUpdate(): bool
     return true;
 }
 
+function cache_get(): array
+{
+    global $cache;
+
+    return (array)$cache->read('newpoints_shop');
+}
+
 function icon_get(array $item_data): string
 {
     global $mybb;
 
-    $item_icon = htmlspecialchars_uni($mybb->get_asset_url($item_data['icon']));
-
     $upload_path = get_setting('shop_upload_path');
 
-    $item_icon = htmlspecialchars_uni(
-        $mybb->get_asset_url(
-            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-        )
+    $item_icon = $mybb->get_asset_url(
+        !empty($item_data['item_icon']) ? "{$upload_path}/{$item_data['item_icon']}" : 'images/newpoints/default.png'
     );
 
-    $item_name = htmlspecialchars_uni($item_data['name']);
+    $item_name = htmlspecialchars_uni($item_data['item_name']);
 
-    $item_description = htmlspecialchars_uni($item_data['description']);
+    $item_description = htmlspecialchars_uni($item_data['item_description']);
 
     return eval(templates_get('item_image'));
 }

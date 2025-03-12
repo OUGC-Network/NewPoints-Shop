@@ -15,6 +15,10 @@
     "type": "numeric",
     "value": 140
   },
+  "enable_dvz_stream": {
+    "type": "yesno",
+    "value": 1
+  },
   "lastpurchases": {
     "type": "text",
     "value": 10

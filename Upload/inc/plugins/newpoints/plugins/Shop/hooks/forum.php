@@ -45,7 +45,7 @@ use function Newpoints\Core\private_message_send;
 use function Newpoints\Core\run_hooks;
 use function Newpoints\Core\url_handler_build;
 use function Newpoints\Core\users_get_by_username;
-use function Newpoints\Shop\Core\cacheUpdate;
+use function Newpoints\Shop\Core\cache_update;
 use function Newpoints\Shop\Core\can_manage_quick_edit;
 use function Newpoints\Shop\Core\category_delete;
 use function Newpoints\Shop\Core\category_get;
@@ -67,6 +67,28 @@ use function Newpoints\Shop\Core\user_update_details;
 
 use const Newpoints\Core\LOGGING_TYPE_CHARGE;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
+
+function global_intermediate(): bool
+{
+    global $mybb;
+
+    if (get_setting('shop_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send';
+    }
+
+    return true;
+}
+
+function xmlhttp(): bool
+{
+    global $mybb;
+
+    if (get_setting('shop_enable_dvz_stream') && isset($mybb->settings['dvz_stream_active_streams'])) {
+        $mybb->settings['dvz_stream_active_streams'] .= ',newpoints_shop_purchase,newpoints_shop_send';
+    }
+
+    return true;
+}
 
 function newpoints_global_start(array &$hook_arguments): array
 {
@@ -262,10 +284,11 @@ function newpoints_terminate(): bool
                 if (!empty($item_data['user_limit'])) {
                     $total_user_items = user_items_get(
                         ["item_id='{$item_id}'"],
-                        ['COUNT(user_item_id) AS total_user_items']
+                        ['COUNT(user_item_id) AS total_user_items'],
+                        ['limit' => 1]
                     );
 
-                    $total_user_items = (int)($total_user_items[0]['total_user_items'] ?? 0);
+                    $total_user_items = (int)($total_user_items['total_user_items'] ?? 0);
 
                     if ($total_user_items >= $item_data['user_limit']) {
                         $errors[] = $lang->newpoints_shop_user_limit_reached;
@@ -403,10 +426,8 @@ function newpoints_terminate(): bool
 
                     $upload_path = (string)get_setting('shop_upload_path');
 
-                    $item_icon = htmlspecialchars_uni(
-                        $mybb->get_asset_url(
-                            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-                        )
+                    $item_icon = $mybb->get_asset_url(
+                        !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
                     );
 
                     $view_item_url = url_handler_build([
@@ -432,12 +453,14 @@ function newpoints_terminate(): bool
 
                 $user_item_id = $mybb->get_input('user_item_id', MyBB::INPUT_INT);
 
-                if (!empty($user_item_id)) {
-                    $user_items_objects = user_items_get(
-                        ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"], ['item_id']
+                if ($user_item_id) {
+                    $user_items_data = user_items_get(
+                        ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"],
+                        [],
+                        ['limit' => 1]
                     );
 
-                    $item_id = (int)($user_items_objects[0]['item_id'] ?? 0);
+                    $item_id = (int)($user_items_data['item_id'] ?? 0);
                 } else {
                     $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
                 }
@@ -477,9 +500,13 @@ function newpoints_terminate(): bool
                 $item_name = htmlspecialchars_uni($item_data['name']);
 
                 if (empty($user_item_id)) {
-                    $user_items_objects = user_items_get(["user_id='{$current_user_id}'", "item_id='{$item_id}'"]);
+                    $user_items_objects = user_items_get(
+                        ["user_id='{$current_user_id}'", "item_id='{$item_id}'"],
+                        [],
+                        ['limit' => 1]
+                    );
 
-                    $user_item_id = (int)(array_column($user_items_objects, 'user_item_id')[0] ?? 0);
+                    $user_item_id = (int)($user_items_objects['user_item_id'] ?? 0);
                 }
 
                 $hook_arguments['user_item_id'] = &$user_item_id;
@@ -601,12 +628,14 @@ function newpoints_terminate(): bool
 
                 if (!empty($user_item_id)) {
                     $user_items_objects = user_items_get(
-                        ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"], ['item_id', 'item_price']
+                        ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"],
+                        ['item_id', 'item_price'],
+                        ['limit' => 1]
                     );
 
-                    $item_id = (int)($user_items_objects[0]['item_id'] ?? 0);
+                    $item_id = (int)($user_items_objects['item_id'] ?? 0);
 
-                    $item_price = (int)(array_column($user_items_objects, 'item_price')[0] ?? 0);
+                    $item_price = (float)($user_items_objects['item_price'] ?? 0);
                 } else {
                     $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
                 }
@@ -617,7 +646,7 @@ function newpoints_terminate(): bool
                     $where_clauses[] = "visible='1'";
                 }
 
-                $item_data = item_get($where_clauses, ['cid', 'name', 'stock', 'item_price']);
+                $item_data = item_get($where_clauses, ['cid', 'name', 'stock', 'price']);
 
                 if (empty($item_data)) {
                     error($lang->newpoints_shop_invalid_item);
@@ -656,12 +685,13 @@ function newpoints_terminate(): bool
                 if (empty($user_item_id)) {
                     $user_items_objects = user_items_get(
                         ["user_id='{$current_user_id}'", "item_id='{$item_id}'"],
-                        ['user_item_id', 'item_price']
+                        ['user_item_id', 'item_price'],
+                        ['limit' => 1]
                     );
 
-                    $user_item_id = (int)(array_column($user_items_objects, 'user_item_id')[0] ?? 0);
+                    $user_item_id = (int)($user_items_objects['user_item_id'] ?? 0);
 
-                    $item_price = (int)(array_column($user_items_objects, 'item_price')[0] ?? 0);
+                    $item_price = (float)($user_items_objects['item_price'] ?? 0);
                 }
 
                 if (empty($user_item_id)) {
@@ -752,6 +782,8 @@ function newpoints_terminate(): bool
         $hook_arguments = run_hooks('shop_post_end', $hook_arguments);
     }
 
+    user_update_details(1);
+
     add_breadcrumb($lang->newpoints_shop, url_handler_build(['action' => 'shop']));
 
     $hook_arguments = run_hooks('shop_start', $hook_arguments);
@@ -835,7 +867,7 @@ function newpoints_terminate(): bool
                 if ($is_add_page) {
                     category_insert($insert_data);
 
-                    cacheUpdate();
+                    cache_update();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -844,7 +876,7 @@ function newpoints_terminate(): bool
                 } else {
                     category_update($insert_data, $category_id);
 
-                    cacheUpdate();
+                    cache_update();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -1132,7 +1164,7 @@ function newpoints_terminate(): bool
                 if ($is_add_page) {
                     item_insert($insert_data);
 
-                    cacheUpdate();
+                    cache_update();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -1141,7 +1173,7 @@ function newpoints_terminate(): bool
                 } else {
                     item_update($insert_data, $item_id);
 
-                    cacheUpdate();
+                    cache_update();
 
                     redirect(
                         $mybb->settings['bburl'] . '/' . $form_url,
@@ -1324,10 +1356,8 @@ function newpoints_terminate(): bool
 
         $upload_path = (string)get_setting('shop_upload_path');
 
-        $item_icon = htmlspecialchars_uni(
-            $mybb->get_asset_url(
-                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-            )
+        $item_icon = $mybb->get_asset_url(
+            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
         );
 
         $view_item_url = url_handler_build([
@@ -1412,7 +1442,8 @@ function newpoints_terminate(): bool
             user_items_get(
                 $where_clauses,
                 ['item_id', 'COUNT(DISTINCT user_item_id) AS total_user_items'],
-                ['group_by' => 'item_id']
+                ['group_by' => 'item_id'],
+                true
             )
         );
 
@@ -1457,7 +1488,8 @@ function newpoints_terminate(): bool
                 'order_dir' => 'desc',
                 'limit' => $per_page,
                 'limit_start' => $start
-            ]
+            ],
+            true
         );
 
         $hook_arguments['user_items_objects'] = &$user_items_objects;
@@ -1559,10 +1591,8 @@ function newpoints_terminate(): bool
 
             $upload_path = (string)get_setting('shop_upload_path');
 
-            $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url(
-                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-                )
+            $item_icon = $mybb->get_asset_url(
+                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
             );
 
             $view_item_url = url_handler_build($url_params);
@@ -1786,7 +1816,7 @@ function newpoints_terminate(): bool
             $category_icon = '';
 
             if (!empty($category_data['icon_url'])) {
-                $category_icon = htmlspecialchars_uni($mybb->get_asset_url($category_data['icon_url']));
+                $category_icon = $mybb->get_asset_url($category_data['icon_url']);
 
                 $category_icon = eval(templates_get('category_icon'));
             }
@@ -1864,7 +1894,7 @@ function newpoints_terminate(): bool
                     $item_icon = '';
 
                     if (!empty($item_data['icon_url'])) {
-                        $item_icon = htmlspecialchars_uni($mybb->get_asset_url($item_data['icon_url']));
+                        $item_icon = $mybb->get_asset_url($item_data['icon_url']);
 
                         $item_icon = eval(templates_get('item_icon'));
                     }
@@ -2099,10 +2129,8 @@ function member_profile_end(): bool
 
             $upload_path = (string)get_setting('shop_upload_path');
 
-            $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url(
-                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-                )
+            $item_icon = $mybb->get_asset_url(
+                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
             );
 
             $item_name = htmlspecialchars_uni($item_data['name']);
@@ -2237,10 +2265,8 @@ function postbit(array $post): array
 
         $upload_path = (string)get_setting('shop_upload_path');
 
-        $item_icon = htmlspecialchars_uni(
-            $mybb->get_asset_url(
-                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-            )
+        $item_icon = $mybb->get_asset_url(
+            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
         );
 
         $item_name = htmlspecialchars_uni($item_data['name']);
@@ -2325,44 +2351,42 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
     foreach ($selected_user_items_ids as $user_item_id) {
         $user_item_id = (int)$user_item_id;
 
-        foreach (
-            user_items_get(
-                ["user_id='{$user_id}'", "user_item_id='{$user_item_id}'"],
-                ['user_item_id', 'item_id', 'item_price'],
-                ['limit' => 1]
-            ) as $user_item_data
-        ) {
-            $item_id = (int)$user_item_data['item_id'];
+        $user_item_data = user_items_get(
+            ["user_id='{$user_id}'", "user_item_id='{$user_item_id}'"],
+            ['user_item_id', 'item_id', 'item_price'],
+            ['limit' => 1]
+        );
 
-            $item_price = $log_type = 0;
+        $item_id = (int)$user_item_data['item_id'];
 
-            $item_price = (float)$user_item_data['item_price'];
+        $item_price = $log_type = 0;
 
-            user_item_delete($user_item_id);
+        $item_price = (float)$user_item_data['item_price'];
 
-            if ($user_points_refund && !empty($item_price)) {
-                $log_type = LOGGING_TYPE_INCOME;
+        user_item_delete($user_item_id);
 
-                points_add_simple($user_id, $item_price);
-            }
+        if ($user_points_refund && !empty($item_price)) {
+            $log_type = LOGGING_TYPE_INCOME;
 
-            log_add(
-                'shop_quick_item_delete',
-                '',
-                $hook_arguments['user_data']['username'] ?? '',
-                $user_id,
-                $item_price,
-                $item_id,
-                $current_user_id,
-                $user_item_id,
-                $log_type
-            );
+            points_add_simple($user_id, $item_price);
+        }
 
-            $item_data = item_get(["iid='{$item_id}'"], ['stock']);
+        log_add(
+            'shop_quick_item_delete',
+            '',
+            $hook_arguments['user_data']['username'] ?? '',
+            $user_id,
+            $item_price,
+            $item_id,
+            $current_user_id,
+            $user_item_id,
+            $log_type
+        );
 
-            if ($item_stock_increase && !empty($item_data)) {
-                item_update(['stock' => $item_data['stock'] + 1], $item_id);
-            }
+        $item_data = item_get(["iid='{$item_id}'"], ['stock']);
+
+        if ($item_stock_increase && !empty($item_data)) {
+            item_update(['stock' => $item_data['stock'] + 1], $item_id);
         }
     }
 
@@ -2413,10 +2437,8 @@ function newpoints_quick_edit_end(array &$hook_arguments): array
 
             $upload_path = (string)get_setting('shop_upload_path');
 
-            $item_icon = htmlspecialchars_uni(
-                $mybb->get_asset_url(
-                    !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
-                )
+            $item_icon = $mybb->get_asset_url(
+                !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
             );
 
             $item_name = htmlspecialchars_uni($item_data['name']);
