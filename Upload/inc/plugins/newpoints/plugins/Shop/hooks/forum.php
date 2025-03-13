@@ -37,6 +37,7 @@ use function Newpoints\Core\alert_send;
 use function Newpoints\Core\get_setting;
 use function Newpoints\Core\language_load;
 use function Newpoints\Core\log_add;
+use function Newpoints\Core\main_file_name;
 use function Newpoints\Core\page_build_cancel_confirmation;
 use function Newpoints\Core\page_build_purchase_confirmation;
 use function Newpoints\Core\points_add_simple;
@@ -2565,4 +2566,35 @@ function newpoints_my_alerts_init(array &$hook_arguments): array
     ];
 
     return $hook_arguments;
+}
+
+function fetch_wol_activity_end(array &$hook_parameters): array
+{
+    if (my_strpos($hook_parameters['location'], main_file_name()) === false ||
+        my_strpos($hook_parameters['location'], 'action=' . get_setting('shop_action_name')) === false) {
+        return $hook_parameters;
+    }
+
+    $hook_parameters['activity'] = 'newpoints_shop';
+
+    return $hook_parameters;
+}
+
+function build_friendly_wol_location_end(array $hook_parameters): array
+{
+    global $mybb, $lang;
+
+    language_load('shop');
+
+    switch ($hook_parameters['user_activity']['activity']) {
+        case 'newpoints_shop':
+            $hook_parameters['location_name'] = $lang->sprintf(
+                $lang->newpoints_shop_wol_location,
+                $mybb->settings['bburl'],
+                url_handler_build(['action' => get_setting('shop_action_name')])
+            );
+            break;
+    }
+
+    return $hook_parameters;
 }
