@@ -261,4 +261,10 @@ $l = array_merge($l, [
     'newpoints_shop_dvz_stream_purchased' => 'Purchased item {1} for {2} {3}.',
     'newpoints_shop_dvz_stream_sent' => 'Sent item {1} to {2}.',
     'newpoints_shop_dvz_stream_sold' => 'Sold item {1} for {2} {3}.',
+
+    'newpoints_shop_page_logs_shop_purchase' => 'Shop Purchase',
+    'newpoints_shop_page_logs_shop_send' => 'Shop Item Sent',
+    'newpoints_shop_page_logs_shop_item_received' => 'Shop Item Received',
+    'newpoints_shop_page_logs_shop_sell' => 'Shop Sale',
+    'newpoints_shop_page_logs_shop_quick_item_delete' => 'Shop Item Deleted',
 ]);

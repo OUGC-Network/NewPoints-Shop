@@ -160,6 +160,86 @@ function newpoints_global_start(array &$hook_arguments): array
     return $hook_arguments;
 }
 
+function newpoints_logs_log_row(): bool
+{
+    global $log_data;
+
+    if (!in_array($log_data['action'], [
+        'shop_purchase',
+        'shop_send',
+        'shop_item_received',
+        'shop_sell',
+        'shop_quick_item_delete',
+    ])) {
+        return false;
+    }
+
+    global $lang;
+    global $log_action, $log_primary, $log_secondary, $log_tertiary;
+
+    language_load('shop');
+
+    if ($log_data['action'] === 'shop_purchase') {
+        $log_action = $lang->newpoints_shop_page_logs_shop_purchase;
+    }
+
+    if ($log_data['action'] === 'shop_send') {
+        $log_action = $lang->newpoints_shop_page_logs_shop_send;
+    }
+
+    if ($log_data['action'] === 'shop_item_received') {
+        $log_action = $lang->newpoints_shop_page_logs_shop_item_received;
+    }
+
+    if ($log_data['action'] === 'shop_sell') {
+        $log_action = $lang->newpoints_shop_page_logs_shop_sell;
+    }
+
+    if ($log_data['action'] === 'shop_quick_item_delete') {
+        $log_action = $lang->newpoints_shop_page_logs_shop_quick_item_delete;
+    }
+
+    $user_item_id = (int)$log_data['log_primary_id'];
+
+    $item_id = (int)$log_data['log_secondary_id'];
+
+    // todo, show item info
+
+    return true;
+}
+
+function newpoints_logs_end(): bool
+{
+    global $lang;
+    global $action_types;
+
+    language_load('shop');
+
+    foreach ($action_types as $key => &$action_type) {
+        if ($key === 'shop_purchase') {
+            $action_type = $lang->newpoints_shop_page_logs_shop_purchase;
+        }
+
+        if ($key === 'shop_send') {
+            $action_type = $lang->newpoints_shop_page_logs_shop_send;
+        }
+
+        if ($key === 'shop_item_received') {
+            $action_type = $lang->newpoints_shop_page_logs_shop_item_received;
+        }
+
+        if ($key === 'shop_sell') {
+            $action_type = $lang->newpoints_shop_page_logs_shop_sell;
+        }
+
+        if ($key === 'shop_quick_item_delete') {
+            $action_type = $lang->newpoints_shop_page_logs_shop_quick_item_delete;
+        }
+    }
+
+    return true;
+}
+
 function newpoints_terminate(): bool
 {
     global $mybb;
@@ -732,8 +812,8 @@ function newpoints_terminate(): bool
                             $mybb->user['username'] ?? '',
                             $current_user_id,
                             $item_price,
-                            $item_id,
                             $user_item_id,
+                            $item_id,
                             $items_rate,
                             LOGGING_TYPE_INCOME
                         );
@@ -2385,9 +2465,9 @@ function newpoints_quick_edit_post_start(array &$hook_arguments): array
             $hook_arguments['user_data']['username'] ?? '',
             $user_id,
             $item_price,
+            $user_item_id,
             $item_id,
             $current_user_id,
-            $user_item_id,
             $log_type
         );
 
