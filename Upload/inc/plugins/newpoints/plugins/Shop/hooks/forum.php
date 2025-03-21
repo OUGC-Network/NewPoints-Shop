@@ -71,6 +71,7 @@ use function Newpoints\Shop\Core\user_update_details;
 use const Newpoints\Core\LOGGING_TYPE_CHARGE;
 use const Newpoints\Core\LOGGING_TYPE_INCOME;
 use const Newpoints\DECIMAL_DATA_TYPE_STEP;
+use const Newpoints\Shop\Core\GROUPS_PERMISSION_ALL;
 use const Newpoints\Shop\ROOT;
 
 function global_intermediate(): bool
@@ -927,10 +928,19 @@ function newpoints_terminate(): bool
             $insert_data = [
                 'name' => $mybb->get_input('name'),
                 'description' => $mybb->get_input('description'),
-                'usergroups' => implode(',', array_map('intval', $mybb->get_input('group_ids', MyBB::INPUT_ARRAY))),
                 'visible' => $mybb->get_input('is_visible', MyBB::INPUT_INT),
                 'disporder' => $mybb->get_input('display_order', MyBB::INPUT_INT),
             ];
+
+            $insert_data['usergroups'] = array_flip(
+                array_map('intval', $mybb->get_input('group_ids', MyBB::INPUT_ARRAY))
+            );
+
+            if (isset($insert_data['usergroups'][GROUPS_PERMISSION_ALL])) {
+                $insert_data['usergroups'] = GROUPS_PERMISSION_ALL;
+            } else {
+                $insert_data['usergroups'] = implode(',', array_keys($insert_data['usergroups']));
+            }
 
             if (my_strlen($insert_data['name']) > 100 || my_strlen($insert_data['name']) < 1) {
                 $errors[] = $lang->newpoints_shop_error_invalid_item_name;
@@ -979,14 +989,23 @@ function newpoints_terminate(): bool
             $category_data = array_merge($category_data, $insert_data);
         }
 
-        $groups_select = (function (array $selected_category) use ($category_data, $is_moderator, $mybb): string {
-            $select_options = '';
+        $groups_select = (function (array $selected_category) use (
+            $category_data,
+            $is_moderator,
+            $mybb,
+            $lang
+        ): string {
+            $group_id = -1;
 
-            $where_clauses = [];
+            $group_title = $lang->newpoints_shop_edit_category_table_category_category_all;
 
-            if (!$is_moderator) {
-                $where_clauses[] = "visible='1'";
+            $group_selected = '';
+
+            if (in_array($group_id, $selected_category)) {
+                $group_selected = 'selected="selected"';
             }
+
+            $select_options = eval(templates_get('category_add_edit_form_category_option'));
 
             foreach (
                 $mybb->cache->read('usergroups') as $group_data
@@ -1042,6 +1061,12 @@ function newpoints_terminate(): bool
         $hook_arguments = run_hooks('shop_add_edit_category_end', $hook_arguments);
 
         $category_extra_rows = implode('', $category_extra_rows);
+
+        $button_text = $lang->newpoints_shop_edit_category_button_update;
+
+        if ($is_add_page) {
+            $button_text = $lang->newpoints_shop_add_category_button_create;
+        }
 
         $newpoints_content = eval(templates_get('category_add_edit_form'));
 
@@ -1206,7 +1231,7 @@ function newpoints_terminate(): bool
             verify_post_check($mybb->get_input('my_post_key'));
 
             $insert_data = [
-                'cid' => $mybb->get_input('category_id', MyBB::INPUT_INT),
+                'cid' => $category_id,
                 'name' => $mybb->get_input('name'),
                 'description' => $mybb->get_input('description'),
                 'price' => $mybb->get_input('price', MyBB::INPUT_FLOAT),
@@ -1248,6 +1273,11 @@ function newpoints_terminate(): bool
 
                 $hook_arguments = run_hooks('shop_post_add_edit_item_end', $hook_arguments);
 
+                $form_url = url_handler_build([
+                    'action' => $action_name,
+                    "page{$category_id}" => $mybb->get_input("page{$category_id}", MyBB::INPUT_INT)
+                ]);
+
                 if ($is_add_page) {
                     item_insert($insert_data);
 
@@ -1275,8 +1305,6 @@ function newpoints_terminate(): bool
 
             $item_data = array_merge($item_data, $insert_data);
         }
-
-        $category_id = (int)($item_data['cid'] ?? 0);
 
         $categories_select = (function (int $selected_category) use ($item_data, $is_moderator): string {
             $select_options = '';
@@ -1373,6 +1401,14 @@ function newpoints_terminate(): bool
         $item_extra_rows = implode('', $item_extra_rows);
 
         $step = DECIMAL_DATA_TYPE_STEP;
+
+        $category_page = $mybb->get_input("page{$category_id}", MyBB::INPUT_INT);
+
+        $button_text = $lang->newpoints_shop_edit_item_button_update;
+
+        if ($is_add_page) {
+            $button_text = $lang->newpoints_shop_edit_item_button_create;
+        }
 
         $newpoints_content = eval(templates_get('item_add_edit_form'));
 
@@ -1479,7 +1515,7 @@ function newpoints_terminate(): bool
 
         if (!empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
             $purchase_item_url = url_handler_build([
-                'action' => get_setting('shop_action_name'),
+                'action' => $action_name,
                 'view' => 'purchase'
             ]);
 
@@ -1502,7 +1538,7 @@ function newpoints_terminate(): bool
             $user_id = $current_user_id;
         }
 
-        $url_params = ['action' => get_setting('shop_action_name'), 'view' => 'item'];
+        $url_params = ['action' => $action_name, 'view' => 'item'];
 
         $user_data = get_user($user_id);
 
@@ -1763,8 +1799,8 @@ function newpoints_terminate(): bool
         while ($category_data = $db->fetch_array($query)) {
             $categories_cache[] = [
                 'category_id' => (int)$category_data['cid'],
-                'name' => (string)$category_data['name'],
-                'description' => (string)$category_data['description'],
+                'category_name' => (string)$category_data['name'],
+                'category_description' => (string)$category_data['description'],
                 'is_visible' => (bool)$category_data['visible'],
                 'icon_url' => "{$upload_path}/{$category_data['icon']}",
                 'allowed_groups' => (string)$category_data['usergroups'],
@@ -1795,8 +1831,6 @@ function newpoints_terminate(): bool
                 ): array {
                     global $mybb, $db;
 
-                    $items_objects = [];
-
                     $where_clauses = ["cid='{$category_id}'"];
 
                     if (!$is_moderator) {
@@ -1804,17 +1838,17 @@ function newpoints_terminate(): bool
                     }
 
                     if ($mybb->get_input("page{$category_id}", MyBB::INPUT_INT) > 0) {
-                        $start_page = ($mybb->get_input("page{$category_id}", MyBB::INPUT_INT) - 1) * $per_page;
+                        $start_row = ($mybb->get_input("page{$category_id}", MyBB::INPUT_INT) - 1) * $per_page;
 
                         $total_pages = ceil($category_data['total_items'] / $per_page);
 
                         if ($mybb->get_input("page{$category_id}", MyBB::INPUT_INT) > $total_pages) {
-                            $start_page = 0;
+                            $start_row = 0;
 
                             $mybb->input["page{$category_id}"] = 1;
                         }
                     } else {
-                        $start_page = 0;
+                        $start_row = 0;
 
                         $mybb->input["page{$category_id}"] = 1;
                     }
@@ -1827,27 +1861,31 @@ function newpoints_terminate(): bool
                             'order_by' => 'disporder',
                             'order_dir' => 'ASC',
                             'limit' => $per_page,
-                            'limit_start' => $start_page
+                            'limit_start' => $start_row
                         ]
                     );
 
-                    while ($item = $db->fetch_array($query)) {
-                        $items_objects[] = [
-                            'item_id' => (int)$item['iid'],
-                            'name' => (string)$item['name'],
-                            'description' => (string)$item['description'],
-                            'price' => (float)$item['price'],
-                            'icon_url' => "{$upload_path}/{$item['icon']}",
-                            'is_visible' => (bool)$item['visible'],
-                            'is_infinite' => (bool)$item['infinite'],
-                            'stock' => (int)$item['stock'],
+                    $items_objects = [];
+
+                    while ($item_data = $db->fetch_array($query)) {
+                        $item_id = (int)$item_data['iid'];
+
+                        $items_objects[$item_id] = [
+                            'item_id' => $item_id,
+                            'item_name' => (string)$item_data['name'],
+                            'item_description' => (string)$item_data['description'],
+                            'item_price' => (float)$item_data['price'],
+                            'icon_url' => !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : '',
+                            'is_visible' => (bool)$item_data['visible'],
+                            'is_infinite' => (bool)$item_data['infinite'],
+                            'item_stock' => (int)$item_data['stock'],
                             'allowed_groups' => -1
                         ];
                     }
 
                     return $items_objects;
                 },
-                'type' => 'shop',
+                'category_type' => 'shop',
                 'display_options' => true,
                 'force_display' => true
             ];
@@ -1898,9 +1936,9 @@ function newpoints_terminate(): bool
 
             $expanded_alternative_text = !empty($collapsed["{$collapsed_name}_e"]) ? $lang->expcol_expand : $lang->expcol_collapse;
 
-            $category_description = htmlspecialchars_uni($category_data['description']);
+            $category_description = htmlspecialchars_uni($category_data['category_description']);
 
-            $category_name = htmlspecialchars_uni($category_data['name']);
+            $category_name = htmlspecialchars_uni($category_data['category_name']);
 
             $category_icon = '';
 
@@ -1914,7 +1952,7 @@ function newpoints_terminate(): bool
 
             $alternative_background = alt_trow();
 
-            $category_type = $category_data['type'] ?? 'shop';
+            $category_type = $category_data['category_type'] ?? 'shop';
 
             $column_span = 5;
 
@@ -1960,17 +1998,17 @@ function newpoints_terminate(): bool
                     if (!empty($item_data['is_infinite'])) {
                         $item_stock = $lang->newpoints_shop_infinite;
                     } else {
-                        $item_stock = my_number_format($item_data['stock']);
+                        $item_stock = my_number_format($item_data['item_stock']);
                     }
 
-                    $item_name = htmlspecialchars_uni($item_data['name']);
+                    $item_name = htmlspecialchars_uni($item_data['item_name']);
 
                     $item_description = post_parser_parse_message(
-                        $item_data['description'],
+                        $item_data['item_description'],
                         ['allow_imgcode' => false]
                     );
 
-                    $item_price = (float)$item_data['price'] * ($items_rate / 100);
+                    $item_price = (float)$item_data['item_price'] * ($items_rate / 100);
 
                     if ($item_price > $mybb->user['newpoints']) {
                         $price_class = 'insufficient_funds';
@@ -2012,7 +2050,7 @@ function newpoints_terminate(): bool
 
                     if (!empty($mybb->usergroup['newpoints_shop_can_purchase'])) {
                         $purchase_item_url = url_handler_build([
-                            'action' => get_setting('shop_action_name'),
+                            'action' => $action_name,
                             'view' => 'purchase'
                         ]);
 
@@ -2025,6 +2063,8 @@ function newpoints_terminate(): bool
                             'view' => 'edit_item',
                             'item_id' => $item_id
                         ]);
+
+                        $category_page = $mybb->get_input("page{$category_id}", MyBB::INPUT_INT);
 
                         $item_extra_columns[] = eval(templates_get('item_row_options'));
                     }

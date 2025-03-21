@@ -44,6 +44,8 @@ const FILE_UPLOAD_ERROR_UPLOAD_SIZE = 3;
 
 const FILE_UPLOAD_ERROR_RESIZE = 4;
 
+const GROUPS_PERMISSION_ALL = -1;
+
 function templates_get(string $template_name = '', bool $enable_html_comments = true): string
 {
     return \Newpoints\Core\templates_get($template_name, $enable_html_comments, ROOT, 'shop_');

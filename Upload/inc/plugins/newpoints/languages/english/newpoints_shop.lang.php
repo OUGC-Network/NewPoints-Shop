@@ -158,6 +158,7 @@ $l = array_merge($l, [
 
     'newpoints_shop_add_category' => 'Add Category',
     'newpoints_shop_add_category_table_title' => 'Add Category',
+    'newpoints_shop_add_category_button_create' => 'Create Category',
 
     'newpoints_shop_edit_category' => 'Edit Category',
     'newpoints_shop_edit_category_table_title' => 'Edit Category',
@@ -168,6 +169,7 @@ $l = array_merge($l, [
     'newpoints_shop_edit_category_table_category_description_description' => 'Set a short description for this category.',
     'newpoints_shop_edit_category_table_category_category' => 'Allowed Groups',
     'newpoints_shop_edit_category_table_category_category_description' => 'Select the groups allowed to navigate (purchase, send, sell, and view items) this category.',
+    'newpoints_shop_edit_category_table_category_category_all' => 'All Groups',
     'newpoints_shop_edit_category_table_category_icon_file' => 'Category Icon',
     'newpoints_shop_edit_category_table_category_icon_file_description' => 'Upload an image for this category.',
     'newpoints_shop_edit_category_table_category_icon_file_description_note' => 'Current file icon will be replaced if a new file is uploaded.',
@@ -177,8 +179,9 @@ $l = array_merge($l, [
     'newpoints_shop_edit_category_table_category_is_visible_description' => 'Is this category visible to users?',
     'newpoints_shop_edit_category_button_update' => 'Update Category',
 
-    'newpoints_shop_add_item' => 'Add Item',
-    'newpoints_shop_add_item_table_title' => 'Add Item',
+    'newpoints_shop_add_item' => 'Create Item',
+    'newpoints_shop_add_item_table_title' => 'Create Item',
+    'newpoints_shop_edit_item_button_create' => 'Create Item',
 
     'newpoints_shop_edit_item' => 'Edit Item',
     'newpoints_shop_edit_item_table_title' => 'Edit Item',

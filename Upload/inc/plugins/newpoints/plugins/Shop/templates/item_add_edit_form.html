@@ -3,6 +3,7 @@
     <input type="hidden" name="action" value="{$action_name}">
     <input type="hidden" name="view" value="{$mybb->input['view']}">
     <input type="hidden" name="item_id" value="{$item_id}">
+    <input type="hidden" name="page{$category_id}" value="{$category_page}">
     <table border="0" cellspacing="0" cellpadding="5" class="tborder">
         <tbody>
         <tr>
@@ -185,6 +186,6 @@
     </table>
     <br>
     <div align="center">
-        <input type="submit" class="button" value="{$lang->newpoints_shop_edit_item_button_update}">
+        <input type="submit" class="button" value="{$button_text}">
     </div>
 </form>

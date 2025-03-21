@@ -1,6 +1,7 @@
 <td class="{$alternative_background}" align="center" valign="middle">
     <form action="{$mybb->settings['bburl']}/{$newpoints_file}" method="get" id="categoryForm{$item_id}"></form>
     <input type="hidden" name="action" value="{$action_name}" form="categoryForm{$item_id}">
+    <input type="hidden" name="page{$category_id}" value="{$category_page}" form="categoryForm{$item_id}">
     <select name="view" form="categoryForm{$item_id}">
         <option value="edit_item">{$lang->newpoints_shop_category_thead_options_edit}</option>
         <option value="delete_item">{$lang->newpoints_shop_category_thead_options_delete}</option>
