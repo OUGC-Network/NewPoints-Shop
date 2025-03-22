@@ -1694,7 +1694,13 @@ function newpoints_terminate(): bool
 
             $hook_arguments['category_data'] = &$category_data;
 
+            $button_extra = [];
+
+            $hook_arguments['button_extra'] = &$button_extra;
+
             $hook_arguments = run_hooks('shop_my_items_item_start', $hook_arguments);
+
+            $button_extra = implode('', $button_extra);
 
             $option_buttons = $button_sell = $button_send = '';
 
@@ -1706,7 +1712,7 @@ function newpoints_terminate(): bool
                 $button_sell = eval(templates_get('my_items_row_options_sell'));
             }
 
-            if ($button_send && $button_sell) {
+            if ($button_send || $button_sell || $button_extra) {
                 $option_buttons = eval(templates_get('my_items_row_options'));
             }
 

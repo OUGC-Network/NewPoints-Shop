@@ -315,7 +315,7 @@ function items_get_visible(int $user_id = 0): array
 
     $user_data = get_user($user_id);
 
-    $is_moderator = is_member(get_setting('shop_manage_groups'));
+    $is_moderator = is_member(get_setting('shop_manage_groups'), $user_data);
 
     $where_clauses = $group_conditional = [];
 
@@ -328,6 +328,8 @@ function items_get_visible(int $user_id = 0): array
     if (!empty($user_data['additionalgroups'])) {
         $user_groups .= ',' . $user_data['additionalgroups'];
     }
+
+    $group_conditional[] = "usergroups='-1'";
 
     foreach (explode(',', $user_groups) as $user_group_id) {
         $user_group_id = (int)$user_group_id;
