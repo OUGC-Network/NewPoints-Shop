@@ -1,3 +1,9 @@
+<p align="center">
+    <a href="" rel="noopener">
+        <img width="700" height="400" src="https://github.com/user-attachments/assets/e569462f-29b1-4222-b5a3-7fef70a02642" alt="Project logo">
+    </a>
+</p>
+
 <h3 align="center">NewPoints Shop</h3>
 
 <div align="center">
