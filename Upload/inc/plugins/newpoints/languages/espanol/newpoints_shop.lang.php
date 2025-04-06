@@ -272,4 +272,9 @@ $l = array_merge($l, [
     'newpoints_shop_page_logs_shop_item_received' => 'Artículo de la Tienda Recibido',
     'newpoints_shop_page_logs_shop_sell' => 'Venta en la Tienda',
     'newpoints_shop_page_logs_shop_quick_item_delete' => 'Artículo de la Tienda Eliminado',
+
+    'newpoints_shop_page_logs_shop_table_log_user_item_id' => 'Identificador del artículo del usuario: {1}',
+    'newpoints_shop_page_logs_shop_table_log_moderator' => 'Moderador: {1}',
+    'newpoints_shop_page_logs_shop_table_log_user' => 'Usuario: {1}',
+    'newpoints_shop_page_logs_shop_table_log_user_recipient' => 'Destinatario: {1}',
 ]);

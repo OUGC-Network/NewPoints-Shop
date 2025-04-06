@@ -203,9 +203,93 @@ function newpoints_logs_log_row(): bool
 
     $user_item_id = (int)$log_data['log_primary_id'];
 
+    $log_primary = $lang->sprintf(
+        $lang->newpoints_shop_page_logs_shop_table_log_user_item_id,
+        my_number_format($user_item_id)
+    );
+
     $item_id = (int)$log_data['log_secondary_id'];
 
-    // todo, show item info
+    $item_data = item_get(["iid='{$item_id}'"], ['name', 'icon']);
+
+    if ($item_data) {
+        $action_name = get_setting('shop_action_name');
+
+        $upload_path = (string)get_setting('shop_upload_path');
+
+        $item_name = htmlspecialchars_uni($item_data['name']);
+
+        $item_icon = $mybb->get_asset_url(
+            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+        );
+
+        $view_item_url = url_handler_build([
+            'action' => $action_name,
+            'view' => 'item',
+            'item_id' => $item_id
+        ]);
+
+        $log_secondary = eval(templates_get('view_item_icon'));
+    }
+
+    if ($log_data['action'] === 'shop_send') {
+        $recipient_user_id = (int)$log_data['log_tertiary_id'];
+
+        $user_data = get_user($recipient_user_id);
+
+        $log_tertiary = $lang->sprintf(
+            $lang->newpoints_shop_page_logs_shop_table_log_user_recipient,
+            build_profile_link(
+                format_name(
+                    htmlspecialchars_uni($user_data['username']),
+                    (int)$user_data['usergroup'],
+                    (int)$user_data['displaygroup']
+                ),
+                (int)$user_data['uid']
+            )
+        );
+    }
+
+    if ($log_data['action'] === 'shop_item_received') {
+        $sender_user_id = (int)$log_data['log_tertiary_id'];
+
+        $user_data = get_user($sender_user_id);
+
+        $log_tertiary = $lang->sprintf(
+            $lang->newpoints_shop_page_logs_shop_table_log_user,
+            build_profile_link(
+                format_name(
+                    htmlspecialchars_uni($user_data['username']),
+                    (int)$user_data['usergroup'],
+                    (int)$user_data['displaygroup']
+                ),
+                (int)$user_data['uid']
+            )
+        );
+    }
+
+    if ($log_data['action'] === 'shop_sell') {
+        //$items_rate = (float)$log_data['log_tertiary_id'];
+        //todo, remove this log id as floats are not supported
+    }
+
+    if ($log_data['action'] === 'shop_sell') {
+        $moderator_user_id = (int)$log_data['log_tertiary_id'];
+
+        $user_data = get_user($moderator_user_id);
+
+        $log_tertiary = $lang->sprintf(
+            $lang->newpoints_shop_page_logs_shop_table_log_moderator,
+            build_profile_link(
+                format_name(
+                    htmlspecialchars_uni($user_data['username']),
+                    (int)$user_data['usergroup'],
+                    (int)$user_data['displaygroup']
+                ),
+                (int)$user_data['uid']
+            )
+        );
+    }
 
     return true;
 }
