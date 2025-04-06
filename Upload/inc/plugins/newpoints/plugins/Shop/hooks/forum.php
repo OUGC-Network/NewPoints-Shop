@@ -176,7 +176,7 @@ function newpoints_logs_log_row(): bool
         return false;
     }
 
-    global $lang;
+    global $mybb, $lang;
     global $log_action, $log_primary, $log_secondary, $log_tertiary;
 
     language_load('shop');
@@ -626,7 +626,7 @@ function newpoints_terminate(): bool
                 if ($user_item_id) {
                     $user_items_data = user_items_get(
                         ["user_id='{$current_user_id}'", "user_item_id='{$user_item_id}'"],
-                        [],
+                        ['item_id'],
                         ['limit' => 1]
                     );
 
