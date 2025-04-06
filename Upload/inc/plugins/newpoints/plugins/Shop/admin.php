@@ -491,13 +491,13 @@ function recount_rebuild_legacy_storage()
 {
     global $db, $mybb, $lang;
 
-    $query = $db->simple_select('users', 'COUNT(*) as total_users');
+    $query = $db->simple_select('users', 'COUNT(uid) as total_users', "newpoints_items!=''");
 
     $total_users = $db->fetch_field($query, 'total_users');
 
     $page = $mybb->get_input('page', MyBB::INPUT_INT);
 
-    $per_page = $mybb->get_input('newpoints_recount', MyBB::INPUT_INT);
+    $per_page = $mybb->get_input('newpoints_recount_shop_user_items', MyBB::INPUT_INT);
 
     $start = ($page - 1) * $per_page;
 
@@ -507,8 +507,8 @@ function recount_rebuild_legacy_storage()
 
     $query = $db->simple_select(
         'users',
-        'uid,newpoints_items',
-        '',
+        'uid, newpoints_items',
+        "newpoints_items!=''",
         ['order_by' => 'uid', 'order_dir' => 'asc', 'limit_start' => $start, 'limit' => $per_page]
     );
 
@@ -533,6 +533,8 @@ function recount_rebuild_legacy_storage()
 
                 user_update($user_id, ['newpoints_items' => my_serialize($user_items)]);
             }
+        } else {
+            user_update($user_id, ['newpoints_items' => '']);
         }
 
         user_update_details($user_id);
@@ -543,8 +545,8 @@ function recount_rebuild_legacy_storage()
         $end,
         ++$page,
         $per_page,
-        'newpoints_recount',
-        'do_recount_newpoints',
+        'newpoints_recount_shop_user_items',
+        'do_rebuild_newpoints_shop_user_items',
         $lang->newpoints_recount_success
     );
 }
