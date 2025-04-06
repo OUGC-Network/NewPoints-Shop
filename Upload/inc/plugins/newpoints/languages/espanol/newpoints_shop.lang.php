@@ -27,249 +27,249 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-$l['newpoints_shop'] = 'Shop';
+$l['newpoints_shop'] = 'Tienda';
 
-$l['newpoints_shop_icon'] = 'Icon';
-$l['newpoints_shop_categories'] = 'Categories';
-$l['newpoints_shop_items'] = 'Items';
-$l['newpoints_shop_purchase'] = 'Purchase';
-$l['newpoints_shop_price'] = 'Price';
-$l['newpoints_shop_stock'] = 'Stock';
-$l['newpoints_shop_name'] = 'Name';
-$l['newpoints_shop_description'] = 'Description';
-$l['newpoints_shop_myitems'] = 'My Items';
-$l['newpoints_shop_items_username'] = '{1}\'s Items';
-$l['newpoints_shop_send'] = 'Send';
-$l['newpoints_shop_sell'] = 'Sell';
-$l['newpoints_shop_infinite'] = 'Infinite';
-$l['newpoints_shop_options'] = 'Options';
-$l['newpoints_shop_quantity'] = 'Quantity';
-$l['newpoints_shop_limit_user'] = 'Limit per User';
-$l['newpoints_shop_confirm'] = 'Confirm';
-$l['newpoints_shop_send_item'] = 'Send Item';
-$l['newpoints_shop_send_item_username'] = 'Username';
-$l['newpoints_shop_sell_item'] = 'Sell Item';
-$l['newpoints_shop_yes'] = 'Yes';
+$l['newpoints_shop_icon'] = 'Ícono';
+$l['newpoints_shop_categories'] = 'Categorías';
+$l['newpoints_shop_items'] = 'Artículos';
+$l['newpoints_shop_purchase'] = 'Comprar';
+$l['newpoints_shop_price'] = 'Precio';
+$l['newpoints_shop_stock'] = 'Inventario';
+$l['newpoints_shop_name'] = 'Nombre';
+$l['newpoints_shop_description'] = 'Descripción';
+$l['newpoints_shop_myitems'] = 'Mis Artículos';
+$l['newpoints_shop_items_username'] = 'Artículos de {1}';
+$l['newpoints_shop_send'] = 'Enviar';
+$l['newpoints_shop_sell'] = 'Vender';
+$l['newpoints_shop_infinite'] = 'Infinito';
+$l['newpoints_shop_options'] = 'Opciones';
+$l['newpoints_shop_quantity'] = 'Cantidad';
+$l['newpoints_shop_limit_user'] = 'Límite por Usuario';
+$l['newpoints_shop_confirm'] = 'Confirmar';
+$l['newpoints_shop_send_item'] = 'Enviar Artículo';
+$l['newpoints_shop_send_item_username'] = 'Nombre de Usuario';
+$l['newpoints_shop_sell_item'] = 'Vender Artículo';
+$l['newpoints_shop_yes'] = 'Sí';
 $l['newpoints_shop_no'] = 'No';
-$l['newpoints_shop_view_item'] = 'View Item';
-$l['newpoints_shop_sendable'] = 'Sendable';
-$l['newpoints_shop_sellable'] = 'Sellable';
+$l['newpoints_shop_view_item'] = 'Ver Artículo';
+$l['newpoints_shop_sendable'] = 'Enviable';
+$l['newpoints_shop_sellable'] = 'Vendible';
 
 // Profile
-$l['newpoints_shop_edit_inventory'] = 'Edit Inventory';
+$l['newpoints_shop_edit_inventory'] = 'Editar Inventario';
 
 // Error messages
-$l['newpoints_shop_invalid_item'] = 'Invalid item';
-$l['newpoints_shop_invalid_cat'] = 'Invalid category';
-$l['newpoints_shop_outofstock'] = 'The item you selected is out of stock.';
-$l['newpoints_shop_not_enough'] = 'You do not have enough points to purchase the selected item.';
-$l['newpoints_shop_inline_errors'] = 'The following errors have occurred:';
-$l['newpoints_shop_inventory_empty'] = 'Your inventory is empty.';
-$l['newpoints_shop_selected_item_not_owned'] = 'You do not own the selected item.';
-$l['newpoints_shop_invalid_user'] = 'You have selected an invalid user.';
-$l['newpoints_shop_out_of_stock'] = 'Item out of stock';
-$l['newpoints_shop_user_limit_reached'] = 'You cannot purchase anymore items of this type.';
+$l['newpoints_shop_invalid_item'] = 'Artículo inválido';
+$l['newpoints_shop_invalid_cat'] = 'Categoría inválida';
+$l['newpoints_shop_outofstock'] = 'El artículo que seleccionaste está agotado.';
+$l['newpoints_shop_not_enough'] = 'No tienes suficientes puntos para comprar el artículo seleccionado.';
+$l['newpoints_shop_inline_errors'] = 'Han ocurrido los siguientes errores:';
+$l['newpoints_shop_inventory_empty'] = 'Tu inventario está vacío.';
+$l['newpoints_shop_selected_item_not_owned'] = 'No eres dueño del artículo seleccionado.';
+$l['newpoints_shop_invalid_user'] = 'Has seleccionado un usuario inválido.';
+$l['newpoints_shop_out_of_stock'] = 'Artículo agotado';
+$l['newpoints_shop_user_limit_reached'] = 'No puedes comprar más artículos de este tipo.';
 
 // Success messages
-$l['newpoints_shop_item_bought'] = 'You have successfully bought the selected item.<br />You will now be redirected back to the previous page.';
-$l['newpoints_shop_item_bought_title'] = 'Item bought';
-$l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.<br />You will now be redirected back to the previous page.';
-$l['newpoints_shop_item_sent_title'] = 'Item sent';
-$l['newpoints_shop_item_sell'] = 'You have successfully sold the selected item.<br />You will now be redirected back to the previous page.';
-$l['newpoints_shop_item_sell_title'] = 'Item sold';
+$l['newpoints_shop_item_bought'] = 'Has comprado el artículo seleccionado con éxito.<br />Ahora serás redirigido a la página anterior.';
+$l['newpoints_shop_item_bought_title'] = 'Artículo comprado';
+$l['newpoints_shop_item_sent'] = 'Has enviado el artículo seleccionado con éxito.<br />Ahora serás redirigido a la página anterior.';
+$l['newpoints_shop_item_sent_title'] = 'Artículo enviado';
+$l['newpoints_shop_item_sell'] = 'Has vendido el artículo seleccionado con éxito.<br />Ahora serás redirigido a la página anterior.';
+$l['newpoints_shop_item_sell_title'] = 'Artículo vendido';
 
 // Other messages
-$l['newpoints_shop_no_items'] = 'No items found.';
-$l['newpoints_shop_no_cats'] = 'No categories found.';
-$l['newpoints_shop_no_options'] = 'No options available.';
-$l['newpoints_shop_send_item_message'] = 'Enter the name of the user you want to send the item to.';
-$l['newpoints_shop_sell_item_confirm'] = 'Are you sure you want to sell the item "{1}" for {2}?';
-$l['newpoints_shop_bought_item_pm_subject'] = 'You have bought an item';
-$l['newpoints_shop_bought_item_pmadmin_subject'] = 'User bought an item';
-$l['newpoints_shop_confirm_purchase'] = 'Are you sure you want to purchase this item?';
+$l['newpoints_shop_no_items'] = 'No se encontraron artículos.';
+$l['newpoints_shop_no_cats'] = 'No se encontraron categorías.';
+$l['newpoints_shop_no_options'] = 'No hay opciones disponibles.';
+$l['newpoints_shop_send_item_message'] = 'Ingresa el nombre del usuario al que deseas enviar el artículo.';
+$l['newpoints_shop_sell_item_confirm'] = '¿Estás seguro de que deseas vender el artículo "{1}" por {2}?';
+$l['newpoints_shop_bought_item_pm_subject'] = 'Has comprado un artículo';
+$l['newpoints_shop_bought_item_pmadmin_subject'] = 'El usuario compró un artículo';
+$l['newpoints_shop_confirm_purchase'] = '¿Estás seguro de que deseas comprar este artículo?';
 
 // Log
-$l['newpoints_shop_purchased_log'] = '{1}-{2}-(first number = item id, second number = price)';
-$l['newpoints_shop_sent_log'] = '{1}-{2}-{3}-(first number = item id, second number = user id and third = user name)';
-$l['newpoints_shop_sell_log'] = '{1}-{2}-(first number = item id, second number = price the item was sold for)';
+$l['newpoints_shop_purchased_log'] = '{1}-{2}-(primer número = id del artículo, segundo número = precio)';
+$l['newpoints_shop_sent_log'] = '{1}-{2}-{3}-(primer número = id del artículo, segundo número = id del usuario y tercero = nombre del usuario)';
+$l['newpoints_shop_sell_log'] = '{1}-{2}-(primer número = id del artículo, segundo número = precio por el que se vendió el artículo)';
 
 // Statistics
-$l['newpoints_shop_item'] = 'Item';
-$l['newpoints_shop_username'] = 'User';
-$l['newpoints_shop_user'] = 'User';
-$l['newpoints_shop_price'] = 'Price';
-$l['newpoints_shop_date'] = 'Date';
-$l['newpoints_shop_lastpurchases'] = 'Last Purchases';
-$l['newpoints_shop_no_purchases'] = 'No purchases were found.';
+$l['newpoints_shop_item'] = 'Artículo';
+$l['newpoints_shop_username'] = 'Usuario';
+$l['newpoints_shop_user'] = 'Usuario';
+$l['newpoints_shop_price'] = 'Precio';
+$l['newpoints_shop_date'] = 'Fecha';
+$l['newpoints_shop_lastpurchases'] = 'Últimas Compras';
+$l['newpoints_shop_no_purchases'] = 'No se encontraron compras.';
 
 // Private Messages
-$l['newpoints_shop_item_received_title'] = 'Item Received';
-$l['newpoints_shop_item_received'] = '{1} has sent you the item {2}.';
+$l['newpoints_shop_item_received_title'] = 'Artículo Recibido';
+$l['newpoints_shop_item_received'] = '{1} te ha enviado el artículo {2}.';
 
 // Profile
-$l['newpoints_shop_view_all_items'] = 'View All Items';
-$l['newpoints_shop_user_no_items'] = 'This user has no items.';
+$l['newpoints_shop_view_all_items'] = 'Ver Todos los Artículos';
+$l['newpoints_shop_user_no_items'] = 'Este usuario no tiene artículos.';
 
-$l['newpoints_shop_cant_send_item_self'] = 'You cannot send an item to yourself.';
+$l['newpoints_shop_cant_send_item_self'] = 'No puedes enviarte un artículo a ti mismo.';
 
 $l = array_merge($l, [
-    'newpoints_shop_menu_title' => 'Shop',
+    'newpoints_shop_menu_title' => 'Tienda',
 
-    'newpoints_buttons_my_items' => 'My Items',
-    'newpoints_buttons_add_category' => 'Add Category',
+    'newpoints_buttons_my_items' => 'Mis Artículos',
+    'newpoints_buttons_add_category' => 'Agregar Categoría',
 
-    'newpoints_shop_profile_items' => 'Items',
-    'newpoints_shop_profile_items_empty' => 'This user has no items.',
-    'newpoints_shop_profile_items_view_all' => 'View All Items',
+    'newpoints_shop_profile_items' => 'Artículos',
+    'newpoints_shop_profile_items_empty' => 'Este usuario no tiene artículos.',
+    'newpoints_shop_profile_items_view_all' => 'Ver Todos los Artículos',
 
-    'newpoints_shop_post_items' => 'Items',
-    'newpoints_shop_post_items_empty' => 'This user has no items.',
-    'newpoints_shop_post_items_view_all' => 'View All Items',
+    'newpoints_shop_post_items' => 'Artículos',
+    'newpoints_shop_post_items_empty' => 'Este usuario no tiene artículos.',
+    'newpoints_shop_post_items_view_all' => 'Ver Todos los Artículos',
 
-    'newpoints_shop_quick_edit' => 'Shop Items',
-    'newpoints_shop_quick_edit_description' => 'Select the items you want to remove from this user.',
+    'newpoints_shop_quick_edit' => 'Editar Artículos',
+    'newpoints_shop_quick_edit_description' => 'Selecciona los artículos que deseas eliminar de este usuario.',
 
-    'newpoints_shop_stats_empty' => 'No purchases were found.',
+    'newpoints_shop_stats_empty' => 'No se encontraron compras.',
 
-    'newpoints_shop_confirm_purchase_description' => ' Are you sure you want to purchase the selected item? ',
-    'newpoints_shop_confirm_purchase_item' => 'Item',
-    'newpoints_shop_confirm_purchase_price' => 'Price',
+    'newpoints_shop_confirm_purchase_description' => '¿Estás seguro de que deseas comprar el artículo seleccionado?',
+    'newpoints_shop_confirm_purchase_item' => 'Artículo',
+    'newpoints_shop_confirm_purchase_price' => 'Precio',
 
-    'newpoints_shop_confirm_send_title' => 'Send Item',
-    'newpoints_shop_confirm_send_description' => ' Are you sure you want to send the selected item? ',
-    'newpoints_shop_confirm_send_button' => 'Send Item',
+    'newpoints_shop_confirm_send_title' => 'Enviar Artículo',
+    'newpoints_shop_confirm_send_description' => '¿Estás seguro de que deseas enviar el artículo seleccionado?',
+    'newpoints_shop_confirm_send_button' => 'Enviar Artículo',
 
-    'newpoints_shop_confirm_sell_title' => 'Sell Item',
-    'newpoints_shop_confirm_sell_description' => ' Are you sure you want to sell the selected item? ',
-    'newpoints_shop_confirm_sell_button' => 'Sell Item',
+    'newpoints_shop_confirm_sell_title' => 'Vender Artículo',
+    'newpoints_shop_confirm_sell_description' => '¿Estás seguro de que deseas vender el artículo seleccionado?',
+    'newpoints_shop_confirm_sell_button' => 'Vender Artículo',
 
-    'newpoints_shop_category_empty' => 'There are currently no items in this category.',
-    'newpoints_shop_category_edit_category' => 'Edit Category',
-    'newpoints_shop_category_delete_category' => 'Delete Category',
-    'newpoints_shop_category_add_item' => 'Add Item',
-    'newpoints_shop_category_thead_icon' => 'Icon',
-    'newpoints_shop_category_thead_name' => 'Name',
-    'newpoints_shop_category_thead_price' => 'Price',
-    'newpoints_shop_category_thead_stock' => 'Stock',
-    'newpoints_shop_category_thead_purchase' => 'Purchase',
-    'newpoints_shop_category_thead_options' => 'Options',
-    'newpoints_shop_category_thead_options_edit' => 'Edit',
-    'newpoints_shop_category_thead_options_delete' => 'Delete',
+    'newpoints_shop_category_empty' => 'Actualmente no hay artículos en esta categoría.',
+    'newpoints_shop_category_edit_category' => 'Editar Categoría',
+    'newpoints_shop_category_delete_category' => 'Eliminar Categoría',
+    'newpoints_shop_category_add_item' => 'Agregar Artículo',
+    'newpoints_shop_category_thead_icon' => 'Ícono',
+    'newpoints_shop_category_thead_name' => 'Nombre',
+    'newpoints_shop_category_thead_price' => 'Precio',
+    'newpoints_shop_category_thead_stock' => 'Inventario',
+    'newpoints_shop_category_thead_purchase' => 'Comprar',
+    'newpoints_shop_category_thead_options' => 'Opciones',
+    'newpoints_shop_category_thead_options_edit' => 'Editar',
+    'newpoints_shop_category_thead_options_delete' => 'Eliminar',
 
-    'newpoints_shop_add_category' => 'Add Category',
-    'newpoints_shop_add_category_table_title' => 'Add Category',
-    'newpoints_shop_add_category_button_create' => 'Create Category',
+    'newpoints_shop_add_category' => 'Agregar Categoría',
+    'newpoints_shop_add_category_table_title' => 'Agregar Categoría',
+    'newpoints_shop_add_category_button_create' => 'Crear Categoría',
 
-    'newpoints_shop_edit_category' => 'Edit Category',
-    'newpoints_shop_edit_category_table_title' => 'Edit Category',
-    'newpoints_shop_edit_category_table_description' => 'Use the form below to update the selected category.',
-    'newpoints_shop_edit_category_table_category_name' => 'Category Name',
-    'newpoints_shop_edit_category_table_category_name_description' => 'Set a short name for this category. ',
-    'newpoints_shop_edit_category_table_category_description' => 'Category Description',
-    'newpoints_shop_edit_category_table_category_description_description' => 'Set a short description for this category.',
-    'newpoints_shop_edit_category_table_category_category' => 'Allowed Groups',
-    'newpoints_shop_edit_category_table_category_category_description' => 'Select the groups allowed to navigate (purchase, send, sell, and view items) this category.',
-    'newpoints_shop_edit_category_table_category_category_all' => 'All Groups',
-    'newpoints_shop_edit_category_table_category_icon_file' => 'Category Icon',
-    'newpoints_shop_edit_category_table_category_icon_file_description' => 'Upload an image for this category.',
-    'newpoints_shop_edit_category_table_category_icon_file_description_note' => 'Current file icon will be replaced if a new file is uploaded.',
-    'newpoints_shop_edit_category_table_category_display_order' => 'Display Order',
-    'newpoints_shop_edit_category_table_category_display_order_description' => 'Set the display order for this category.',
-    'newpoints_shop_edit_category_table_category_is_visible' => 'Is Visible',
-    'newpoints_shop_edit_category_table_category_is_visible_description' => 'Is this category visible to users?',
-    'newpoints_shop_edit_category_button_update' => 'Update Category',
+    'newpoints_shop_edit_category' => 'Editar Categoría',
+    'newpoints_shop_edit_category_table_title' => 'Editar Categoría',
+    'newpoints_shop_edit_category_table_description' => 'Usa el formulario a continuación para actualizar la categoría seleccionada.',
+    'newpoints_shop_edit_category_table_category_name' => 'Nombre de la Categoría',
+    'newpoints_shop_edit_category_table_category_name_description' => 'Establece un nombre corto para esta categoría.',
+    'newpoints_shop_edit_category_table_category_description' => 'Descripción de la Categoría',
+    'newpoints_shop_edit_category_table_category_description_description' => 'Establece una descripción corta para esta categoría.',
+    'newpoints_shop_edit_category_table_category_category' => 'Grupos Permitidos',
+    'newpoints_shop_edit_category_table_category_category_description' => 'Selecciona los grupos permitidos para navegar (comprar, enviar, vender y ver artículos) en esta categoría.',
+    'newpoints_shop_edit_category_table_category_category_all' => 'Todos los Grupos',
+    'newpoints_shop_edit_category_table_category_icon_file' => 'Ícono de la Categoría',
+    'newpoints_shop_edit_category_table_category_icon_file_description' => 'Sube una imagen para esta categoría.',
+    'newpoints_shop_edit_category_table_category_icon_file_description_note' => 'El ícono del archivo actual será reemplazado si se sube un nuevo archivo.',
+    'newpoints_shop_edit_category_table_category_display_order' => 'Orden de Visualización',
+    'newpoints_shop_edit_category_table_category_display_order_description' => 'Establece el orden de visualización para esta categoría.',
+    'newpoints_shop_edit_category_table_category_is_visible' => '¿Es Visible?',
+    'newpoints_shop_edit_category_table_category_is_visible_description' => '¿Es esta categoría visible para los usuarios?',
+    'newpoints_shop_edit_category_button_update' => 'Actualizar Categoría',
 
-    'newpoints_shop_add_item' => 'Create Item',
-    'newpoints_shop_add_item_table_title' => 'Create Item',
-    'newpoints_shop_edit_item_button_create' => 'Create Item',
+    'newpoints_shop_add_item' => 'Crear Artículo',
+    'newpoints_shop_add_item_table_title' => 'Crear Artículo',
+    'newpoints_shop_edit_item_button_create' => 'Crear Artículo',
 
-    'newpoints_shop_edit_item' => 'Edit Item',
-    'newpoints_shop_edit_item_table_title' => 'Edit Item',
-    'newpoints_shop_edit_item_table_description' => 'Use the form below to update the selected item.',
-    'newpoints_shop_edit_item_table_item_name' => 'Item Name',
-    'newpoints_shop_edit_item_table_item_name_description' => 'Set a short name for this item. ',
-    'newpoints_shop_edit_item_table_item_description' => 'Item Description',
-    'newpoints_shop_edit_item_table_item_description_description' => 'Set a short description for this item.',
-    'newpoints_shop_edit_item_table_item_category' => 'Item Category',
-    'newpoints_shop_edit_item_table_item_category_description' => 'Select the category for this item.',
-    'newpoints_shop_edit_item_table_item_icon_file' => 'Item Icon',
-    'newpoints_shop_edit_item_table_item_icon_file_description' => 'Upload an image for this item.',
-    'newpoints_shop_edit_item_table_item_icon_file_description_note' => 'Current file icon will be replaced if a new file is uploaded.',
-    'newpoints_shop_edit_item_table_item_price' => 'Item Price',
-    'newpoints_shop_edit_item_table_item_price_description' => 'Set a price for this item.',
-    'newpoints_shop_edit_item_table_item_private_message' => 'Private Message Content',
-    'newpoints_shop_edit_item_table_item_private_message_description' => 'If not empty, will send a Private Message whenever this item is purchased.',
-    'newpoints_shop_edit_item_table_item_private_message_note' => '{user_name} = Username
-{item_name} = Item name
-{item_id} = Item ID
-{item_image} = Image',
-    'newpoints_shop_edit_item_table_item_private_message_admin' => 'Private Message Content',
-    'newpoints_shop_edit_item_table_item_private_message_admin_description' => 'If not empty, will send a Private Message to shop managers whenever this item is purchased.',
-    'newpoints_shop_edit_item_table_item_private_message_admin_note' => '{user_name} = Username
-{item_name} = Item name
-{item_id} = Item ID
-{item_image} = Image',
-    'newpoints_shop_edit_item_table_item_display_order' => 'Display Order',
-    'newpoints_shop_edit_item_table_item_display_order_description' => 'Set the display order for this item.',
-    'newpoints_shop_edit_item_table_item_stock' => 'Item Stock',
-    'newpoints_shop_edit_item_table_item_stock_description' => 'Set a stock for this item.',
-    'newpoints_shop_edit_item_table_item_infinite' => 'Infinite Stock',
-    'newpoints_shop_edit_item_table_item_infinite_description' => 'Infinite Stock',
-    'newpoints_shop_edit_item_table_item_limit' => 'User Limit',
-    'newpoints_shop_edit_item_table_item_limit_description' => 'Set a limit for users to own at the same time.',
-    'newpoints_shop_edit_item_table_item_is_visible' => 'Is Visible',
-    'newpoints_shop_edit_item_table_item_is_visible_description' => 'Is this item visible to users?',
-    'newpoints_shop_edit_item_table_item_can_be_sent' => 'Can Be Sent',
-    'newpoints_shop_edit_item_table_item_can_be_sent_description' => 'Users can send this item to other users?',
-    'newpoints_shop_edit_item_table_item_can_be_sold' => 'Can Be Sold',
-    'newpoints_shop_edit_item_table_item_can_be_sold_description' => 'Users can sell this item back to other users?',
-    'newpoints_shop_edit_item_button_update' => 'Update Item',
+    'newpoints_shop_edit_item' => 'Editar Artículo',
+    'newpoints_shop_edit_item_table_title' => 'Editar Artículo',
+    'newpoints_shop_edit_item_table_description' => 'Usa el formulario a continuación para actualizar el artículo seleccionado.',
+    'newpoints_shop_edit_item_table_item_name' => 'Nombre del Artículo',
+    'newpoints_shop_edit_item_table_item_name_description' => 'Establece un nombre corto para este artículo.',
+    'newpoints_shop_edit_item_table_item_description' => 'Descripción del Artículo',
+    'newpoints_shop_edit_item_table_item_description_description' => 'Establece una descripción corta para este artículo.',
+    'newpoints_shop_edit_item_table_item_category' => 'Categoría del Artículo',
+    'newpoints_shop_edit_item_table_item_category_description' => 'Selecciona la categoría para este artículo.',
+    'newpoints_shop_edit_item_table_item_icon_file' => 'Ícono del Artículo',
+    'newpoints_shop_edit_item_table_item_icon_file_description' => 'Sube una imagen para este artículo.',
+    'newpoints_shop_edit_item_table_item_icon_file_description_note' => 'El ícono actual será reemplazado si se sube un nuevo archivo.',
+    'newpoints_shop_edit_item_table_item_price' => 'Precio del Artículo',
+    'newpoints_shop_edit_item_table_item_price_description' => 'Establece un precio para este artículo.',
+    'newpoints_shop_edit_item_table_item_private_message' => 'Contenido del Mensaje Privado',
+    'newpoints_shop_edit_item_table_item_private_message_description' => 'Si no está vacío, se enviará un mensaje privado cada vez que se compre este artículo.',
+    'newpoints_shop_edit_item_table_item_private_message_note' => '{user_name} = Nombre de usuario
+{item_name} = Nombre del artículo
+{item_id} = ID del artículo
+{item_image} = Imagen',
+    'newpoints_shop_edit_item_table_item_private_message_admin' => 'Contenido del Mensaje Privado',
+    'newpoints_shop_edit_item_table_item_private_message_admin_description' => 'Si no está vacío, se enviará un mensaje privado a los administradores de la tienda cada vez que se compre este artículo.',
+    'newpoints_shop_edit_item_table_item_private_message_admin_note' => '{user_name} = Nombre de usuario
+{item_name} = Nombre del artículo
+{item_id} = ID del artículo
+{item_image} = Imagen',
+    'newpoints_shop_edit_item_table_item_display_order' => 'Orden de Visualización',
+    'newpoints_shop_edit_item_table_item_display_order_description' => 'Establece el orden de visualización para este artículo.',
+    'newpoints_shop_edit_item_table_item_stock' => 'Inventario del Artículo',
+    'newpoints_shop_edit_item_table_item_stock_description' => 'Establece el stock para este artículo.',
+    'newpoints_shop_edit_item_table_item_infinite' => 'Stock Infinito',
+    'newpoints_shop_edit_item_table_item_infinite_description' => 'Stock Infinito',
+    'newpoints_shop_edit_item_table_item_limit' => 'Límite por Usuario',
+    'newpoints_shop_edit_item_table_item_limit_description' => 'Establece un límite para los usuarios para que tengan al mismo tiempo.',
+    'newpoints_shop_edit_item_table_item_is_visible' => '¿Es Visible?',
+    'newpoints_shop_edit_item_table_item_is_visible_description' => '¿Es este artículo visible para los usuarios?',
+    'newpoints_shop_edit_item_table_item_can_be_sent' => 'Puede Ser Enviado',
+    'newpoints_shop_edit_item_table_item_can_be_sent_description' => '¿Pueden los usuarios enviar este artículo a otros usuarios?',
+    'newpoints_shop_edit_item_table_item_can_be_sold' => 'Puede Ser Vendido',
+    'newpoints_shop_edit_item_table_item_can_be_sold_description' => '¿Pueden los usuarios vender este artículo de nuevo a otros usuarios?',
+    'newpoints_shop_edit_item_button_update' => 'Actualizar Artículo',
 
-    'newpoints_shop_redirect_category_add' => 'The selected category has been added successfully.<br/>You will now be redirected back to the previous page.',
-    'newpoints_shop_redirect_category_update' => 'The selected category has been updated successfully.<br/>You will now be redirected back to the previous page.',
-    'newpoints_shop_redirect_category_delete' => 'The selected category has been deleted successfully.<br/>You will now be redirected back to the previous page.',
-    'newpoints_shop_redirect_item_add' => 'The selected item has been added successfully.<br/>You will now be redirected back to the previous page.',
-    'newpoints_shop_redirect_item_update' => 'The selected item has been updated successfully.<br/>You will now be redirected back to the previous page.',
-    'newpoints_shop_redirect_item_delete' => 'The selected item has been deleted successfully.<br/>You will now be redirected back to the previous page.',
+    'newpoints_shop_redirect_category_add' => 'La categoría seleccionada se ha agregado correctamente.<br/>Ahora serás redirigido a la página anterior.',
+    'newpoints_shop_redirect_category_update' => 'La categoría seleccionada se ha actualizado correctamente.<br/>Ahora serás redirigido a la página anterior.',
+    'newpoints_shop_redirect_category_delete' => 'La categoría seleccionada se ha eliminado correctamente.<br/>Ahora serás redirigido a la página anterior.',
+    'newpoints_shop_redirect_item_add' => 'El artículo seleccionado se ha agregado correctamente.<br/>Ahora serás redirigido a la página anterior.',
+    'newpoints_shop_redirect_item_update' => 'El artículo seleccionado se ha actualizado correctamente.<br/>Ahora serás redirigido a la página anterior.',
+    'newpoints_shop_redirect_item_delete' => 'El artículo seleccionado se ha eliminado correctamente.<br/>Ahora serás redirigido a la página anterior.',
 
-    'newpoints_shop_error_invalid_item_name' => 'The selected name is invalid.',
-    'newpoints_shop_error_invalid_item_icon' => 'The selected icon file is invalid.',
-    'newpoints_shop_error_invalid_item_category' => 'The selected category is invalid.',
+    'newpoints_shop_error_invalid_item_name' => 'El nombre seleccionado no es válido.',
+    'newpoints_shop_error_invalid_item_icon' => 'El archivo de ícono seleccionado no es válido.',
+    'newpoints_shop_error_invalid_item_category' => 'La categoría seleccionada no es válida.',
 
-    'newpoints_shop_confirm_category_delete_title' => 'Confirm Category Delete',
-    'newpoints_page_confirm_category_delete_text' => 'Are you sure you want to delete the selected category?',
-    'newpoints_shop_confirm_category_delete_button' => 'Confirm Delete',
+    'newpoints_shop_confirm_category_delete_title' => 'Confirmar Eliminación de Categoría',
+    'newpoints_page_confirm_category_delete_text' => '¿Estás seguro de que quieres eliminar la categoría seleccionada?',
+    'newpoints_shop_confirm_category_delete_button' => 'Confirmar Eliminación',
 
-    'newpoints_shop_confirm_item_delete_title' => 'Confirm Item Delete',
-    'newpoints_page_confirm_item_delete_text' => 'Are you sure you want to delete the selected item?',
-    'newpoints_shop_confirm_item_delete_button' => 'Confirm Delete',
+    'newpoints_shop_confirm_item_delete_title' => 'Confirmar Eliminación de Artículo',
+    'newpoints_page_confirm_item_delete_text' => '¿Estás seguro de que quieres eliminar el artículo seleccionado?',
+    'newpoints_shop_confirm_item_delete_button' => 'Confirmar Eliminación',
 
-    'newpoints_shop_yes' => 'Yes',
+    'newpoints_shop_yes' => 'Sí',
     'newpoints_shop_no' => 'No',
 
-    'newpoints_alert_text_shop_item_received' => 'You received the "{1}" shop item from {2}.',
-    'newpoints_alert_text_shop_item_deleted' => 'The "{1}" shop item was deleted from your account.',
-    'newpoints_alert_text_shop_item_received_fallback' => 'You received a shop item from.',
-    'newpoints_alert_text_shop_item_deleted_fallback' => 'A shop item was deleted from your account.',
+    'newpoints_alert_text_shop_item_received' => 'Has recibido el artículo "{1}" de la tienda de {2}.',
+    'newpoints_alert_text_shop_item_deleted' => 'El artículo "{1}" de la tienda fue eliminado de tu cuenta.',
+    'newpoints_alert_text_shop_item_received_fallback' => 'Has recibido un artículo de la tienda de.',
+    'newpoints_alert_text_shop_item_deleted_fallback' => 'Un artículo de la tienda fue eliminado de tu cuenta.',
 
-    'myalerts_setting_newpoints_shop_item_received' => 'Receive alert when you receive a shop item?',
-    'myalerts_setting_newpoints_shop_item_deleted' => 'Receive alert when a shop item is deleted from my account?',
+    'myalerts_setting_newpoints_shop_item_received' => '¿Recibir alerta cuando recibas un artículo de la tienda?',
+    'myalerts_setting_newpoints_shop_item_deleted' => '¿Recibir alerta cuando un artículo de la tienda sea eliminado de mi cuenta?',
 
-    'newpoints_shop_dvz_stream_purchases' => 'Shop Purchases',
-    'newpoints_shop_dvz_stream_sends' => 'Shop Sends',
-    'newpoints_shop_dvz_stream_sales' => 'Shop Sales',
-    'newpoints_shop_dvz_stream_event_purchase' => 'Shop Item Purchased',
-    'newpoints_shop_dvz_stream_event_send' => 'Shop Item Sent',
-    'newpoints_shop_dvz_stream_event_sell' => 'Shop Item Sold',
-    'newpoints_shop_dvz_stream_purchased' => 'Purchased item {1} for {2} {3}.',
-    'newpoints_shop_dvz_stream_sent' => 'Sent item {1} to {2}.',
-    'newpoints_shop_dvz_stream_sold' => 'Sold item {1} for {2} {3}.',
+    'newpoints_shop_dvz_stream_purchases' => 'Compras en la Tienda',
+    'newpoints_shop_dvz_stream_sends' => 'Envíos de la Tienda',
+    'newpoints_shop_dvz_stream_sales' => 'Ventas en la Tienda',
+    'newpoints_shop_dvz_stream_event_purchase' => 'Artículo de la Tienda Comprado',
+    'newpoints_shop_dvz_stream_event_send' => 'Artículo de la Tienda Enviado',
+    'newpoints_shop_dvz_stream_event_sell' => 'Artículo de la Tienda Vendido',
+    'newpoints_shop_dvz_stream_purchased' => 'Compraste el artículo {1} por {2} {3}.',
+    'newpoints_shop_dvz_stream_sent' => 'Enviaste el artículo {1} a {2}.',
+    'newpoints_shop_dvz_stream_sold' => 'Vendiste el artículo {1} por {2} {3}.',
 
-    'newpoints_shop_wol_location' => 'Viewing <a href="{1}/{2}">Shop</a> page.',
+    'newpoints_shop_wol_location' => 'Viendo la página <a href="{1}/{2}">Tienda</a>.',
 
-    'newpoints_shop_page_logs_shop_purchase' => 'Shop Purchase',
-    'newpoints_shop_page_logs_shop_send' => 'Shop Item Sent',
-    'newpoints_shop_page_logs_shop_item_received' => 'Shop Item Received',
-    'newpoints_shop_page_logs_shop_sell' => 'Shop Sale',
-    'newpoints_shop_page_logs_shop_quick_item_delete' => 'Shop Item Deleted',
+    'newpoints_shop_page_logs_shop_purchase' => 'Compra en la Tienda',
+    'newpoints_shop_page_logs_shop_send' => 'Artículo de la Tienda Enviado',
+    'newpoints_shop_page_logs_shop_item_received' => 'Artículo de la Tienda Recibido',
+    'newpoints_shop_page_logs_shop_sell' => 'Venta en la Tienda',
+    'newpoints_shop_page_logs_shop_quick_item_delete' => 'Artículo de la Tienda Eliminado',
 ]);
