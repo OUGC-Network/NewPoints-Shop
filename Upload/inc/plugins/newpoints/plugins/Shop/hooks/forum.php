@@ -159,6 +159,11 @@ function newpoints_global_start(array &$hook_arguments): array
         'newpoints_shop_post',
     ]);
 
+    $hook_arguments['global'] = array_merge($hook_arguments['global'], [
+        'newpoints_shop_item_image',
+        'newpoints_shop_stream_item',
+    ]);
+
     return $hook_arguments;
 }
 
