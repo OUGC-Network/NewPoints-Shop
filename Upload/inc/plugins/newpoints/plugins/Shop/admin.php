@@ -300,8 +300,8 @@ function plugin_information(): array
         'website' => 'https://ougc.network',
         'author' => 'Diogo Parrinha',
         'authorsite' => 'https://ougc.network',
-        'version' => '3.0.0',
-        'versioncode' => 3000,
+        'version' => '3.0.1',
+        'versioncode' => 3001,
         'compatibility' => '3*',
         'codename' => 'newpoints_shop'
     ];
