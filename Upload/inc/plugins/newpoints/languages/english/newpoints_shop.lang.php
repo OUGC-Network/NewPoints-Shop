@@ -77,6 +77,8 @@ $l['newpoints_shop_item_sent'] = 'You have successfully sent the selected item.<
 $l['newpoints_shop_item_sent_title'] = 'Item sent';
 $l['newpoints_shop_item_sell'] = 'You have successfully sold the selected item.<br />You will now be redirected back to the previous page.';
 $l['newpoints_shop_item_sell_title'] = 'Item sold';
+$l['newpoints_shop_item_granted'] = 'You have successfully granted the selected item.<br />You will now be redirected back to the previous page.';
+$l['newpoints_shop_item_granted_title'] = 'Item granted';
 
 // Other messages
 $l['newpoints_shop_no_items'] = 'No items found.';
@@ -154,6 +156,7 @@ $l = array_merge($l, [
     'newpoints_shop_category_thead_purchase' => 'Purchase',
     'newpoints_shop_category_thead_options' => 'Options',
     'newpoints_shop_category_thead_options_edit' => 'Edit',
+    'newpoints_shop_category_thead_options_grant' => 'Grant',
     'newpoints_shop_category_thead_options_delete' => 'Delete',
 
     'newpoints_shop_add_category' => 'Add Category',
@@ -243,6 +246,11 @@ $l = array_merge($l, [
     'newpoints_shop_confirm_item_delete_title' => 'Confirm Item Delete',
     'newpoints_page_confirm_item_delete_text' => 'Are you sure you want to delete the selected item?',
     'newpoints_shop_confirm_item_delete_button' => 'Confirm Delete',
+
+    'newpoints_shop_confirm_item_grant_title' => 'Item Grant',
+    'newpoints_page_confirm_item_grant_text' => 'Are you sure you want to grant the selected item?',
+    'newpoints_shop_confirm_item_grant_button' => 'Confirm Grant',
+    'newpoints_shop_confirm_item_grant_username' => 'Username',
 
     'newpoints_shop_yes' => 'Yes',
     'newpoints_shop_no' => 'No',

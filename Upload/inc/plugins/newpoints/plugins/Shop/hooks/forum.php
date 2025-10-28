@@ -1236,6 +1236,139 @@ function newpoints_terminate(): bool
             $lang->newpoints_page_confirm_item_delete_text,
             'delete_item'
         );
+    } elseif ($mybb->get_input('view') === 'grant_item') {
+        if (!$is_moderator) {
+            error_no_permission();
+        }
+
+        $hook_arguments = run_hooks('shop_grant_item_start', $hook_arguments);
+
+        $item_id = $mybb->get_input('item_id', MyBB::INPUT_INT);
+
+        $item_data = item_get(["iid='{$item_id}'"], ['name', 'description', 'stock', 'infinite']);
+
+        $hook_arguments['item_data'] = &$item_data;
+
+        if (!$item_data) {
+            error_no_permission();
+        }
+
+        $item_name = htmlspecialchars_uni($item_data['name']);
+
+        $lang->newpoints_page_confirm_table_purchase_title = $lang->newpoints_shop_confirm_item_grant_title;
+
+        $lang->newpoints_page_confirm_table_purchase_button = $lang->newpoints_shop_confirm_item_grant_button;
+
+        $item_description = post_parser_parse_message($item_data['description'], ['allow_imgcode' => false]);
+
+        $user_name = $mybb->get_input('username');
+
+        $hook_arguments = run_hooks('shop_grant_item_intermediate', $hook_arguments);
+
+        if (isset($mybb->input['confirm'])) {
+            $user_data = users_get_by_username($user_name);
+
+            if (empty($user_data)) {
+                $errors[] = $lang->newpoints_shop_invalid_user;
+            }
+
+            if ((int)$user_data['uid'] === $current_user_id) {
+                $errors[] = $lang->newpoints_shop_cant_send_item_self;
+            }
+
+            if (empty($item_data['infinite']) && $item_data['stock'] < 1) {
+                $errors[] = $lang->newpoints_shop_out_of_stock;
+            }
+
+            $hook_arguments = run_hooks('shop_grant_item_start', $hook_arguments);
+
+            if (empty($errors)) {
+                $user_id = (int)$user_data['uid'];
+
+                $hook_arguments = run_hooks('shop_post_grant_item_start', $hook_arguments);
+
+                $insert_data = [
+                    'user_id' => $user_id,
+                    'item_id' => $item_id,
+                ];
+
+                $user_item_id = user_item_insert($insert_data);
+
+                if (empty($item_data['infinite'])) {
+                    item_update(['stock' => $item_data['stock'] - 1], $item_id);
+                }
+
+                $log_id = log_add(
+                    'shop_item_received',
+                    '',
+                    $user_data['username'] ?? '',
+                    $user_id,
+                    0,
+                    $user_item_id,
+                    $item_id,
+                    $current_user_id
+                );
+
+                alert_send($user_id, (int)$log_id, 'shop', 'item_received');
+
+                user_update_details($user_id);
+
+                private_message_send(
+                    [
+                        'subject' => $lang->newpoints_shop_item_received_title,
+                        'message' => $lang->sprintf(
+                            $lang->newpoints_shop_item_received,
+                            htmlspecialchars_uni($mybb->user['username']),
+                            $item_name
+                        ),
+                        'touid' => $user_id,
+                        'receivepms' => 1
+                    ],
+                    -1
+                );
+
+                $hook_arguments = run_hooks('shop_post_grant_item_end', $hook_arguments);
+
+                redirect(
+                    $mybb->settings['bburl'] . '/' . url_handler_build(['action' => $action_name]),
+                    $lang->newpoints_shop_item_granted,
+                    $lang->newpoints_shop_item_granted_title
+                );
+            } else {
+                $newpoints_errors = inline_error($errors);
+
+                unset($mybb->input['confirm']);
+            }
+
+            $user_name = htmlspecialchars_uni($user_name);
+        }
+
+        $message = $lang->sprintf(
+            $lang->newpoints_shop_sell_item_confirm . $lang->newpoints_page_confirm_item_grant_text . '---',
+            $item_name,
+        );
+
+        $upload_path = (string)get_setting('shop_upload_path');
+
+        $item_icon = $mybb->get_asset_url(
+            !empty($item_data['icon']) ? "{$upload_path}/{$item_data['icon']}" : 'images/newpoints/default.png'
+        );
+
+        $view_item_url = url_handler_build([
+            'action' => $action_name,
+            'view' => 'item',
+            'item_id' => $item_id
+        ]);
+
+        $item_icon = eval(templates_get('confirm_grant_icon'));
+
+        page_build_purchase_confirmation(
+            $lang->newpoints_page_confirm_item_grant_text,
+            'item_id',
+            $item_id,
+            'grant_item',
+            eval(templates_get('confirm_grant'))
+        );
     } elseif (in_array($mybb->get_input('view'), ['edit_item', 'add_item'])) {
         if (!$is_moderator) {
             error_no_permission();

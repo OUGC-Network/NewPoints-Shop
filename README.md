@@ -99,6 +99,8 @@ A setup that meets the following requirements is necessary to use this plugin.
    │ │ │ │ │ │ │ ├── category_pagination.html
    │ │ │ │ │ │ │ ├── category_thead_options.html
    │ │ │ │ │ │ │ ├── category_thead_purchase.html
+   │ │ │ │ │ │ │ ├── confirm_grant.html
+   │ │ │ │ │ │ │ ├── confirm_grant_icon.html
    │ │ │ │ │ │ │ ├── confirm_purchase.html
    │ │ │ │ │ │ │ ├── confirm_purchase_icon.html
    │ │ │ │ │ │ │ ├── confirm_sell.html

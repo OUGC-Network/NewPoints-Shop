@@ -77,6 +77,8 @@ $l['newpoints_shop_item_sent'] = 'Has enviado el artículo seleccionado con éxi
 $l['newpoints_shop_item_sent_title'] = 'Artículo enviado';
 $l['newpoints_shop_item_sell'] = 'Has vendido el artículo seleccionado con éxito.<br />Ahora serás redirigido a la página anterior.';
 $l['newpoints_shop_item_sell_title'] = 'Artículo vendido';
+$l['newpoints_shop_item_granted'] = 'Has otorgado el artículo seleccionado con éxito.<br />Ahora serás redirigido a la página anterior.';
+$l['newpoints_shop_item_granted_title'] = 'Artículo otorgado';
 
 // Other messages
 $l['newpoints_shop_no_items'] = 'No se encontraron artículos.';
@@ -154,6 +156,7 @@ $l = array_merge($l, [
     'newpoints_shop_category_thead_purchase' => 'Comprar',
     'newpoints_shop_category_thead_options' => 'Opciones',
     'newpoints_shop_category_thead_options_edit' => 'Editar',
+    'newpoints_shop_category_thead_options_grant' => 'Otorgar',
     'newpoints_shop_category_thead_options_delete' => 'Eliminar',
 
     'newpoints_shop_add_category' => 'Agregar Categoría',
@@ -243,6 +246,11 @@ $l = array_merge($l, [
     'newpoints_shop_confirm_item_delete_title' => 'Confirmar Eliminación de Artículo',
     'newpoints_page_confirm_item_delete_text' => '¿Estás seguro de que quieres eliminar el artículo seleccionado?',
     'newpoints_shop_confirm_item_delete_button' => 'Confirmar Eliminación',
+
+    'newpoints_shop_confirm_item_grant_title' => 'Otorgamiento de Artículo',
+    'newpoints_page_confirm_item_grant_text' => '¿Estás seguro de que quieres otorgar el artículo seleccionado?',
+    'newpoints_shop_confirm_item_grant_button' => 'Confirmar Otorgamiento',
+    'newpoints_shop_confirm_item_grant_username' => 'Usuario',
 
     'newpoints_shop_yes' => 'Sí',
     'newpoints_shop_no' => 'No',

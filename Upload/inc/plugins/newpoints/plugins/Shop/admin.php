@@ -419,6 +419,8 @@ function plugin_uninstallation(): bool
         'category_pagination',
         'category_thead_options',
         'category_thead_purchase',
+        'confirm_grant',
+        'confirm_grant_icon',
         'confirm_purchase',
         'confirm_purchase_icon',
         'confirm_sell',
